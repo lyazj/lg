@@ -257,7 +257,7 @@ void MazeGenerator::GenerateKruskal()
   }
   Shuffle(seq.data(), (GLint)seq.size());
 
-  int nclass = width * height;
+  GLint nclass = width * height;
   DisjointSet djset(nclass);
   for(GLint i = 0; nclass != 1 && i < (GLint)seq.size(); ++i) {
     GLint id = seq[i];

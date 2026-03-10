@@ -6,6 +6,7 @@
 #include "Global.h"
 
 enum class GLImageType {
+  UNKNOWN,
   RGB,
   RGBA,
 };
@@ -26,7 +27,7 @@ public:
   void SetType(GLImageType t) { type = t; }
 
 private:
-  GLint width, height;
+  GLint width = 0, height = 0;
   std::vector<byte> data;
-  GLImageType type;
+  GLImageType type = GLImageType::UNKNOWN;
 };

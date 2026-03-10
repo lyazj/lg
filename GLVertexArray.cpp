@@ -2,7 +2,11 @@
 
 using namespace std;
 
-GLVertexArray::GLVertexArray() { glGenVertexArrays(1, &id); }
+GLVertexArray::GLVertexArray()
+{
+  glGenVertexArrays(1, &id);
+  if(id == 0) abort();
+}
 
 GLVertexArray::~GLVertexArray() { glDeleteVertexArrays(1, &id); }
 
