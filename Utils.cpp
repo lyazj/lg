@@ -18,7 +18,16 @@ void GLCheckError()
   GLenum error = glGetError();
   if(error == GL_NO_ERROR) return;
   do {
-    cerr << "OpenGL error: " << error << endl;
+    const char *msg;
+    switch(error) {
+    case GL_INVALID_ENUM: msg = "GL_INVALID_ENUM"; break;
+    case GL_INVALID_VALUE: msg = "GL_INVALID_VALUE"; break;
+    case GL_INVALID_OPERATION: msg = "GL_INVALID_OPERATION"; break;
+    case GL_INVALID_FRAMEBUFFER_OPERATION: msg = "GL_INVALID_FRAMEBUFFER_OPERATION"; break;
+    case GL_OUT_OF_MEMORY: msg = "GL_OUT_OF_MEMORY"; break;
+    default: msg = "unknown"; break;
+    }
+    cerr << "OpenGL error: " << msg << " (0x" << hex << error << dec << ")" << endl;
   } while((error = glGetError()) != GL_NO_ERROR);
   exit(EXIT_FAILURE);
 }

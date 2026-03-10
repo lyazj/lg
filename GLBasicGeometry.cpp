@@ -41,5 +41,6 @@ void GLBasicGeometry::Bind() const { vertexArray.Bind(); }
 
 void GLBasicGeometry::SetUniforms(const glm::mat4 &model) const
 {
-  GLProgram::GetCurrentProgram()->SetUniform("u_model", model);
+  GLProgram *program = GLProgram::GetCurrentProgram();
+  if(program) program->SetUniform("u_model", model);
 }

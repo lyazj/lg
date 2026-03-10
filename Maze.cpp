@@ -1,6 +1,7 @@
 #include "Maze.h"
 
 #include <algorithm>
+#include <cassert>
 
 #include "Utils.h"
 
@@ -30,6 +31,7 @@ private:
 
 GLint RandomizedQueue::Pop()
 {
+  assert(!data.empty());
   GLint i = GLint(lrand48() % data.size());
   GLint x = data[i];
   data[i] = data.back();
