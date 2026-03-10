@@ -4,7 +4,6 @@
 #include <glm/mat2x2.hpp>
 #include <iterator>
 
-#include "GLProgram.h"
 #include "Utils.h"
 
 using namespace std;
@@ -42,12 +41,6 @@ BarnsleyFern::BarnsleyFern(GLint p) : GLBasicGeometry(2), points(p)
 BarnsleyFern::~BarnsleyFern()
 {
   // empty
-}
-
-void BarnsleyFern::SetVertexAttributes() const
-{
-  GLBasicGeometry::SetVertexAttributes();
-  GLProgram::SetVertexAttribute("a_color", glm::vec4(0.0, 1.0, 0.0, 1.0));
 }
 
 void BarnsleyFern::Normalize()

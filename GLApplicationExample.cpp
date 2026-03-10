@@ -116,6 +116,7 @@ void GLExampleApplication::InitGeometry()
     auto fern = make_shared<BarnsleyFern>(points);
     fern->Normalize();
     geometry = fern;
+    GLProgram::SetVertexAttribute("a_color", glm::vec4(0.0, 1.0, 0.0, 1.0));
     return;
   }
 

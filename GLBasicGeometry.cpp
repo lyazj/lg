@@ -21,7 +21,6 @@ void GLBasicGeometry::SetVertexAttributes() const
   vertexArray.Bind();
   vertexBuffer.Bind();
   GLProgram::SetVertexAttributePointer("a_position", dimension);
-  GLProgram::SetVertexAttribute("a_color", glm::vec4(0.0, 0.0, 1.0, 1.0));
 }
 
 void GLBasicGeometry::Buffer() const

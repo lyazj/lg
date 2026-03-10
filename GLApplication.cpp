@@ -154,6 +154,7 @@ void GLApplication::Init()
   glClearColor(1.0, 1.0, 1.0, 1.0);
   glPointSize(1.0);
   glLineWidth(2.0);
+  GLProgram::SetDefaultVertexAttributes();
 
   glutDisplayFunc([] { GLApplication::GetInstance()->Display(); });
   glutReshapeFunc([](int w, int h) { GLApplication::GetInstance()->Reshape(w, h); });

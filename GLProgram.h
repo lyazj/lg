@@ -24,6 +24,8 @@ public:
   static GLint GetVertexAttributeLocation(const char *name);  // thread-unsafe
   static void SetVertexAttributePointer(const char *, GLint, GLenum, GLboolean, GLsizei, const void *);
   static void SetVertexAttributePointer(const char *name, GLint size, const void *pointer = nullptr);
+  static void DisableVertexAttribute(const char *name);
+  static void SetDefaultVertexAttributes();
   static void SetVertexAttribute(const char *name, GLfloat value);
   static void SetVertexAttribute(const char *name, GLint value);
   static void SetVertexAttribute(const char *name, const glm::vec2 &value);

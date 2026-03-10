@@ -10,8 +10,6 @@ public:
   BarnsleyFern(GLint points);
   ~BarnsleyFern() override;
 
-  void SetVertexAttributes() const override;
-
   void Normalize();
 
 protected:

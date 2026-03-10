@@ -75,38 +75,46 @@ void GLProgram::SetVertexAttributePointer(const char *name, GLint size, const vo
   SetVertexAttributePointer(name, size, GL_FLOAT, GL_FALSE, 0, pointer);
 }
 
-void GLProgram::SetVertexAttribute(const char *name, GLfloat value)
+void GLProgram::DisableVertexAttribute(const char *name)
 {
   GLint location = GetVertexAttributeLocation(name);
   glDisableVertexAttribArray(location);
+}
+
+void GLProgram::SetDefaultVertexAttributes()
+{
+  GLProgram::SetVertexAttribute("a_color", glm::vec4(0.0, 0.0, 1.0, 1.0));
+
+  // [XXX] Add defaults for other attributes.
+}
+
+void GLProgram::SetVertexAttribute(const char *name, GLfloat value)
+{
+  GLint location = GetVertexAttributeLocation(name);
   glVertexAttrib1f(location, value);
 }
 
 void GLProgram::SetVertexAttribute(const char *name, GLint value)
 {
   GLint location = GetVertexAttributeLocation(name);
-  glDisableVertexAttribArray(location);
   glVertexAttribI1i(location, value);
 }
 
 void GLProgram::SetVertexAttribute(const char *name, const glm::vec2 &value)
 {
   GLint location = GetVertexAttributeLocation(name);
-  glDisableVertexAttribArray(location);
   glVertexAttrib2fv(location, glm::value_ptr(value));
 }
 
 void GLProgram::SetVertexAttribute(const char *name, const glm::vec3 &value)
 {
   GLint location = GetVertexAttributeLocation(name);
-  glDisableVertexAttribArray(location);
   glVertexAttrib3fv(location, glm::value_ptr(value));
 }
 
 void GLProgram::SetVertexAttribute(const char *name, const glm::vec4 &value)
 {
   GLint location = GetVertexAttributeLocation(name);
-  glDisableVertexAttribArray(location);
   glVertexAttrib4fv(location, glm::value_ptr(value));
 }
 
