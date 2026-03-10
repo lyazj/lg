@@ -5,7 +5,9 @@
 
 #include "BarnsleyFern.h"
 #include "GLApplication.h"
+#include "GLCircle.h"
 #include "GLProgram.h"
+#include "GLTriangle.h"
 #include "KochSnowflake.h"
 #include "Maze.h"
 #include "SierpinskiGasket.h"
@@ -69,6 +71,18 @@ void GLExampleApplication::InitGeometry()
   if(argc == 1) {
     cerr << "Usage: " << GetProgramShortName() << " <geometry> [ <args> ... ]" << endl;
     exit(EXIT_FAILURE);
+  }
+
+  if(strcmp(argv[1], "GLTriangle") == 0) {
+    geometry.reset(new GLTriangle({ 0.0f, 0.5f, 0.0f }, { -0.5f, -0.5f, 0.0f }, { 0.5f, -0.5f, 0.0f }));
+    return;
+  }
+
+  if(strcmp(argv[1], "GLCircle") == 0) {
+    GLint segments = 64;
+    if(argc > 2) segments = stoi(argv[2]);
+    geometry = make_shared<GLCircle>(0.8f, segments);
+    return;
   }
 
   if(strcmp(argv[1], "SierpinskiGasket") == 0) {
