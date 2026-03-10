@@ -27,7 +27,11 @@ public:
   GLint GetHeight() const { return height; }
   GLint GetEntry() const { return entry; }
   GLint GetExit() const { return exit; }
+  void GetEntry(GLint &x, GLint &y) const;
+  void GetExit(GLint &x, GLint &y) const;
   const std::vector<std::vector<MazeCell>> &GetCells() const { return cells; }
+
+  void GetNormalizedPosition(GLfloat x, GLfloat y, GLfloat &nx, GLfloat &ny) const;
 
 protected:
   GLint width, height;

@@ -78,6 +78,9 @@ class MazeGenerator {
 public:
   MazeGenerator(GLint &entry, GLint &exit, vector<vector<MazeCell>> &cells);
 
+  static void GetEntry(GLint width, GLint height, GLint entry, GLint &x, GLint &y);
+  static void GetExit(GLint w, GLint h, GLint e, GLint &x, GLint &y) { GetEntry(w, h, e, x, y); }
+
   void GenerateBacktracking();
   void GeneratePrim();
   void GenerateKruskal();
@@ -94,6 +97,23 @@ private:
   void GenerateExit();
   void GenerateBacktracking(GLint x, GLint y, GLint d);
 };
+
+void MazeGenerator::GetEntry(GLint width, GLint height, GLint entry, GLint &x, GLint &y)
+{
+  if(entry < width) {  // Top border.
+    x = 0;
+    y = entry;
+  } else if(entry < 2 * width) {  // Bottom border.
+    x = height - 1;
+    y = entry - width;
+  } else if(entry < 2 * width + height) {  // Left border.
+    x = entry - 2 * width;
+    y = 0;
+  } else {  // Right border.
+    x = entry - 2 * width - height;
+    y = width - 1;
+  }
+}
 
 MazeGenerator::MazeGenerator(GLint &en, GLint &ex, vector<vector<MazeCell>> &c)
     : width((GLint)c[0].size()), height((GLint)c.size()), entry(en), exit(ex), cells(c), depth(0)
@@ -114,19 +134,7 @@ void MazeGenerator::GenerateBacktracking()
 void MazeGenerator::GenerateEntry()
 {
   entry = GLint(lrand48() % (2 * (width + height)));
-  if(entry < width) {  // Top border.
-    xs = 0;
-    ys = entry;
-  } else if(entry < 2 * width) {  // Bottom border.
-    xs = height - 1;
-    ys = entry - width;
-  } else if(entry < 2 * width + height) {  // Left border.
-    xs = entry - 2 * width;
-    ys = 0;
-  } else {  // Right border.
-    xs = entry - 2 * width - height;
-    ys = width - 1;
-  }
+  GetEntry(width, height, entry, xs, ys);
 }
 
 // Convert the exit cell to the corresponding border segment.
@@ -284,6 +292,12 @@ void MazeGenerator::GenerateKruskal()
 
 }  // namespace
 
+void Maze::GetNormalizedPosition(GLfloat x, GLfloat y, GLfloat &nx, GLfloat &ny) const
+{
+  nx = 1.8f * y / (GLfloat)width - 0.9f;
+  ny = 0.9f - 1.8f * x / (GLfloat)height;
+}
+
 void Maze::GenerateVertices()
 {
   // Originally: (width + 1) * height + width * (height + 1)
@@ -343,11 +357,11 @@ void Maze::GenerateVertices()
   }
 }
 
-void Maze::GenerateVertex(GLint x0, GLint y0)
+void Maze::GenerateVertex(GLint x, GLint y)
 {
-  GLfloat x = 2.0f * (GLfloat)y0 / (GLfloat)width - 1.0f;
-  GLfloat y = 1.0f - 2.0f * (GLfloat)x0 / (GLfloat)height;
-  vertices.emplace_back(x * 0.9f, y * 0.9f);
+  GLfloat nx, ny;
+  GetNormalizedPosition((GLfloat)x, (GLfloat)y, nx, ny);
+  vertices.emplace_back(nx, ny);
 }
 
 Maze::Maze(GLint w, GLint h, MazeType type)
@@ -369,6 +383,10 @@ Maze::~Maze()
 {
   // empty
 }
+
+void Maze::GetEntry(GLint &x, GLint &y) const { MazeGenerator::GetEntry(width, height, entry, x, y); }
+
+void Maze::GetExit(GLint &x, GLint &y) const { MazeGenerator::GetExit(width, height, exit, x, y); }
 
 void Maze::IssueBuffer() const { vertexBuffer.Buffer(vertices); }
 
