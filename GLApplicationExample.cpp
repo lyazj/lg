@@ -7,6 +7,7 @@
 #include "GLApplication.h"
 #include "GLCircle.h"
 #include "GLProgram.h"
+#include "GLSmell.h"
 #include "GLTriangle.h"
 #include "KochSnowflake.h"
 #include "Maze.h"
@@ -82,6 +83,13 @@ void GLExampleApplication::InitGeometry()
     GLint segments = 64;
     if(argc > 2) segments = stoi(argv[2]);
     geometry = make_shared<GLCircle>(0.8f, segments);
+    return;
+  }
+
+  if(strcmp(argv[1], "GLSmell") == 0) {
+    GLint segments = 64;
+    if(argc > 2) segments = stoi(argv[2]);
+    geometry = make_shared<GLSmell>(0.8f, segments);
     return;
   }
 
