@@ -2,5 +2,28 @@ LG:
   - Lightweight GL
   - Leyun's GL
 
+Geometry management hierarchy:
+
+  GLGeometry  (abstract: SetVertexAttributes, Buffer, Draw)
+  ├── GLCompositeGeometry           [contains a list of child GLGeometry objects]
+  ├── GLTransformedGeometry         [wraps any GLGeometry with a model matrix]
+  └── GLPrimitiveGeometry  (abstract: adds GetVertexArray/Buffer, GetDimension/NVertex/Vertex)
+      ├── GLPrimitiveGeometryDecorator   [identity decorator wrapping a GLPrimitiveGeometry]
+      │   └── GLColoredGeometry  (abstract: adds a per-vertex color buffer)
+      │       ├── GLSingleColorGeometry   [fills all vertices with one color]
+      │       └── GLRandomColorGeometry   [assigns random colors to vertices]
+      └── GLElementGeometry  (abstract: owns VAO/VBO; adds Bind, SetUniforms, IssueBuffer, IssueDraw)
+          └── GLElementGeometryD<D>  [template; D=2 or D=3; owns typed vertex list]
+              ├── GLTriangle          (D=3)
+              ├── GLSphere            (D=3)
+              ├── GLAxes              (D=3)
+              ├── GLCircle            (D=2)
+              ├── GLSmell             (D=2)
+              ├── SierpinskiGasket    (D=2)
+              ├── SierpinskiGasket2   (D=2)
+              ├── KochSnowflake       (D=2)
+              ├── BarnsleyFern        (D=2)
+              └── Maze                (D=2)
+
 Memo on caveats:
   - Avoid duplicate Geometry::SetVertexAttributes() and Geometry::Buffer() calls for the same object in the scene graph.
