@@ -1,4 +1,4 @@
-#include "BarnsleyFern.h"
+#include "GLBarnsleyFern.h"
 
 #include <algorithm>
 #include <glm/mat2x2.hpp>
@@ -26,7 +26,7 @@ constexpr vec2 b[4] = {
 
 }  // namespace
 
-BarnsleyFern::BarnsleyFern(GLint p) : points(p)
+GLBarnsleyFern::GLBarnsleyFern(GLint p) : points(p)
 {
   vertices.reserve(points);
   vec2 x(0.0, 0.0);
@@ -38,12 +38,12 @@ BarnsleyFern::BarnsleyFern(GLint p) : points(p)
   }
 }
 
-BarnsleyFern::~BarnsleyFern()
+GLBarnsleyFern::~GLBarnsleyFern()
 {
   // empty
 }
 
-void BarnsleyFern::Normalize()
+void GLBarnsleyFern::Normalize()
 {
   GLfloat xmin = INFINITY, xmax = -INFINITY, ymin = INFINITY, ymax = -INFINITY;
   for(const vec2 &v : vertices) {
@@ -58,4 +58,4 @@ void BarnsleyFern::Normalize()
   }
 }
 
-void BarnsleyFern::IssueDraw() const { GLDrawArrays(GL_POINTS, 0, (GLsizei)vertices.size()); }
+void GLBarnsleyFern::IssueDraw() const { GLDrawArrays(GL_POINTS, 0, (GLsizei)vertices.size()); }

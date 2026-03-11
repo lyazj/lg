@@ -2,12 +2,12 @@
 
 #include "Global.h"
 
-class GLGeometry {
+class GLRenderable {
 public:
-  GLGeometry();
-  virtual ~GLGeometry();
-  GLGeometry(const GLGeometry &) = delete;
-  GLGeometry &operator=(const GLGeometry &) = delete;
+  GLRenderable();
+  virtual ~GLRenderable();
+  GLRenderable(const GLRenderable &) = delete;
+  GLRenderable &operator=(const GLRenderable &) = delete;
 
   virtual void SetVertexAttributes() const = 0;
   virtual void Buffer() const = 0;

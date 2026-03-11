@@ -1,4 +1,4 @@
-#include "KochSnowflake.h"
+#include "GLKochSnowflake.h"
 
 #include <math.h>
 
@@ -23,7 +23,7 @@ static void Construct(vector<vec2> &vertices, const vec2 &a, const vec2 &b, GLin
   Construct(vertices, d, b, order);
 }
 
-KochSnowflake::KochSnowflake(GLint o) : order(o)
+GLKochSnowflake::GLKochSnowflake(GLint o) : order(o)
 {
   vertices.reserve((size_t)(pow(4, order) * 3));
   vec2 a(cosf(0.0f * 2.0f * pi / 3.0f), sinf(0.0f * 2.0f * pi / 3.0f));
@@ -34,9 +34,9 @@ KochSnowflake::KochSnowflake(GLint o) : order(o)
   Construct(vertices, c, a, order);
 }
 
-KochSnowflake::~KochSnowflake()
+GLKochSnowflake::~GLKochSnowflake()
 {
   // empty
 }
 
-void KochSnowflake::IssueDraw() const { GLDrawArrays(GL_LINE_LOOP, 0, (GLsizei)vertices.size()); }
+void GLKochSnowflake::IssueDraw() const { GLDrawArrays(GL_LINE_LOOP, 0, (GLsizei)vertices.size()); }

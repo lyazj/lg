@@ -2,10 +2,10 @@
 
 #include "GLBufferedGeometry.h"
 
-class GLCircle : public GLBufferedGeometryD<2> {
+class GLSmiley : public GLBufferedGeometryD<2> {
 public:
-  GLCircle(GLfloat radius, GLint segments);
-  ~GLCircle() override;
+  GLSmiley(GLfloat radius, GLint segments);
+  ~GLSmiley() override;
 
 protected:
   GLfloat radius;

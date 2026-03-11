@@ -2,15 +2,15 @@
 
 #include <glm/mat4x4.hpp>
 
-#include "GLGeometry.h"
+#include "GLRenderable.h"
 
-class GLTransformedGeometry : public GLGeometry {
+class GLTransformedRenderable : public GLRenderable {
 public:
-  GLTransformedGeometry(GLGeometryPtr g, mat4 m) : geometry(std::move(g)), model(m) { }
-  ~GLTransformedGeometry() override = default;
+  GLTransformedRenderable(GLRenderablePtr g, mat4 m) : geometry(std::move(g)), model(m) { }
+  ~GLTransformedRenderable() override = default;
 
-  const GLGeometryPtr &GetGeometry() const { return geometry; }
-  void SetGeometry(const GLGeometryPtr &g) { geometry = g; }
+  const GLRenderablePtr &GetGeometry() const { return geometry; }
+  void SetGeometry(const GLRenderablePtr &g) { geometry = g; }
   const mat4 &GetModel() const { return model; }
   void SetModel(const mat4 &m) { model = m; }
 
@@ -19,6 +19,6 @@ public:
   void Draw(const mat4 &m) const override { return geometry->Draw(m * model); }
 
 protected:
-  GLGeometryPtr geometry;
+  GLRenderablePtr geometry;
   mat4 model;
 };

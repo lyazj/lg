@@ -1,4 +1,4 @@
-#include "GLSmell.h"
+#include "GLSmiley.h"
 
 #include <math.h>
 
@@ -8,7 +8,7 @@
 
 using namespace std;
 
-GLSmell::GLSmell(GLfloat r, GLint s) : radius(r), segments(max<GLint>(3, s))
+GLSmiley::GLSmiley(GLfloat r, GLint s) : radius(r), segments(max<GLint>(3, s))
 {
   vertices.reserve((segments + 1) * 4);
 
@@ -43,12 +43,12 @@ GLSmell::GLSmell(GLfloat r, GLint s) : radius(r), segments(max<GLint>(3, s))
   }
 }
 
-GLSmell::~GLSmell()
+GLSmiley::~GLSmiley()
 {
   // empty
 }
 
-void GLSmell::IssueDraw() const
+void GLSmiley::IssueDraw() const
 {
   GLint offset = 0;
   for(GLint i = 0; i < 4; ++i) {

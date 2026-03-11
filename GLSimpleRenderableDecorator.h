@@ -1,15 +1,15 @@
 #pragma once
 
-#include "GLPrimitiveGeometry.h"
+#include "GLSimpleRenderable.h"
 
-// GLPrimitiveGeometry decorator template: the identity.
-class GLPrimitiveGeometryDecorator : public GLPrimitiveGeometry {
+// GLSimpleRenderable decorator template: the identity.
+class GLSimpleRenderableDecorator : public GLSimpleRenderable {
 public:
-  GLPrimitiveGeometryDecorator(GLPrimitiveGeometryPtr g) : geometry(g) { }
-  ~GLPrimitiveGeometryDecorator() override = default;
+  GLSimpleRenderableDecorator(GLSimpleRenderablePtr g) : geometry(g) { }
+  ~GLSimpleRenderableDecorator() override = default;
 
-  const GLPrimitiveGeometryPtr &GetGeometry() const { return geometry; }
-  void SetGeometry(const GLPrimitiveGeometryPtr &g) { geometry = g; }
+  const GLSimpleRenderablePtr &GetGeometry() const { return geometry; }
+  void SetGeometry(const GLSimpleRenderablePtr &g) { geometry = g; }
 
   void SetVertexAttributes() const override { geometry->SetVertexAttributes(); }
   void Buffer() const override { geometry->Buffer(); }
@@ -24,5 +24,5 @@ public:
   void GetVertex(GLint i, vec3 &v) const override { geometry->GetVertex(i, v); }
 
 protected:
-  GLPrimitiveGeometryPtr geometry;
+  GLSimpleRenderablePtr geometry;
 };

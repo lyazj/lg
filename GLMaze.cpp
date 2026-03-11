@@ -1,4 +1,4 @@
-#include "Maze.h"
+#include "GLMaze.h"
 
 #include <algorithm>
 
@@ -74,9 +74,9 @@ bool DisjointSet::Union(GLint x, GLint y)
   return true;
 }
 
-class MazeGenerator {
+class GLMazeGenerator {
 public:
-  MazeGenerator(GLint &entry, GLint &exit, vector<vector<MazeCell>> &cells);
+  GLMazeGenerator(GLint &entry, GLint &exit, vector<vector<GLMazeCell>> &cells);
 
   static void GetEntry(GLint width, GLint height, GLint entry, GLint &x, GLint &y);
   static void GetExit(GLint w, GLint h, GLint e, GLint &x, GLint &y) { GetEntry(w, h, e, x, y); }
@@ -88,7 +88,7 @@ public:
 private:
   GLint width, height;
   GLint &entry, &exit;
-  std::vector<std::vector<MazeCell>> &cells;
+  std::vector<std::vector<GLMazeCell>> &cells;
   std::vector<std::vector<bool>> visited;
   GLint depth;
   GLint xs, ys, xt, yt;
@@ -98,7 +98,7 @@ private:
   void GenerateBacktracking(GLint x, GLint y, GLint d);
 };
 
-void MazeGenerator::GetEntry(GLint width, GLint height, GLint entry, GLint &x, GLint &y)
+void GLMazeGenerator::GetEntry(GLint width, GLint height, GLint entry, GLint &x, GLint &y)
 {
   if(entry < width) {  // Top border.
     x = 0;
@@ -115,13 +115,13 @@ void MazeGenerator::GetEntry(GLint width, GLint height, GLint entry, GLint &x, G
   }
 }
 
-MazeGenerator::MazeGenerator(GLint &en, GLint &ex, vector<vector<MazeCell>> &c)
+GLMazeGenerator::GLMazeGenerator(GLint &en, GLint &ex, vector<vector<GLMazeCell>> &c)
     : width((GLint)c[0].size()), height((GLint)c.size()), entry(en), exit(ex), cells(c), depth(0)
 {
   // empty
 }
 
-void MazeGenerator::GenerateBacktracking()
+void GLMazeGenerator::GenerateBacktracking()
 {
   GenerateEntry();
   visited.assign(height, vector<bool>(width, false));
@@ -131,14 +131,14 @@ void MazeGenerator::GenerateBacktracking()
 
 // The entry is evenly drawn from the border.
 // The four corner cells have a higher probability to be selected as entry.
-void MazeGenerator::GenerateEntry()
+void GLMazeGenerator::GenerateEntry()
 {
   entry = GLint(lrand48() % (2 * (width + height)));
   GetEntry(width, height, entry, xs, ys);
 }
 
 // Convert the exit cell to the corresponding border segment.
-void MazeGenerator::GenerateExit()
+void GLMazeGenerator::GenerateExit()
 {
   // Top-left corner.
   if(xt == 0 && yt == 0) {
@@ -178,7 +178,7 @@ void MazeGenerator::GenerateExit()
 // Recursive backtracking algorithm.
 // The exit is selected as the farthest border cell from the entry.
 // This likely generates very difficult mazes.
-void MazeGenerator::GenerateBacktracking(GLint x, GLint y, GLint d)
+void GLMazeGenerator::GenerateBacktracking(GLint x, GLint y, GLint d)
 {
   visited[x][y] = true;
   if(x == 0 || x == height - 1 || y == 0 || y == width - 1) {
@@ -210,7 +210,7 @@ void MazeGenerator::GenerateBacktracking(GLint x, GLint y, GLint d)
 // Vertex-oriented random spanning tree algorithm.
 // The exit is selected as the farthest border cell from the entry.
 // It's more like a randomized BFS, thus generates mazes with shorter paths.
-void MazeGenerator::GeneratePrim()
+void GLMazeGenerator::GeneratePrim()
 {
   GenerateEntry();
 
@@ -253,7 +253,7 @@ void MazeGenerator::GeneratePrim()
 
 // Edge-oriented random spanning tree algorithm.
 // As randomly as it is, it generates mazes with short paths.
-void MazeGenerator::GenerateKruskal()
+void GLMazeGenerator::GenerateKruskal()
 {
   vector<GLint> seq;
   seq.reserve(width * (height - 1) + (width - 1) * height);
@@ -292,13 +292,13 @@ void MazeGenerator::GenerateKruskal()
 
 }  // namespace
 
-void Maze::GetNormalizedPosition(GLfloat x, GLfloat y, GLfloat &nx, GLfloat &ny) const
+void GLMaze::GetNormalizedPosition(GLfloat x, GLfloat y, GLfloat &nx, GLfloat &ny) const
 {
   nx = 1.8f * y / (GLfloat)width - 0.9f;
   ny = 0.9f - 1.8f * x / (GLfloat)height;
 }
 
-void Maze::GenerateVertices()
+void GLMaze::GenerateVertices()
 {
   // Originally: (width + 1) * height + width * (height + 1)
   // Entry and exit: 2
@@ -357,32 +357,32 @@ void Maze::GenerateVertices()
   }
 }
 
-void Maze::GenerateVertex(GLint x, GLint y)
+void GLMaze::GenerateVertex(GLint x, GLint y)
 {
   GLfloat nx, ny;
   GetNormalizedPosition((GLfloat)x, (GLfloat)y, nx, ny);
   vertices.emplace_back(nx, ny);
 }
 
-Maze::Maze(GLint w, GLint h, MazeType type)
-    : width(max<GLint>(1, w)), height(max<GLint>(1, h)), cells(h, vector<MazeCell>(w, { false, false, false, false }))
+GLMaze::GLMaze(GLint w, GLint h, GLMazeType type)
+    : width(max<GLint>(1, w)), height(max<GLint>(1, h)), cells(h, vector<GLMazeCell>(w, { false, false, false, false }))
 {
   switch(type) {
-  case MazeType::Backtracking: MazeGenerator(entry, exit, cells).GenerateBacktracking(); break;
-  case MazeType::Prim: MazeGenerator(entry, exit, cells).GeneratePrim(); break;
-  case MazeType::Kruskal: MazeGenerator(entry, exit, cells).GenerateKruskal(); break;
+  case GLMazeType::Backtracking: GLMazeGenerator(entry, exit, cells).GenerateBacktracking(); break;
+  case GLMazeType::Prim: GLMazeGenerator(entry, exit, cells).GeneratePrim(); break;
+  case GLMazeType::Kruskal: GLMazeGenerator(entry, exit, cells).GenerateKruskal(); break;
   default: abort();
   }
   GenerateVertices();
 }
 
-Maze::~Maze()
+GLMaze::~GLMaze()
 {
   // empty
 }
 
-void Maze::GetEntry(GLint &x, GLint &y) const { MazeGenerator::GetEntry(width, height, entry, x, y); }
+void GLMaze::GetEntry(GLint &x, GLint &y) const { GLMazeGenerator::GetEntry(width, height, entry, x, y); }
 
-void Maze::GetExit(GLint &x, GLint &y) const { MazeGenerator::GetExit(width, height, exit, x, y); }
+void GLMaze::GetExit(GLint &x, GLint &y) const { GLMazeGenerator::GetExit(width, height, exit, x, y); }
 
-void Maze::IssueDraw() const { GLDrawArrays(GL_LINES, 0, (GLsizei)vertices.size()); }
+void GLMaze::IssueDraw() const { GLDrawArrays(GL_LINES, 0, (GLsizei)vertices.size()); }

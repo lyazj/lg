@@ -1,16 +1,16 @@
-#include "GLColoredGeometry.h"
+#include "GLColorableGeometry.h"
 
-#include "GLElementGeometry.h"
+#include "GLBufferedGeometry.h"
 #include "GLProgram.h"
 
-void GLColoredGeometry::Buffer() const
+void GLColorableGeometry::Buffer() const
 {
   geometry->Buffer();
   Color();
   colorBuffer.Buffer(colors);
 }
 
-void GLColoredGeometry::Draw(const mat4 &model) const
+void GLColorableGeometry::Draw(const mat4 &model) const
 {
   geometry->GetVertexArray().Bind();
   colorBuffer.Bind();
@@ -19,7 +19,7 @@ void GLColoredGeometry::Draw(const mat4 &model) const
   GLProgram::DisableVertexAttribute("a_color");
 }
 
-void GLSingleColorGeometry::Color() const { colors.assign(geometry->GetNVertex(), color); }
+void GLFlatColorGeometry::Color() const { colors.assign(geometry->GetNVertex(), color); }
 
 void GLRandomColorGeometry::Color() const
 {

@@ -15,7 +15,7 @@ public:
   void Display() override;
 
 private:
-  GLGeometryPtr geometry;
+  GLRenderablePtr geometry;
 };
 
 int main(int argc, char *argv[])

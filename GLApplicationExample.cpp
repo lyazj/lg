@@ -3,17 +3,17 @@
 #include <glm/gtx/transform.hpp>
 #include <iostream>
 
-#include "BarnsleyFern.h"
+#include "GLBarnsleyFern.h"
 #include "GLApplication.h"
 #include "GLCircle.h"
-#include "GLColoredGeometry.h"
+#include "GLColorableGeometry.h"
 #include "GLProgram.h"
-#include "GLSmell.h"
+#include "GLSmiley.h"
 #include "GLTriangle.h"
-#include "KochSnowflake.h"
-#include "Maze.h"
-#include "SierpinskiGasket.h"
-#include "SierpinskiGasket2.h"
+#include "GLKochSnowflake.h"
+#include "GLMaze.h"
+#include "GLSierpinskiGasket.h"
+#include "GLSierpinskiGasketChaos.h"
 #include "Utils.h"
 
 using namespace std;
@@ -27,7 +27,7 @@ public:
   void Display() override;
 
 private:
-  GLGeometryPtr geometry;
+  GLRenderablePtr geometry;
 
   void InitGeometry();
   string GetScreenshotName() const;
@@ -87,65 +87,65 @@ void GLExampleApplication::InitGeometry()
     return;
   }
 
-  if(strcmp(argv[1], "GLSmell") == 0) {
+  if(strcmp(argv[1], "GLSmiley") == 0) {
     GLint segments = 64;
     if(argc > 2) segments = stoi(argv[2]);
-    geometry = make_shared<GLSmell>(0.8f, segments);
+    geometry = make_shared<GLSmiley>(0.8f, segments);
     return;
   }
 
-  if(strcmp(argv[1], "SierpinskiGasket") == 0) {
+  if(strcmp(argv[1], "GLSierpinskiGasket") == 0) {
     GLint order = 8;
     GLfloat noise = 0.0f;
     if(argc > 2) order = stoi(argv[2]);
     if(argc > 3) noise = stof(argv[3]);
-    geometry = make_shared<SierpinskiGasket>(order, noise);
+    geometry = make_shared<GLSierpinskiGasket>(order, noise);
     SetModel(glm::translate(model, vec3(0.0f, -0.25f, 0.0f)));
     return;
   }
 
-  if(strcmp(argv[1], "SierpinskiGasket2") == 0) {
+  if(strcmp(argv[1], "GLSierpinskiGasketChaos") == 0) {
     GLint points = 1e6;
     if(argc > 2) points = stoi(argv[2]);
-    geometry = make_shared<SierpinskiGasket2>(points);
+    geometry = make_shared<GLSierpinskiGasketChaos>(points);
     SetModel(glm::translate(model, vec3(0.0f, -0.25f, 0.0f)));
     return;
   }
 
-  if(strcmp(argv[1], "KochSnowflake") == 0) {
+  if(strcmp(argv[1], "GLKochSnowflake") == 0) {
     GLint order = 8;
     if(argc > 2) order = stoi(argv[2]);
-    geometry = make_shared<KochSnowflake>(order);
+    geometry = make_shared<GLKochSnowflake>(order);
     return;
   }
 
-  if(strcmp(argv[1], "BarnsleyFern") == 0) {
+  if(strcmp(argv[1], "GLBarnsleyFern") == 0) {
     GLint points = 1e6;
     if(argc > 2) points = stoi(argv[2]);
-    auto fern = make_shared<BarnsleyFern>(points);
+    auto fern = make_shared<GLBarnsleyFern>(points);
     fern->Normalize();
-    geometry.reset(new GLSingleColorGeometry(fern, { 0.0, 1.0, 0.0, 1.0 }));
+    geometry.reset(new GLFlatColorGeometry(fern, { 0.0, 1.0, 0.0, 1.0 }));
     return;
   }
 
   if(strcmp(argv[1], "Maze") == 0) {
     GLint w = 20, h = 20;
-    MazeType type = MazeType::Backtracking;
+    GLMazeType type = GLMazeType::Backtracking;
     if(argc > 2) w = stoi(argv[2]);
     if(argc > 3) h = stoi(argv[3]);
     if(argc > 4) {
       if(strcmp(argv[4], "Backtracking") == 0) {
-        type = MazeType::Backtracking;
+        type = GLMazeType::Backtracking;
       } else if(strcmp(argv[4], "Prim") == 0) {
-        type = MazeType::Prim;
+        type = GLMazeType::Prim;
       } else if(strcmp(argv[4], "Kruskal") == 0) {
-        type = MazeType::Kruskal;
+        type = GLMazeType::Kruskal;
       } else {
         cerr << "Unknown maze type: " << argv[4] << endl;
         exit(EXIT_FAILURE);
       }
     }
-    geometry = make_shared<Maze>(w, h, type);
+    geometry = make_shared<GLMaze>(w, h, type);
     return;
   }
 

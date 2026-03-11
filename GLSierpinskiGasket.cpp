@@ -1,4 +1,4 @@
-#include "SierpinskiGasket.h"
+#include "GLSierpinskiGasket.h"
 
 #include <math.h>
 
@@ -24,7 +24,7 @@ static void Construct(
   Construct(vertices, c, ca, bc, order, noise);
 }
 
-SierpinskiGasket::SierpinskiGasket(GLint o, GLfloat f) : order(o), noise(f)
+GLSierpinskiGasket::GLSierpinskiGasket(GLint o, GLfloat f) : order(o), noise(f)
 {
   vertices.reserve((size_t)pow(3, order + 1));
   vec2 a(cosf(0.0f * 2.0f * pi / 3.0f + pi / 2.0f), sinf(0.0f * 2.0f * pi / 3.0f + pi / 2.0f));
@@ -33,9 +33,9 @@ SierpinskiGasket::SierpinskiGasket(GLint o, GLfloat f) : order(o), noise(f)
   Construct(vertices, a, b, c, order, noise);
 }
 
-SierpinskiGasket::~SierpinskiGasket()
+GLSierpinskiGasket::~GLSierpinskiGasket()
 {
   // empty
 }
 
-void SierpinskiGasket::IssueDraw() const { GLDrawArrays(GL_TRIANGLES, 0, (GLsizei)vertices.size()); }
+void GLSierpinskiGasket::IssueDraw() const { GLDrawArrays(GL_TRIANGLES, 0, (GLsizei)vertices.size()); }
