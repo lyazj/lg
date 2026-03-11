@@ -16,7 +16,7 @@ public:
   void Display() override;
 
 private:
-  GLRenderablePtr geometry;
+  GLRenderablePtr renderable;
   mat4 trans;
   GLint ntrans;
 
@@ -46,9 +46,9 @@ void GLExampleApplication::Init()
 
   UseProgram(GLProgram::GetDefaultProgram());
 
-  geometry = make_shared<GLSierpinskiGasketChaos>(1e5);
-  geometry->SetVertexAttributes();
-  geometry->Buffer();
+  renderable = make_shared<GLSierpinskiGasketChaos>(1e5);
+  renderable->SetVertexAttributes();
+  renderable->Buffer();
 
   mat4 m(1.0f);
   m = glm::scale(m, vec3(0.5f, 0.5f, 1.0f));
@@ -67,10 +67,10 @@ void GLExampleApplication::Init()
 void GLExampleApplication::Display()
 {
   Clear();
-  geometry->Draw(model);
+  renderable->Draw(model);
   mat4 t = trans;
   for(int i = 0; i < ntrans; ++i) {
-    geometry->Draw(model * t);
+    renderable->Draw(model * t);
     t *= trans;
   }
   Flush();

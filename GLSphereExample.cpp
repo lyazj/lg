@@ -23,11 +23,11 @@ protected:
 
 GLExampleSphere::GLExampleSphere(GLfloat r, GLint sl, GLint st) : GLColorableGeometry(make_shared<GLSphere>(r, sl, st))
 {
-  GLint n = geometry->GetNVertex();
+  GLint n = renderable->GetNVertex();
   colors.reserve(n);
   for(GLint i = 0; i < n; ++i) {
     vec3 vertex;
-    geometry->GetVertex(i, vertex);
+    renderable->GetVertex(i, vertex);
     GLfloat lambda = vertex.z / r / 2.0f + 0.5f;
     colors.emplace_back(lambda, lambda, lambda, 1.0f);
   }
@@ -42,7 +42,7 @@ public:
   void Display() override;
 
 private:
-  GLRenderablePtr geometry;
+  GLRenderablePtr renderable;
   void Idle();
 };
 
@@ -73,16 +73,16 @@ void GLExampleApplication::Init()
   sphere = make_shared<GLTransformedRenderable>(sphere, glm::rotate(20.0f * deg, vec3(0.0f, 1.0f, 0.0f)));
   box->AddGeometry(sphere);
   box->AddGeometry(make_shared<GLAxes>());
-  geometry = box;
+  renderable = box;
 
-  geometry->SetVertexAttributes();
-  geometry->Buffer();
+  renderable->SetVertexAttributes();
+  renderable->Buffer();
 }
 
 void GLExampleApplication::Display()
 {
   Clear();
-  geometry->Draw(model);
+  renderable->Draw(model);
   Flush();
 }
 

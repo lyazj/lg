@@ -25,7 +25,7 @@ private:
   GLint width, height;
   shared_ptr<GLMaze> maze;
   GLTransformedRenderablePtr rat;
-  GLRenderablePtr geometry;
+  GLRenderablePtr renderable;
 
   GLint ratDirection;
   GLint ratX, ratY, exitX, exitY;
@@ -86,16 +86,16 @@ void GLExampleApplication::Init()
   auto scene = make_shared<GLCompositeRenderable>();
   scene->AddGeometry(maze);
   scene->AddGeometry(rat);
-  geometry = scene;
+  renderable = scene;
 
-  geometry->SetVertexAttributes();
-  geometry->Buffer();
+  renderable->SetVertexAttributes();
+  renderable->Buffer();
 }
 
 void GLExampleApplication::Display()
 {
   Clear();
-  geometry->Draw(model);
+  renderable->Draw(model);
   Flush();
 }
 
@@ -158,7 +158,7 @@ void GLExampleApplication::CheckWin()
 {
   if(ratX != exitX || ratY != exitY) return;
   glutMouseFunc(nullptr);
-  geometry.reset(new GLSmiley(0.8f, 256));
-  geometry->SetVertexAttributes();
-  geometry->Buffer();
+  renderable.reset(new GLSmiley(0.8f, 256));
+  renderable->SetVertexAttributes();
+  renderable->Buffer();
 }

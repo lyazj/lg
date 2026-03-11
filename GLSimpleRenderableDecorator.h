@@ -5,24 +5,24 @@
 // GLSimpleRenderable decorator template: the identity.
 class GLSimpleRenderableDecorator : public GLSimpleRenderable {
 public:
-  GLSimpleRenderableDecorator(GLSimpleRenderablePtr g) : geometry(g) { }
+  GLSimpleRenderableDecorator(GLSimpleRenderablePtr r) : renderable(r) { }
   ~GLSimpleRenderableDecorator() override = default;
 
-  const GLSimpleRenderablePtr &GetGeometry() const { return geometry; }
-  void SetGeometry(const GLSimpleRenderablePtr &g) { geometry = g; }
+  const GLSimpleRenderablePtr &GetGeometry() const { return renderable; }
+  void SetGeometry(const GLSimpleRenderablePtr &r) { renderable = r; }
 
-  void SetVertexAttributes() const override { geometry->SetVertexAttributes(); }
-  void Buffer() const override { geometry->Buffer(); }
-  void Draw(const mat4 &model) const override { geometry->Draw(model); }
+  void SetVertexAttributes() const override { renderable->SetVertexAttributes(); }
+  void Buffer() const override { renderable->Buffer(); }
+  void Draw(const mat4 &model) const override { renderable->Draw(model); }
 
-  const GLVertexArray &GetVertexArray() const override { return geometry->GetVertexArray(); }
-  const GLBuffer &GetVertexBuffer() const override { return geometry->GetVertexBuffer(); }
+  const GLVertexArray &GetVertexArray() const override { return renderable->GetVertexArray(); }
+  const GLBuffer &GetVertexBuffer() const override { return renderable->GetVertexBuffer(); }
 
-  GLint GetDimension() const override { return geometry->GetDimension(); }
-  GLint GetNVertex() const override { return geometry->GetNVertex(); }
-  void GetVertex(GLint i, vec2 &v) const override { geometry->GetVertex(i, v); }
-  void GetVertex(GLint i, vec3 &v) const override { geometry->GetVertex(i, v); }
+  GLint GetDimension() const override { return renderable->GetDimension(); }
+  GLint GetNVertex() const override { return renderable->GetNVertex(); }
+  void GetVertex(GLint i, vec2 &v) const override { renderable->GetVertex(i, v); }
+  void GetVertex(GLint i, vec3 &v) const override { renderable->GetVertex(i, v); }
 
 protected:
-  GLSimpleRenderablePtr geometry;
+  GLSimpleRenderablePtr renderable;
 };

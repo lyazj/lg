@@ -10,7 +10,7 @@ public:
 
   GLuint GetNGeometry() const { return (GLuint)geometries.size(); }
   const GLRenderablePtr &GetGeometry(GLuint i) const { return geometries.at(i); }
-  void AddGeometry(const GLRenderablePtr &g) { geometries.push_back(g); }
+  void AddGeometry(const GLRenderablePtr &r) { geometries.push_back(r); }
 
   void SetVertexAttributes() const override;
   void Buffer() const override;
@@ -22,15 +22,15 @@ protected:
 
 inline void GLCompositeRenderable::SetVertexAttributes() const
 {
-  for(const GLRenderablePtr &g : geometries) g->SetVertexAttributes();
+  for(const GLRenderablePtr &r : geometries) r->SetVertexAttributes();
 }
 
 inline void GLCompositeRenderable::Buffer() const
 {
-  for(const GLRenderablePtr &g : geometries) g->Buffer();
+  for(const GLRenderablePtr &r : geometries) r->Buffer();
 }
 
 inline void GLCompositeRenderable::Draw(const mat4 &model) const
 {
-  for(const GLRenderablePtr &g : geometries) g->Draw(model);
+  for(const GLRenderablePtr &r : geometries) r->Draw(model);
 }

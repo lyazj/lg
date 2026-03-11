@@ -27,7 +27,7 @@ public:
   void Display() override;
 
 private:
-  GLRenderablePtr geometry;
+  GLRenderablePtr renderable;
 
   void InitGeometry();
   string GetScreenshotName() const;
@@ -54,8 +54,8 @@ void GLExampleApplication::Init()
   UseProgram(GLProgram::GetDefaultProgram());
 
   InitGeometry();
-  geometry->SetVertexAttributes();
-  geometry->Buffer();
+  renderable->SetVertexAttributes();
+  renderable->Buffer();
 
   Display();
   SaveScreen(GetScreenshotName());
@@ -64,33 +64,33 @@ void GLExampleApplication::Init()
 void GLExampleApplication::Display()
 {
   Clear();
-  geometry->Draw(model);
+  renderable->Draw(model);
   Flush();
 }
 
 void GLExampleApplication::InitGeometry()
 {
   if(argc == 1) {
-    cerr << "Usage: " << GetProgramShortName() << " <geometry> [ <args> ... ]" << endl;
+    cerr << "Usage: " << GetProgramShortName() << " <renderable> [ <args> ... ]" << endl;
     exit(EXIT_FAILURE);
   }
 
   if(strcmp(argv[1], "GLTriangle") == 0) {
-    geometry.reset(new GLTriangle({ 0.0f, 0.5f, 0.0f }, { -0.5f, -0.5f, 0.0f }, { 0.5f, -0.5f, 0.0f }));
+    renderable.reset(new GLTriangle({ 0.0f, 0.5f, 0.0f }, { -0.5f, -0.5f, 0.0f }, { 0.5f, -0.5f, 0.0f }));
     return;
   }
 
   if(strcmp(argv[1], "GLCircle") == 0) {
     GLint segments = 64;
     if(argc > 2) segments = stoi(argv[2]);
-    geometry = make_shared<GLCircle>(0.8f, segments);
+    renderable = make_shared<GLCircle>(0.8f, segments);
     return;
   }
 
   if(strcmp(argv[1], "GLSmiley") == 0) {
     GLint segments = 64;
     if(argc > 2) segments = stoi(argv[2]);
-    geometry = make_shared<GLSmiley>(0.8f, segments);
+    renderable = make_shared<GLSmiley>(0.8f, segments);
     return;
   }
 
@@ -99,7 +99,7 @@ void GLExampleApplication::InitGeometry()
     GLfloat noise = 0.0f;
     if(argc > 2) order = stoi(argv[2]);
     if(argc > 3) noise = stof(argv[3]);
-    geometry = make_shared<GLSierpinskiGasket>(order, noise);
+    renderable = make_shared<GLSierpinskiGasket>(order, noise);
     SetModel(glm::translate(model, vec3(0.0f, -0.25f, 0.0f)));
     return;
   }
@@ -107,7 +107,7 @@ void GLExampleApplication::InitGeometry()
   if(strcmp(argv[1], "GLSierpinskiGasketChaos") == 0) {
     GLint points = 1e6;
     if(argc > 2) points = stoi(argv[2]);
-    geometry = make_shared<GLSierpinskiGasketChaos>(points);
+    renderable = make_shared<GLSierpinskiGasketChaos>(points);
     SetModel(glm::translate(model, vec3(0.0f, -0.25f, 0.0f)));
     return;
   }
@@ -115,7 +115,7 @@ void GLExampleApplication::InitGeometry()
   if(strcmp(argv[1], "GLKochSnowflake") == 0) {
     GLint order = 8;
     if(argc > 2) order = stoi(argv[2]);
-    geometry = make_shared<GLKochSnowflake>(order);
+    renderable = make_shared<GLKochSnowflake>(order);
     return;
   }
 
@@ -124,7 +124,7 @@ void GLExampleApplication::InitGeometry()
     if(argc > 2) points = stoi(argv[2]);
     auto fern = make_shared<GLBarnsleyFern>(points);
     fern->Normalize();
-    geometry.reset(new GLFlatColorGeometry(fern, { 0.0, 1.0, 0.0, 1.0 }));
+    renderable.reset(new GLFlatColorGeometry(fern, { 0.0, 1.0, 0.0, 1.0 }));
     return;
   }
 
@@ -145,11 +145,11 @@ void GLExampleApplication::InitGeometry()
         exit(EXIT_FAILURE);
       }
     }
-    geometry = make_shared<GLMaze>(w, h, type);
+    renderable = make_shared<GLMaze>(w, h, type);
     return;
   }
 
-  cerr << "Unknown geometry: " << argv[1] << endl;
+  cerr << "Unknown renderable: " << argv[1] << endl;
   exit(EXIT_FAILURE);
 }
 

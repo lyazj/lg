@@ -8,7 +8,7 @@
 
 class GLColorableGeometry : public GLSimpleRenderableDecorator {
 public:
-  GLColorableGeometry(GLSimpleRenderablePtr g) : GLSimpleRenderableDecorator(std::move(g)) { }
+  GLColorableGeometry(GLSimpleRenderablePtr r) : GLSimpleRenderableDecorator(std::move(r)) { }
   ~GLColorableGeometry() override = default;
 
   void Buffer() const override;
@@ -23,7 +23,7 @@ protected:
 
 class GLFlatColorGeometry : public GLColorableGeometry {
 public:
-  GLFlatColorGeometry(GLSimpleRenderablePtr g, const vec4 &c) : GLColorableGeometry(std::move(g)), color(c) { }
+  GLFlatColorGeometry(GLSimpleRenderablePtr r, const vec4 &c) : GLColorableGeometry(std::move(r)), color(c) { }
   ~GLFlatColorGeometry() override = default;
 
   const vec4 &GetColor() const { return color; }
@@ -37,7 +37,7 @@ protected:
 
 class GLRandomColorGeometry : public GLColorableGeometry {
 public:
-  GLRandomColorGeometry(GLSimpleRenderablePtr g) : GLColorableGeometry(std::move(g)) { }
+  GLRandomColorGeometry(GLSimpleRenderablePtr r) : GLColorableGeometry(std::move(r)) { }
   ~GLRandomColorGeometry() override = default;
 
 protected:
