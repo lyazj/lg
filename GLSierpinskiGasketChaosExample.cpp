@@ -61,7 +61,7 @@ void GLExampleApplication::Init()
   ntrans = 10;
 
   Display();
-  SaveScreen("SierpinskiGasketExample.png");
+  SaveScreen("GLSierpinskiGasketChaosExample.png");
 }
 
 void GLExampleApplication::Display()
