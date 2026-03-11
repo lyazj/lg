@@ -2,18 +2,18 @@ LG:
   - Lightweight GL
   - Leyun's GL
 
-Geometry management hierarchy:
+Renderable management hierarchy:
 
   GLRenderable  (abstract: SetVertexAttributes, Buffer, Draw)
-  ├── GLCompositeRenderable         [contains a list of child GLRenderable objects]
-  ├── GLTransformedRenderable       [wraps any GLRenderable with a model matrix]
+  ├── GLCompositeRenderable               [contains a list of child GLRenderable objects]
+  ├── GLTransformedRenderable             [wraps any GLRenderable with a model matrix]
   └── GLSimpleRenderable  (abstract: adds GetVertexArray/Buffer, GetDimension/NVertex/Vertex)
-      ├── GLSimpleRenderableDecorator   [identity decorator wrapping a GLSimpleRenderable]
-      │   └── GLColorableGeometry  (abstract: adds a per-vertex color buffer)
-      │       ├── GLFlatColorGeometry   [fills all vertices with one color]
-      │       └── GLRandomColorGeometry [assigns random colors to vertices]
+      ├── GLSimpleRenderableDecorator     [identity decorator wrapping a GLSimpleRenderable]
+      │   └── GLColorDecorator  (abstract: adds a per-vertex color buffer)
+      │       ├── GLFlatColorDecorator    [fills all vertices with one color]
+      │       └── GLRandomColorDecorator  [assigns random colors to vertices]
       └── GLBufferedGeometry  (abstract: owns VAO/VBO; adds Bind, SetUniforms, IssueBuffer, IssueDraw)
-          └── GLBufferedGeometryD<D>  [template; D=2 or D=3; owns typed vertex list]
+          └── GLBufferedGeometryD<D>      [template; D=2 or D=3; owns typed vertex list]
               ├── GLTriangle              (D=3)
               ├── GLSphere                (D=3)
               ├── GLAxes                  (D=3)

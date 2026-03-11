@@ -1,16 +1,16 @@
-#include "GLColorableGeometry.h"
+#include "GLColorDecorator.h"
 
-#include "GLBufferedGeometry.h"
 #include "GLProgram.h"
+#include "GLVertexArray.h"
 
-void GLColorableGeometry::Buffer() const
+void GLColorDecorator::Buffer() const
 {
   renderable->Buffer();
   Color();
   colorBuffer.Buffer(colors);
 }
 
-void GLColorableGeometry::Draw(const mat4 &model) const
+void GLColorDecorator::Draw(const mat4 &model) const
 {
   renderable->GetVertexArray().Bind();
   colorBuffer.Bind();
@@ -19,9 +19,9 @@ void GLColorableGeometry::Draw(const mat4 &model) const
   GLProgram::DisableVertexAttribute("a_color");
 }
 
-void GLFlatColorGeometry::Color() const { colors.assign(renderable->GetNVertex(), color); }
+void GLFlatColorDecorator::Color() const { colors.assign(renderable->GetNVertex(), color); }
 
-void GLRandomColorGeometry::Color() const
+void GLRandomColorDecorator::Color() const
 {
   GLint n = renderable->GetNVertex();
   colors.reserve(n);

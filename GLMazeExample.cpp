@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "GLApplication.h"
-#include "GLColorableGeometry.h"
+#include "GLColorDecorator.h"
 #include "GLCompositeRenderable.h"
 #include "GLProgram.h"
 #include "GLSmiley.h"
@@ -76,7 +76,7 @@ void GLExampleApplication::Init()
   vec3 ratB = { -ratRadius, ratRadius * 0.5f, 0.0f };
   vec3 ratC = { -ratRadius, -ratRadius * 0.5f, 0.0f };
   GLSimpleRenderablePtr rawRat = make_shared<GLTriangle>(ratA, ratB, ratC);
-  rawRat = make_shared<GLFlatColorGeometry>(rawRat, vec4(0.0f, 1.0f, 0.0f, 1.0f));
+  rawRat = make_shared<GLFlatColorDecorator>(rawRat, vec4(0.0f, 1.0f, 0.0f, 1.0f));
   rat = make_shared<GLTransformedRenderable>(rawRat, mat4(1.0));
   ratDirection = 0;
   maze->GetEntry(ratX, ratY);

@@ -6,7 +6,7 @@
 #include "GLBarnsleyFern.h"
 #include "GLApplication.h"
 #include "GLCircle.h"
-#include "GLColorableGeometry.h"
+#include "GLColorDecorator.h"
 #include "GLProgram.h"
 #include "GLSmiley.h"
 #include "GLTriangle.h"
@@ -124,7 +124,7 @@ void GLExampleApplication::InitGeometry()
     if(argc > 2) points = stoi(argv[2]);
     auto fern = make_shared<GLBarnsleyFern>(points);
     fern->Normalize();
-    renderable.reset(new GLFlatColorGeometry(fern, { 0.0, 1.0, 0.0, 1.0 }));
+    renderable.reset(new GLFlatColorDecorator(fern, { 0.0, 1.0, 0.0, 1.0 }));
     return;
   }
 
