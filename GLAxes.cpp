@@ -25,14 +25,14 @@ GLAxes::~GLAxes()
 
 void GLAxes::SetVertexAttributes() const
 {
-  GLBufferedGeometryD::SetVertexAttributes();
+  GL3DBufferedGeometry::SetVertexAttributes();
   colorBuffer.Bind();
   GLProgram::SetVertexAttributePointer("a_color", 4);
 }
 
 void GLAxes::IssueBuffer() const
 {
-  GLBufferedGeometryD::IssueBuffer();
+  GL3DBufferedGeometry::IssueBuffer();
   colorBuffer.Buffer(colors);
 }
 

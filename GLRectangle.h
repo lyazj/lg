@@ -2,7 +2,7 @@
 
 #include "GLBufferedGeometry.h"
 
-class GLRectangle : public GLBufferedGeometryD<2> {
+class GLRectangle : public GL2DBufferedGeometry {
 public:
   GLRectangle(GLfloat width, GLfloat height);
   ~GLRectangle() override;

@@ -2,7 +2,7 @@
 
 #include "GLBufferedGeometry.h"
 
-class GLSierpinskiGasketChaos : public GLBufferedGeometryD<2> {
+class GLSierpinskiGasketChaos : public GL2DBufferedGeometry {
 public:
   GLSierpinskiGasketChaos(GLint points);
   ~GLSierpinskiGasketChaos() override;

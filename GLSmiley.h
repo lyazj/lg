@@ -2,7 +2,7 @@
 
 #include "GLBufferedGeometry.h"
 
-class GLSmiley : public GLBufferedGeometryD<2> {
+class GLSmiley : public GL2DBufferedGeometry {
 public:
   GLSmiley(GLfloat radius, GLint segments);
   ~GLSmiley() override;

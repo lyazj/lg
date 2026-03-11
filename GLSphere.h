@@ -3,7 +3,7 @@
 #include "GLBuffer.h"
 #include "GLBufferedGeometry.h"
 
-class GLSphere : public GLBufferedGeometryD<3> {
+class GLSphere : public GL3DBufferedGeometry {
 public:
   GLSphere(GLfloat radius, GLint slices, GLint stacks);
   ~GLSphere() override;

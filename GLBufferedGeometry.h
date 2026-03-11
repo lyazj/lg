@@ -66,3 +66,6 @@ inline void GLBufferedGeometryD<D>::GetVertex(GLint i, vec3 &v) const
     v = vec3(vertices[i].x, vertices[i].y, 0.0f);
   }
 }
+
+using GL2DBufferedGeometry = GLBufferedGeometryD<2>;
+using GL3DBufferedGeometry = GLBufferedGeometryD<3>;

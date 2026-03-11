@@ -2,7 +2,7 @@
 
 #include "GLBufferedGeometry.h"
 
-class GLBarnsleyFern : public GLBufferedGeometryD<2> {
+class GLBarnsleyFern : public GL2DBufferedGeometry {
 public:
   GLBarnsleyFern(GLint points);
   ~GLBarnsleyFern() override;

@@ -17,7 +17,7 @@ struct GLMazeCell {
   bool down  : 1;
 };
 
-class GLMaze : public GLBufferedGeometryD<2> {
+class GLMaze : public GL2DBufferedGeometry {
 public:
   GLMaze(GLint width, GLint height, GLMazeType type = GLMazeType::Backtracking);
   ~GLMaze() override;

@@ -2,7 +2,7 @@
 
 #include "GLBufferedGeometry.h"
 
-class GLKochSnowflake : public GLBufferedGeometryD<2> {
+class GLKochSnowflake : public GL2DBufferedGeometry {
 public:
   GLKochSnowflake(GLint order);
   ~GLKochSnowflake() override;
