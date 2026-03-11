@@ -51,7 +51,7 @@ void GLExampleApplication::PreInit()
 {
   GLApplication::PreInit();
 
-  SetTitle("Maze Example");
+  SetTitle("GLMaze Example");
   EnableDoubleBuffer();
 }
 
