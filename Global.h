@@ -39,3 +39,6 @@ GL_DECLARE_CLASS(GLApplication)
 GL_DECLARE_CLASS(GLProgram)
 GL_DECLARE_CLASS(GLShader)
 GL_DECLARE_CLASS(GLGeometry)
+
+class GLBasicGeometryBase;
+using GLBasicGeometryPtr = std::shared_ptr<GLBasicGeometryBase>;

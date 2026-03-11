@@ -6,6 +6,7 @@
 #include "BarnsleyFern.h"
 #include "GLApplication.h"
 #include "GLCircle.h"
+#include "GLColoredGeometry.h"
 #include "GLProgram.h"
 #include "GLSmell.h"
 #include "GLTriangle.h"
@@ -123,8 +124,7 @@ void GLExampleApplication::InitGeometry()
     if(argc > 2) points = stoi(argv[2]);
     auto fern = make_shared<BarnsleyFern>(points);
     fern->Normalize();
-    geometry = fern;
-    GLProgram::SetVertexAttribute("a_color", vec4(0.0, 1.0, 0.0, 1.0));
+    geometry.reset(new GLSingleColorGeometry(fern, { 0.0, 1.0, 0.0, 1.0 }));
     return;
   }
 

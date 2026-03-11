@@ -18,6 +18,11 @@ public:
   GLBuffer &GetVertexBuffer() { return vertexBuffer; }
   const GLBuffer &GetVertexBuffer() const { return vertexBuffer; }
 
+  virtual GLint GetDimension() const = 0;
+  virtual GLint GetNVertex() const = 0;
+  virtual void GetVertex(GLint i, vec2 &v) const = 0;
+  virtual void GetVertex(GLint i, vec3 &v) const = 0;
+
   void SetVertexAttributes() const override;
   void Buffer() const override;
   void Draw(const mat4 &model) const override;
@@ -30,11 +35,6 @@ protected:
   virtual void SetUniforms(const mat4 &model) const;
   virtual void IssueBuffer() const = 0;
   virtual void IssueDraw() const = 0;
-
-  virtual GLint GetDimension() const = 0;
-  virtual GLint GetNVertex() const = 0;
-  virtual void GetVertex(GLint i, vec2 &v) const = 0;
-  virtual void GetVertex(GLint i, vec3 &v) const = 0;
 };
 
 template<GLint D>
@@ -43,15 +43,15 @@ public:
   GLBasicGeometry() = default;
   ~GLBasicGeometry() override = default;
 
-protected:
-  std::vector<vec<D>> vertices;
-  virtual void IssueBuffer() const override { vertexBuffer.Buffer(vertices); }
-
   virtual GLint GetDimension() const override final { return D; }
   virtual GLint GetNVertex() const override final { return (GLint)vertices.size(); }
   virtual void GetVertex(GLint i, vec2 &v) const override final;
   virtual void GetVertex(GLint i, vec3 &v) const override final;
   const vec<D> &GetVertex(GLint i) const { return vertices[i]; }
+
+protected:
+  std::vector<vec<D>> vertices;
+  virtual void IssueBuffer() const override { vertexBuffer.Buffer(vertices); }
 };
 
 template<GLint D>

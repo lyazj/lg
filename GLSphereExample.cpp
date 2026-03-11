@@ -1,6 +1,4 @@
 #include <glm/gtx/transform.hpp>
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
 #include <vector>
 
 #include "GL3DApplication.h"

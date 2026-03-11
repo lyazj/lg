@@ -1,7 +1,5 @@
 #include "GLBasicGeometry.h"
 
-#include <glm/vec4.hpp>
-
 #include "GLBuffer.h"
 #include "GLProgram.h"
 

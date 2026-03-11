@@ -6,7 +6,7 @@
 
 class GLTransformedGeometry : public GLGeometry {
 public:
-  GLTransformedGeometry(GLGeometryPtr g, mat4 m) : geometry(g), model(m) { }
+  GLTransformedGeometry(GLGeometryPtr g, mat4 m) : geometry(std::move(g)), model(m) { }
   ~GLTransformedGeometry() override = default;
 
   const GLGeometryPtr &GetGeometry() const { return geometry; }
