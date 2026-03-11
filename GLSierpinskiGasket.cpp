@@ -6,8 +6,7 @@
 
 using namespace std;
 
-static void Construct(
-    vector<vec2> &vertices, const vec2 &a, const vec2 &b, const vec2 &c, GLint order, GLfloat noise)
+static void Construct(vector<vec2> &vertices, const vec2 &a, const vec2 &b, const vec2 &c, GLint order, GLfloat noise)
 {
   if(order-- == 0) {
     vertices.push_back(a);

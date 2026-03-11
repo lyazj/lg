@@ -6,7 +6,7 @@
 
 class GLTransformedRenderable : public GLRenderable {
 public:
-  GLTransformedRenderable(GLRenderablePtr r, mat4 m) : renderable(std::move(r)), model(m) { }
+  GLTransformedRenderable(GLRenderablePtr r, const mat4 &m) : renderable(std::move(r)), model(m) { }
   ~GLTransformedRenderable() override = default;
 
   const GLRenderablePtr &GetGeometry() const { return renderable; }

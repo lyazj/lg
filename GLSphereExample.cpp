@@ -12,16 +12,17 @@
 
 using namespace std;
 
-class GLExampleSphere : public GLColorDecorator {
+class GLExampleSphere : public GLBufferedColorDecorator {
 public:
   GLExampleSphere(GLfloat radius, GLint slices, GLint stacks);
   ~GLExampleSphere() override = default;
 
 protected:
-  void Color() const override { }
+  void SetColor() const override { }
 };
 
-GLExampleSphere::GLExampleSphere(GLfloat r, GLint sl, GLint st) : GLColorDecorator(make_shared<GLSphere>(r, sl, st))
+GLExampleSphere::GLExampleSphere(GLfloat r, GLint sl, GLint st)
+    : GLBufferedColorDecorator(make_shared<GLSphere>(r, sl, st))
 {
   GLint n = renderable->GetNVertex();
   colors.reserve(n);

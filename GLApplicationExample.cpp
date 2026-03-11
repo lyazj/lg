@@ -3,17 +3,17 @@
 #include <glm/gtx/transform.hpp>
 #include <iostream>
 
-#include "GLBarnsleyFern.h"
 #include "GLApplication.h"
+#include "GLBarnsleyFern.h"
 #include "GLCircle.h"
 #include "GLColorDecorator.h"
-#include "GLProgram.h"
-#include "GLSmiley.h"
-#include "GLTriangle.h"
 #include "GLKochSnowflake.h"
 #include "GLMaze.h"
+#include "GLProgram.h"
 #include "GLSierpinskiGasket.h"
 #include "GLSierpinskiGasketChaos.h"
+#include "GLSmiley.h"
+#include "GLTriangle.h"
 #include "Utils.h"
 
 using namespace std;
@@ -124,7 +124,7 @@ void GLExampleApplication::InitGeometry()
     if(argc > 2) points = stoi(argv[2]);
     auto fern = make_shared<GLBarnsleyFern>(points);
     fern->Normalize();
-    renderable.reset(new GLFlatColorDecorator(fern, { 0.0, 1.0, 0.0, 1.0 }));
+    renderable.reset(new GLUniformColorDecorator(fern, { 0.0, 1.0, 0.0, 1.0 }));
     return;
   }
 

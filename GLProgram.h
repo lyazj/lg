@@ -26,6 +26,7 @@ public:
   static void SetVertexAttributePointer(const char *name, GLint size, const void *pointer = nullptr);
   static void DisableVertexAttribute(const char *name);
   static void SetDefaultVertexAttributes();
+  static void SetDefaultVertexAttribute(const char *name);
   static void SetVertexAttribute(const char *name, GLfloat value);
   static void SetVertexAttribute(const char *name, GLint value);
   static void SetVertexAttribute(const char *name, const vec2 &value);

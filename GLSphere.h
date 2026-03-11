@@ -1,7 +1,7 @@
 #pragma once
 
-#include "GLBufferedGeometry.h"
 #include "GLBuffer.h"
+#include "GLBufferedGeometry.h"
 
 class GLSphere : public GLBufferedGeometryD<3> {
 public:

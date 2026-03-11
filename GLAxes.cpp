@@ -5,8 +5,7 @@
 
 using namespace std;
 
-GLAxes::GLAxes(
-    GLfloat x, GLfloat y, GLfloat z, const vec4 &xcolor, const vec4 &ycolor, const vec4 &zcolor)
+GLAxes::GLAxes(GLfloat x, GLfloat y, GLfloat z, const vec4 &xcolor, const vec4 &ycolor, const vec4 &zcolor)
 {
   vertices = {
     { 0.0f, 0.0f, 0.0f },

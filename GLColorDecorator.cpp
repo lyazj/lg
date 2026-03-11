@@ -3,14 +3,21 @@
 #include "GLProgram.h"
 #include "GLVertexArray.h"
 
-void GLColorDecorator::Buffer() const
+void GLUniformColorDecorator::Draw(const mat4 &model) const
+{
+  GLProgram::SetVertexAttribute("a_color", color);
+  renderable->Draw(model);
+  GLProgram::SetDefaultVertexAttribute("a_color");
+}
+
+void GLBufferedColorDecorator::Buffer() const
 {
   renderable->Buffer();
-  Color();
+  SetColor();
   colorBuffer.Buffer(colors);
 }
 
-void GLColorDecorator::Draw(const mat4 &model) const
+void GLBufferedColorDecorator::Draw(const mat4 &model) const
 {
   renderable->GetVertexArray().Bind();
   colorBuffer.Bind();
@@ -19,9 +26,7 @@ void GLColorDecorator::Draw(const mat4 &model) const
   GLProgram::DisableVertexAttribute("a_color");
 }
 
-void GLFlatColorDecorator::Color() const { colors.assign(renderable->GetNVertex(), color); }
-
-void GLRandomColorDecorator::Color() const
+void GLRandomColorDecorator::SetColor() const
 {
   GLint n = renderable->GetNVertex();
   colors.reserve(n);

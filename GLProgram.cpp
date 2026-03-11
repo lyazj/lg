@@ -83,9 +83,18 @@ void GLProgram::DisableVertexAttribute(const char *name)
 
 void GLProgram::SetDefaultVertexAttributes()
 {
-  GLProgram::SetVertexAttribute("a_color", vec4(0.0, 0.0, 1.0, 1.0));
+  GLProgram::SetDefaultVertexAttribute("a_color");
 
   // [XXX] Add defaults for other attributes.
+}
+
+void GLProgram::SetDefaultVertexAttribute(const char *name)
+{
+  if(strcmp(name, "a_color") == 0) {
+    GLProgram::SetVertexAttribute("a_color", vec4(0.0, 0.0, 1.0, 1.0));
+  } else {
+    cerr << "Warning: no default value for vertex attribute '" << name << "'" << endl;
+  }
 }
 
 void GLProgram::SetVertexAttribute(const char *name, GLfloat value)
