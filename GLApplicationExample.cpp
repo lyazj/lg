@@ -74,79 +74,84 @@ void GLExampleApplication::InitGeometry()
     exit(EXIT_FAILURE);
   }
 
-  if(strcmp(argv[1], "GLTriangle") == 0) {
-    geometry.reset(new GLTriangle({ 0.0f, 0.5f, 0.0f }, { -0.5f, -0.5f, 0.0f }, { 0.5f, -0.5f, 0.0f }));
-    return;
-  }
-
-  if(strcmp(argv[1], "GLCircle") == 0) {
-    GLint segments = 64;
-    if(argc > 2) segments = stoi(argv[2]);
-    geometry = make_shared<GLCircle>(0.8f, segments);
-    return;
-  }
-
-  if(strcmp(argv[1], "GLSmell") == 0) {
-    GLint segments = 64;
-    if(argc > 2) segments = stoi(argv[2]);
-    geometry = make_shared<GLSmell>(0.8f, segments);
-    return;
-  }
-
-  if(strcmp(argv[1], "SierpinskiGasket") == 0) {
-    GLint order = 8;
-    GLfloat noise = 0.0f;
-    if(argc > 2) order = stoi(argv[2]);
-    if(argc > 3) noise = stof(argv[3]);
-    geometry = make_shared<SierpinskiGasket>(order, noise);
-    SetModel(glm::translate(model, vec3(0.0f, -0.25f, 0.0f)));
-    return;
-  }
-
-  if(strcmp(argv[1], "SierpinskiGasket2") == 0) {
-    GLint points = 1e6;
-    if(argc > 2) points = stoi(argv[2]);
-    geometry = make_shared<SierpinskiGasket2>(points);
-    SetModel(glm::translate(model, vec3(0.0f, -0.25f, 0.0f)));
-    return;
-  }
-
-  if(strcmp(argv[1], "KochSnowflake") == 0) {
-    GLint order = 8;
-    if(argc > 2) order = stoi(argv[2]);
-    geometry = make_shared<KochSnowflake>(order);
-    return;
-  }
-
-  if(strcmp(argv[1], "BarnsleyFern") == 0) {
-    GLint points = 1e6;
-    if(argc > 2) points = stoi(argv[2]);
-    auto fern = make_shared<BarnsleyFern>(points);
-    fern->Normalize();
-    geometry = fern;
-    GLProgram::SetVertexAttribute("a_color", vec4(0.0, 1.0, 0.0, 1.0));
-    return;
-  }
-
-  if(strcmp(argv[1], "Maze") == 0) {
-    GLint w = 20, h = 20;
-    MazeType type = MazeType::Backtracking;
-    if(argc > 2) w = stoi(argv[2]);
-    if(argc > 3) h = stoi(argv[3]);
-    if(argc > 4) {
-      if(strcmp(argv[4], "Backtracking") == 0) {
-        type = MazeType::Backtracking;
-      } else if(strcmp(argv[4], "Prim") == 0) {
-        type = MazeType::Prim;
-      } else if(strcmp(argv[4], "Kruskal") == 0) {
-        type = MazeType::Kruskal;
-      } else {
-        cerr << "Unknown maze type: " << argv[4] << endl;
-        exit(EXIT_FAILURE);
-      }
+  try {
+    if(strcmp(argv[1], "GLTriangle") == 0) {
+      geometry.reset(new GLTriangle({ 0.0f, 0.5f, 0.0f }, { -0.5f, -0.5f, 0.0f }, { 0.5f, -0.5f, 0.0f }));
+      return;
     }
-    geometry = make_shared<Maze>(w, h, type);
-    return;
+
+    if(strcmp(argv[1], "GLCircle") == 0) {
+      GLint segments = 64;
+      if(argc > 2) segments = stoi(argv[2]);
+      geometry = make_shared<GLCircle>(0.8f, segments);
+      return;
+    }
+
+    if(strcmp(argv[1], "GLSmell") == 0) {
+      GLint segments = 64;
+      if(argc > 2) segments = stoi(argv[2]);
+      geometry = make_shared<GLSmell>(0.8f, segments);
+      return;
+    }
+
+    if(strcmp(argv[1], "SierpinskiGasket") == 0) {
+      GLint order = 8;
+      GLfloat noise = 0.0f;
+      if(argc > 2) order = stoi(argv[2]);
+      if(argc > 3) noise = stof(argv[3]);
+      geometry = make_shared<SierpinskiGasket>(order, noise);
+      SetModel(glm::translate(model, vec3(0.0f, -0.25f, 0.0f)));
+      return;
+    }
+
+    if(strcmp(argv[1], "SierpinskiGasket2") == 0) {
+      GLint points = 1e6;
+      if(argc > 2) points = stoi(argv[2]);
+      geometry = make_shared<SierpinskiGasket2>(points);
+      SetModel(glm::translate(model, vec3(0.0f, -0.25f, 0.0f)));
+      return;
+    }
+
+    if(strcmp(argv[1], "KochSnowflake") == 0) {
+      GLint order = 8;
+      if(argc > 2) order = stoi(argv[2]);
+      geometry = make_shared<KochSnowflake>(order);
+      return;
+    }
+
+    if(strcmp(argv[1], "BarnsleyFern") == 0) {
+      GLint points = 1e6;
+      if(argc > 2) points = stoi(argv[2]);
+      auto fern = make_shared<BarnsleyFern>(points);
+      fern->Normalize();
+      geometry = fern;
+      GLProgram::SetVertexAttribute("a_color", vec4(0.0, 1.0, 0.0, 1.0));
+      return;
+    }
+
+    if(strcmp(argv[1], "Maze") == 0) {
+      GLint w = 20, h = 20;
+      MazeType type = MazeType::Backtracking;
+      if(argc > 2) w = stoi(argv[2]);
+      if(argc > 3) h = stoi(argv[3]);
+      if(argc > 4) {
+        if(strcmp(argv[4], "Backtracking") == 0) {
+          type = MazeType::Backtracking;
+        } else if(strcmp(argv[4], "Prim") == 0) {
+          type = MazeType::Prim;
+        } else if(strcmp(argv[4], "Kruskal") == 0) {
+          type = MazeType::Kruskal;
+        } else {
+          cerr << "Unknown maze type: " << argv[4] << endl;
+          exit(EXIT_FAILURE);
+        }
+      }
+      geometry = make_shared<Maze>(w, h, type);
+      return;
+    }
+  } catch(const std::exception &e) {
+    cerr << GetProgramShortName() << ": invalid argument: " << e.what() << endl;
+    exit(EXIT_FAILURE);
   }
 
   cerr << "Unknown geometry: " << argv[1] << endl;

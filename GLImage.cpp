@@ -1,5 +1,7 @@
 #include "GLImage.h"
 
+#include <stdexcept>
+
 #include <opencv2/opencv.hpp>
 
 using namespace std;
@@ -21,6 +23,7 @@ void GLImage::Save(const fs::path &path) const
 void GLImage::Load(const fs::path &path)
 {
   cv::Mat img = cv::imread(path.string(), cv::IMREAD_UNCHANGED);
+  if(img.empty()) throw std::runtime_error("Failed to load image: " + path.string());
   if(img.channels() == 3) {
     cv::cvtColor(img, img, cv::COLOR_BGR2RGB);
   } else if(img.channels() == 4) {

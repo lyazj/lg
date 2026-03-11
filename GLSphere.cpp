@@ -3,6 +3,7 @@
 #include <math.h>
 
 #include <algorithm>
+#include <cstdint>
 
 #include "Utils.h"
 
@@ -66,16 +67,15 @@ void GLSphere::IssueBuffer() const
 
 void GLSphere::IssueDraw() const
 {
-  GLuint *offset = nullptr;
+  uintptr_t offset = 0;
 
-  GLDrawElements(GL_TRIANGLE_FAN, slices + 2, GL_UNSIGNED_INT, offset);
-  offset += slices + 2;
+  GLDrawElements(GL_TRIANGLE_FAN, slices + 2, GL_UNSIGNED_INT, reinterpret_cast<void *>(offset));
+  offset += (uintptr_t)(slices + 2) * sizeof(GLuint);
 
   for(GLint istack = 1; istack + 1 < stacks; ++istack) {
-    GLDrawElements(GL_TRIANGLE_STRIP, 2 * slices + 2, GL_UNSIGNED_INT, offset);
-    offset += 2 * slices + 2;
+    GLDrawElements(GL_TRIANGLE_STRIP, 2 * slices + 2, GL_UNSIGNED_INT, reinterpret_cast<void *>(offset));
+    offset += (uintptr_t)(2 * slices + 2) * sizeof(GLuint);
   }
 
-  GLDrawElements(GL_TRIANGLE_FAN, slices + 2, GL_UNSIGNED_INT, offset);
-  offset += slices + 2;
+  GLDrawElements(GL_TRIANGLE_FAN, slices + 2, GL_UNSIGNED_INT, reinterpret_cast<void *>(offset));
 }
