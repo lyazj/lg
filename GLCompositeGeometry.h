@@ -14,7 +14,7 @@ public:
 
   void SetVertexAttributes() const override;
   void Buffer() const override;
-  void Draw(const glm::mat4 &model) const override;
+  void Draw(const mat4 &model) const override;
 
 protected:
   std::vector<GLGeometryPtr> geometries;
@@ -30,7 +30,7 @@ inline void GLCompositeGeometry::Buffer() const
   for(const GLGeometryPtr &g : geometries) g->Buffer();
 }
 
-inline void GLCompositeGeometry::Draw(const glm::mat4 &model) const
+inline void GLCompositeGeometry::Draw(const mat4 &model) const
 {
   for(const GLGeometryPtr &g : geometries) g->Draw(model);
 }

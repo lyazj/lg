@@ -2,43 +2,44 @@
 
 #include <glm/vec4.hpp>
 
+#include "GLBuffer.h"
 #include "GLProgram.h"
 
 using namespace std;
 
-GLBasicGeometry::GLBasicGeometry(GLint d) : dimension(d)
+GLBasicGeometryBase::GLBasicGeometryBase()
 {
   // empty
 }
 
-GLBasicGeometry::~GLBasicGeometry()
+GLBasicGeometryBase::~GLBasicGeometryBase()
 {
   // empty
 }
 
-void GLBasicGeometry::SetVertexAttributes() const
+void GLBasicGeometryBase::SetVertexAttributes() const
 {
   vertexArray.Bind();
   vertexBuffer.Bind();
-  GLProgram::SetVertexAttributePointer("a_position", dimension);
+  GLProgram::SetVertexAttributePointer("a_position", GetDimension());
 }
 
-void GLBasicGeometry::Buffer() const
+void GLBasicGeometryBase::Buffer() const
 {
   Bind();
   IssueBuffer();
 }
 
-void GLBasicGeometry::Draw(const glm::mat4 &model) const
+void GLBasicGeometryBase::Draw(const mat4 &model) const
 {
   Bind();
   SetUniforms(model);
   IssueDraw();
 }
 
-void GLBasicGeometry::Bind() const { vertexArray.Bind(); }
+void GLBasicGeometryBase::Bind() const { vertexArray.Bind(); }
 
-void GLBasicGeometry::SetUniforms(const glm::mat4 &model) const
+void GLBasicGeometryBase::SetUniforms(const mat4 &model) const
 {
   GLProgram::GetCurrentProgram()->SetUniform("u_model", model);
 }

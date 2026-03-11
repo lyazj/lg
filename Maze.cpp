@@ -365,10 +365,7 @@ void Maze::GenerateVertex(GLint x, GLint y)
 }
 
 Maze::Maze(GLint w, GLint h, MazeType type)
-    : GLBasicGeometry(2),
-      width(max<GLint>(1, w)),
-      height(max<GLint>(1, h)),
-      cells(h, vector<MazeCell>(w, { false, false, false, false }))
+    : width(max<GLint>(1, w)), height(max<GLint>(1, h)), cells(h, vector<MazeCell>(w, { false, false, false, false }))
 {
   switch(type) {
   case MazeType::Backtracking: MazeGenerator(entry, exit, cells).GenerateBacktracking(); break;
@@ -387,7 +384,5 @@ Maze::~Maze()
 void Maze::GetEntry(GLint &x, GLint &y) const { MazeGenerator::GetEntry(width, height, entry, x, y); }
 
 void Maze::GetExit(GLint &x, GLint &y) const { MazeGenerator::GetExit(width, height, exit, x, y); }
-
-void Maze::IssueBuffer() const { vertexBuffer.Buffer(vertices); }
 
 void Maze::IssueDraw() const { GLDrawArrays(GL_LINES, 0, (GLsizei)vertices.size()); }

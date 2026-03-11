@@ -83,7 +83,7 @@ void GLProgram::DisableVertexAttribute(const char *name)
 
 void GLProgram::SetDefaultVertexAttributes()
 {
-  GLProgram::SetVertexAttribute("a_color", glm::vec4(0.0, 0.0, 1.0, 1.0));
+  GLProgram::SetVertexAttribute("a_color", vec4(0.0, 0.0, 1.0, 1.0));
 
   // [XXX] Add defaults for other attributes.
 }
@@ -100,19 +100,19 @@ void GLProgram::SetVertexAttribute(const char *name, GLint value)
   glVertexAttribI1i(location, value);
 }
 
-void GLProgram::SetVertexAttribute(const char *name, const glm::vec2 &value)
+void GLProgram::SetVertexAttribute(const char *name, const vec2 &value)
 {
   GLint location = GetVertexAttributeLocation(name);
   glVertexAttrib2fv(location, glm::value_ptr(value));
 }
 
-void GLProgram::SetVertexAttribute(const char *name, const glm::vec3 &value)
+void GLProgram::SetVertexAttribute(const char *name, const vec3 &value)
 {
   GLint location = GetVertexAttributeLocation(name);
   glVertexAttrib3fv(location, glm::value_ptr(value));
 }
 
-void GLProgram::SetVertexAttribute(const char *name, const glm::vec4 &value)
+void GLProgram::SetVertexAttribute(const char *name, const vec4 &value)
 {
   GLint location = GetVertexAttributeLocation(name);
   glVertexAttrib4fv(location, glm::value_ptr(value));
@@ -140,31 +140,31 @@ void GLProgram::SetUniform(const char *name, GLint value) const
   if(uniform >= 0) glUniform1i(uniform, value);
 }
 
-void GLProgram::SetUniform(const char *name, const glm::vec2 &value) const
+void GLProgram::SetUniform(const char *name, const vec2 &value) const
 {
   GLint uniform = GetUniformLocation(name);
   if(uniform >= 0) glUniform2fv(uniform, 1, glm::value_ptr(value));
 }
 
-void GLProgram::SetUniform(const char *name, const glm::vec3 &value) const
+void GLProgram::SetUniform(const char *name, const vec3 &value) const
 {
   GLint uniform = GetUniformLocation(name);
   if(uniform >= 0) glUniform3fv(uniform, 1, glm::value_ptr(value));
 }
 
-void GLProgram::SetUniform(const char *name, const glm::vec4 &value) const
+void GLProgram::SetUniform(const char *name, const vec4 &value) const
 {
   GLint uniform = GetUniformLocation(name);
   if(uniform >= 0) glUniform4fv(uniform, 1, glm::value_ptr(value));
 }
 
-void GLProgram::SetUniform(const char *name, const glm::mat3 &value) const
+void GLProgram::SetUniform(const char *name, const mat3 &value) const
 {
   GLint uniform = GetUniformLocation(name);
   if(uniform >= 0) glUniformMatrix3fv(uniform, 1, GL_FALSE, glm::value_ptr(value));
 }
 
-void GLProgram::SetUniform(const char *name, const glm::mat4 &value) const
+void GLProgram::SetUniform(const char *name, const mat4 &value) const
 {
   GLint uniform = GetUniformLocation(name);
   if(uniform >= 0) glUniformMatrix4fv(uniform, 1, GL_FALSE, glm::value_ptr(value));

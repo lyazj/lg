@@ -1,6 +1,5 @@
 #pragma once
 
-#include <glm/vec2.hpp>
 #include <vector>
 
 #include "GLBasicGeometry.h"
@@ -18,7 +17,7 @@ struct MazeCell {
   bool down  : 1;
 };
 
-class Maze : public GLBasicGeometry {
+class Maze : public GLBasicGeometry<2> {
 public:
   Maze(GLint width, GLint height, MazeType type = MazeType::Backtracking);
   ~Maze() override;
@@ -37,11 +36,9 @@ protected:
   GLint width, height;
   GLint entry, exit;
   std::vector<std::vector<MazeCell>> cells;
-  std::vector<glm::vec2> vertices;
 
   void GenerateVertices();
   void GenerateVertex(GLint x, GLint y);
 
   void IssueDraw() const override;
-  void IssueBuffer() const override;
 };

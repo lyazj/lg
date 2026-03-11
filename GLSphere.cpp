@@ -9,11 +9,7 @@
 using namespace std;
 
 GLSphere::GLSphere(GLfloat r, GLint sl, GLint st)
-    : GLBasicGeometry(3),
-      radius(r),
-      slices(max<GLint>(3, sl)),
-      stacks(max<GLint>(2, st)),
-      elementBuffer(GL_ELEMENT_ARRAY_BUFFER)
+    : radius(r), slices(max<GLint>(3, sl)), stacks(max<GLint>(2, st)), elementBuffer(GL_ELEMENT_ARRAY_BUFFER)
 {
   vertices.reserve(2 + slices * (stacks - 1));
   elements.reserve(2 * (slices + 1) + (stacks - 2) * (2 * slices + 2));
@@ -64,7 +60,7 @@ GLSphere::~GLSphere()
 
 void GLSphere::IssueBuffer() const
 {
-  vertexBuffer.Buffer(vertices);
+  GLBasicGeometry::IssueBuffer();
   elementBuffer.Buffer(elements);
 }
 

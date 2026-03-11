@@ -6,19 +6,17 @@
 using namespace std;
 
 GLAxes::GLAxes(
-    GLfloat x, GLfloat y, GLfloat z, const glm::vec4 &xcolor, const glm::vec4 &ycolor, const glm::vec4 &zcolor)
-    : GLBasicGeometry(3),
-      vertices{
-        { 0.0f, 0.0f, 0.0f },
-        { x, 0.0f, 0.0f },
-        { 0.0f, 0.0f, 0.0f },
-        { 0.0f, y, 0.0f },
-        { 0.0f, 0.0f, 0.0f },
-        { 0.0f, 0.0f, z },
-      },
-      colors{ xcolor, xcolor, ycolor, ycolor, zcolor, zcolor }
+    GLfloat x, GLfloat y, GLfloat z, const vec4 &xcolor, const vec4 &ycolor, const vec4 &zcolor)
 {
-  // empty
+  vertices = {
+    { 0.0f, 0.0f, 0.0f },
+    { x, 0.0f, 0.0f },
+    { 0.0f, 0.0f, 0.0f },
+    { 0.0f, y, 0.0f },
+    { 0.0f, 0.0f, 0.0f },
+    { 0.0f, 0.0f, z },
+  };
+  colors = { xcolor, xcolor, ycolor, ycolor, zcolor, zcolor };
 }
 
 GLAxes::~GLAxes()
@@ -35,7 +33,7 @@ void GLAxes::SetVertexAttributes() const
 
 void GLAxes::IssueBuffer() const
 {
-  vertexBuffer.Buffer(vertices);
+  GLBasicGeometry::IssueBuffer();
   colorBuffer.Buffer(colors);
 }
 

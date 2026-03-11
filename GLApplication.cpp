@@ -84,19 +84,19 @@ void GLApplication::UseProgram(const GLProgramPtr &p)
   program = p;
 }
 
-void GLApplication::SetProjection(const glm::mat4 &p)
+void GLApplication::SetProjection(const mat4 &p)
 {
   if(program) program->SetUniform("u_projection", p);
   projection = p;
 }
 
-void GLApplication::SetView(const glm::mat4 &v)
+void GLApplication::SetView(const mat4 &v)
 {
   if(program) program->SetUniform("u_view", v);
   view = v;
 }
 
-void GLApplication::SetModel(const glm::mat4 &m)
+void GLApplication::SetModel(const mat4 &m)
 {
   if(program) program->SetUniform("u_model", m);
   model = m;

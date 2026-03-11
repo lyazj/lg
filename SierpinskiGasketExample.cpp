@@ -17,7 +17,7 @@ public:
 
 private:
   GLGeometryPtr geometry;
-  glm::mat4 trans;
+  mat4 trans;
   GLint ntrans;
 
   void Idle();
@@ -50,14 +50,14 @@ void GLExampleApplication::Init()
   geometry->SetVertexAttributes();
   geometry->Buffer();
 
-  glm::mat4 m(1.0f);
-  m = glm::scale(m, glm::vec3(0.5f, 0.5f, 1.0f));
-  m = glm::translate(m, glm::vec3(0.0f, -1.0f, 0.0f));
+  mat4 m(1.0f);
+  m = glm::scale(m, vec3(0.5f, 0.5f, 1.0f));
+  m = glm::translate(m, vec3(0.0f, -1.0f, 0.0f));
   SetModel(m);
 
-  trans = glm::mat4(1.0f);
-  trans = glm::translate(trans, glm::vec3(sqrtf(3.0f) / 4.0f, 5.0f / 4.0f, 0.0f));
-  trans = glm::scale(trans, glm::vec3(0.5f, 0.5f, 1.0f));
+  trans = mat4(1.0f);
+  trans = glm::translate(trans, vec3(sqrtf(3.0f) / 4.0f, 5.0f / 4.0f, 0.0f));
+  trans = glm::scale(trans, vec3(0.5f, 0.5f, 1.0f));
   ntrans = 10;
 
   Display();
@@ -68,7 +68,7 @@ void GLExampleApplication::Display()
 {
   Clear();
   geometry->Draw(model);
-  glm::mat4 t = trans;
+  mat4 t = trans;
   for(int i = 0; i < ntrans; ++i) {
     geometry->Draw(model * t);
     t *= trans;
@@ -82,6 +82,6 @@ void GLExampleApplication::Idle()
   int t = (int)(GetElapsedTime() * 60ULL / 1000ULL);
   if(t == ts) return;
   ts = t;
-  SetModel(glm::rotate(model, 2.0f * pi / 60.0f / 10.0f, glm::vec3(0.0f, 0.0f, 1.0f)));
+  SetModel(glm::rotate(model, 2.0f * pi / 60.0f / 10.0f, vec3(0.0f, 0.0f, 1.0f)));
   glutPostRedisplay();
 }

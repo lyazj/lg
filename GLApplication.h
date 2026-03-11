@@ -27,9 +27,9 @@ public:
 
   void UseProgram(const GLProgramPtr &p);
   const GLProgramPtr &GetProgram() const { return program; }
-  void SetProjection(const glm::mat4 &p);
-  void SetView(const glm::mat4 &v);
-  void SetModel(const glm::mat4 &m);
+  void SetProjection(const mat4 &p);
+  void SetView(const mat4 &v);
+  void SetModel(const mat4 &m);
 
   void EnableBlend();
   void DisableBlend();
@@ -49,7 +49,7 @@ protected:
   int width, height;
   std::string title;
   int windowId;
-  glm::mat4 projection, view, model;
+  mat4 projection, view, model;
   void (*flush)();
   GLProgramPtr program;
   GLbitfield clearMask;

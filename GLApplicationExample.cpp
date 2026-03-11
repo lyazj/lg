@@ -99,7 +99,7 @@ void GLExampleApplication::InitGeometry()
     if(argc > 2) order = stoi(argv[2]);
     if(argc > 3) noise = stof(argv[3]);
     geometry = make_shared<SierpinskiGasket>(order, noise);
-    SetModel(glm::translate(model, glm::vec3(0.0f, -0.25f, 0.0f)));
+    SetModel(glm::translate(model, vec3(0.0f, -0.25f, 0.0f)));
     return;
   }
 
@@ -107,7 +107,7 @@ void GLExampleApplication::InitGeometry()
     GLint points = 1e6;
     if(argc > 2) points = stoi(argv[2]);
     geometry = make_shared<SierpinskiGasket2>(points);
-    SetModel(glm::translate(model, glm::vec3(0.0f, -0.25f, 0.0f)));
+    SetModel(glm::translate(model, vec3(0.0f, -0.25f, 0.0f)));
     return;
   }
 
@@ -124,7 +124,7 @@ void GLExampleApplication::InitGeometry()
     auto fern = make_shared<BarnsleyFern>(points);
     fern->Normalize();
     geometry = fern;
-    GLProgram::SetVertexAttribute("a_color", glm::vec4(0.0, 1.0, 0.0, 1.0));
+    GLProgram::SetVertexAttribute("a_color", vec4(0.0, 1.0, 0.0, 1.0));
     return;
   }
 

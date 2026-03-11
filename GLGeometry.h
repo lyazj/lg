@@ -11,5 +11,5 @@ public:
 
   virtual void SetVertexAttributes() const = 0;
   virtual void Buffer() const = 0;
-  virtual void Draw(const glm::mat4 &model) const = 0;
+  virtual void Draw(const mat4 &model) const = 0;
 };

@@ -71,10 +71,10 @@ void GLExampleApplication::Init()
 
   maze = make_shared<Maze>(width, height, MazeType::Kruskal);
   GLfloat ratRadius = min(0.8f / (GLfloat)width, 0.8f / (GLfloat)height);
-  glm::vec3 ratA = { ratRadius, 0.0f, 0.0f };
-  glm::vec3 ratB = { -ratRadius, ratRadius * 0.5f, 0.0f };
-  glm::vec3 ratC = { -ratRadius, -ratRadius * 0.5f, 0.0f };
-  rat = make_shared<GLTransformedGeometry>(make_shared<GLTriangle>(ratA, ratB, ratC), glm::mat4(1.0));
+  vec3 ratA = { ratRadius, 0.0f, 0.0f };
+  vec3 ratB = { -ratRadius, ratRadius * 0.5f, 0.0f };
+  vec3 ratC = { -ratRadius, -ratRadius * 0.5f, 0.0f };
+  rat = make_shared<GLTransformedGeometry>(make_shared<GLTriangle>(ratA, ratB, ratC), mat4(1.0));
   ratDirection = 0;
   maze->GetEntry(ratX, ratY);
   maze->GetExit(exitX, exitY);
@@ -100,8 +100,8 @@ void GLExampleApplication::UpdateRatGeometry()
 {
   GLfloat x, y;
   maze->GetNormalizedPosition((GLfloat)ratX + 0.5f, (GLfloat)ratY + 0.5f, x, y);
-  glm::mat4 m = glm::translate(glm::vec3(x, y, 0.0));
-  m = glm::rotate(m, (GLfloat)ratDirection * 90.0f * deg, glm::vec3(0.0f, 0.0f, 1.0f));
+  mat4 m = glm::translate(vec3(x, y, 0.0));
+  m = glm::rotate(m, (GLfloat)ratDirection * 90.0f * deg, vec3(0.0f, 0.0f, 1.0f));
   rat->SetModel(m);
 }
 

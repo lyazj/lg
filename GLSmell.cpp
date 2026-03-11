@@ -8,7 +8,7 @@
 
 using namespace std;
 
-GLSmell::GLSmell(GLfloat r, GLint s) : GLBasicGeometry(2), radius(r), segments(max<GLint>(3, s))
+GLSmell::GLSmell(GLfloat r, GLint s) : radius(r), segments(max<GLint>(3, s))
 {
   vertices.reserve((segments + 1) * 4);
 
@@ -47,8 +47,6 @@ GLSmell::~GLSmell()
 {
   // empty
 }
-
-void GLSmell::IssueBuffer() const { vertexBuffer.Buffer(vertices); }
 
 void GLSmell::IssueDraw() const
 {
