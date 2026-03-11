@@ -3,3 +3,63 @@ LG:
   - Leyun's GL
 
 Memo on caveats:
+
+---
+
+## Complexity Estimate
+
+### Project Overview
+
+LG is a modular OpenGL 3.x framework written in C++17 (~2,676 lines across 48 files).
+It provides a rendering engine, shader/buffer abstractions, geometric shapes, fractal
+generators, and interactive example applications.
+
+### Component Breakdown
+
+| Component                        | Files                                                       | LOC  | Complexity |
+|----------------------------------|-------------------------------------------------------------|------|------------|
+| Core rendering engine            | GLApplication, GL3DApplication, GLProgram, GLShader,        | ~400 | High       |
+|                                  | GLBuffer, GLVertexArray, GLImage                            |      |            |
+| Geometry abstractions            | GLGeometry, GLBasicGeometry, GLCompositeGeometry,           | ~200 | Medium     |
+|                                  | GLTransformedGeometry                                       |      |            |
+| Basic shapes                     | GLTriangle, GLCircle, GLSphere, GLAxes, GLSmell             | ~260 | Low–Medium |
+| Fractals & procedural generation | SierpinskiGasket, SierpinskiGasket2, KochSnowflake,         | ~550 | Medium–High|
+|                                  | BarnsleyFern, Maze                                          |      |            |
+| Example applications             | GLApplicationExample, GLTriangleExample, GLSphereExample,   | ~600 | Medium     |
+|                                  | SierpinskiGasketExample, MazeExample                        |      |            |
+| Utilities & build system         | Utils, Global, CMakeLists.txt                               | ~130 | Low        |
+
+Key design patterns used: Abstract Factory, Composite, Decorator, Singleton,
+Template Method, and RAII with std::shared_ptr throughout.
+
+### Notable Complexity Points
+
+- Maze (393 LOC): the single most complex component. Implements three independent
+  maze-generation algorithms (depth-first search backtracking, Prim's algorithm,
+  Kruskal's union-find), entry/exit placement, cell graph representation, and
+  geometry emission for the renderer.
+- GLProgram (181 LOC): manages shader linking, cached uniform locations, and
+  overloaded vertex-attribute setters for scalar, vec2/3/4, and mat3/4 types.
+- GLApplication (168 LOC): singleton GLUT callback routing, projection/view/model
+  matrix stack, blend/depth state, and screen-capture support.
+- Fractal generators: SierpinskiGasket grows as O(3^order) triangles, KochSnowflake
+  as O(4^order) segments; BarnsleyFern and the iterative Sierpinski variant handle
+  up to ~1 million points with IFS / weighted-random-transform selection.
+
+### Estimated Development Time
+
+These estimates assume a developer already familiar with C++17 and the OpenGL API.
+
+| Component                        | Estimated time    |
+|----------------------------------|-------------------|
+| Core rendering engine            | 2–3 days          |
+| Geometry abstractions            | 1 day             |
+| Basic shapes                     | 1–2 days          |
+| Fractals (Sierpinski, Koch, Fern)| 1–2 days          |
+| Maze generator (3 algorithms)    | 2–3 days          |
+| Example applications             | 1–2 days          |
+| Build system & utilities         | 0.5 day           |
+| **Total (experienced developer)**| **~9–14 days**    |
+
+For a developer learning OpenGL or the underlying mathematics concurrently,
+add a factor of 2–3x, giving a realistic range of **3–6 weeks**.
