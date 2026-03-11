@@ -10,6 +10,7 @@
 #include "GLKochSnowflake.h"
 #include "GLMaze.h"
 #include "GLProgram.h"
+#include "GLRectangle.h"
 #include "GLSierpinskiGasket.h"
 #include "GLSierpinskiGasketChaos.h"
 #include "GLSmiley.h"
@@ -77,6 +78,11 @@ void GLExampleApplication::InitGeometry()
 
   if(strcmp(argv[1], "GLTriangle") == 0) {
     renderable.reset(new GLTriangle({ 0.0f, 0.5f, 0.0f }, { -0.5f, -0.5f, 0.0f }, { 0.5f, -0.5f, 0.0f }));
+    return;
+  }
+
+  if(strcmp(argv[1], "GLRectangle") == 0) {
+    renderable.reset(new GLRectangle(1.0f, 0.8f));
     return;
   }
 
