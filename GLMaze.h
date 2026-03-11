@@ -2,25 +2,25 @@
 
 #include <vector>
 
-#include "GLElementGeometry.h"
+#include "GLBufferedGeometry.h"
 
-enum class MazeType : unsigned char {
+enum class GLMazeType : unsigned char {
   Backtracking,
   Prim,
   Kruskal,
 };
 
-struct MazeCell {
+struct GLMazeCell {
   bool right : 1;
   bool up    : 1;
   bool left  : 1;
   bool down  : 1;
 };
 
-class Maze : public GLElementGeometryD<2> {
+class GLMaze : public GLBufferedGeometryD<2> {
 public:
-  Maze(GLint width, GLint height, MazeType type = MazeType::Backtracking);
-  ~Maze() override;
+  GLMaze(GLint width, GLint height, GLMazeType type = GLMazeType::Backtracking);
+  ~GLMaze() override;
 
   GLint GetWidth() const { return width; }
   GLint GetHeight() const { return height; }
@@ -28,14 +28,14 @@ public:
   GLint GetExit() const { return exit; }
   void GetEntry(GLint &x, GLint &y) const;
   void GetExit(GLint &x, GLint &y) const;
-  const std::vector<std::vector<MazeCell>> &GetCells() const { return cells; }
+  const std::vector<std::vector<GLMazeCell>> &GetCells() const { return cells; }
 
   void GetNormalizedPosition(GLfloat x, GLfloat y, GLfloat &nx, GLfloat &ny) const;
 
 protected:
   GLint width, height;
   GLint entry, exit;
-  std::vector<std::vector<MazeCell>> cells;
+  std::vector<std::vector<GLMazeCell>> cells;
 
   void GenerateVertices();
   void GenerateVertex(GLint x, GLint y);

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "GLElementGeometry.h"
+#include "GLBufferedGeometry.h"
 
-class GLTriangle : public GLElementGeometryD<3> {
+class GLTriangle : public GLBufferedGeometryD<3> {
 public:
   GLTriangle(const vec3 &v1, const vec3 &v2, const vec3 &v3);
   ~GLTriangle() override;

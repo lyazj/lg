@@ -2,7 +2,7 @@
 
 #include "GLApplication.h"
 #include "GLProgram.h"
-#include "SierpinskiGasket2.h"
+#include "GLSierpinskiGasketChaos.h"
 #include "Utils.h"
 
 using namespace std;
@@ -16,7 +16,7 @@ public:
   void Display() override;
 
 private:
-  GLGeometryPtr geometry;
+  GLRenderablePtr geometry;
   mat4 trans;
   GLint ntrans;
 
@@ -46,7 +46,7 @@ void GLExampleApplication::Init()
 
   UseProgram(GLProgram::GetDefaultProgram());
 
-  geometry = make_shared<SierpinskiGasket2>(1e5);
+  geometry = make_shared<GLSierpinskiGasketChaos>(1e5);
   geometry->SetVertexAttributes();
   geometry->Buffer();
 

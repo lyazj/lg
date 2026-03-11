@@ -2,13 +2,13 @@
 #include <iostream>
 
 #include "GLApplication.h"
-#include "GLColoredGeometry.h"
-#include "GLCompositeGeometry.h"
+#include "GLColorableGeometry.h"
+#include "GLCompositeRenderable.h"
 #include "GLProgram.h"
-#include "GLSmell.h"
-#include "GLTransformedGeometry.h"
+#include "GLSmiley.h"
+#include "GLTransformedRenderable.h"
 #include "GLTriangle.h"
-#include "Maze.h"
+#include "GLMaze.h"
 #include "Utils.h"
 
 using namespace std;
@@ -23,9 +23,9 @@ public:
 
 private:
   GLint width, height;
-  shared_ptr<Maze> maze;
-  GLTransformedGeometryPtr rat;
-  GLGeometryPtr geometry;
+  shared_ptr<GLMaze> maze;
+  GLTransformedRenderablePtr rat;
+  GLRenderablePtr geometry;
 
   GLint ratDirection;
   GLint ratX, ratY, exitX, exitY;
@@ -70,20 +70,20 @@ void GLExampleApplication::Init()
   width = stoi(argv[1]);
   height = stoi(argv[2]);
 
-  maze = make_shared<Maze>(width, height, MazeType::Kruskal);
+  maze = make_shared<GLMaze>(width, height, GLMazeType::Kruskal);
   GLfloat ratRadius = min(0.8f / (GLfloat)width, 0.8f / (GLfloat)height);
   vec3 ratA = { ratRadius, 0.0f, 0.0f };
   vec3 ratB = { -ratRadius, ratRadius * 0.5f, 0.0f };
   vec3 ratC = { -ratRadius, -ratRadius * 0.5f, 0.0f };
-  GLPrimitiveGeometryPtr rawRat = make_shared<GLTriangle>(ratA, ratB, ratC);
-  rawRat = make_shared<GLSingleColorGeometry>(rawRat, vec4(0.0f, 1.0f, 0.0f, 1.0f));
-  rat = make_shared<GLTransformedGeometry>(rawRat, mat4(1.0));
+  GLSimpleRenderablePtr rawRat = make_shared<GLTriangle>(ratA, ratB, ratC);
+  rawRat = make_shared<GLFlatColorGeometry>(rawRat, vec4(0.0f, 1.0f, 0.0f, 1.0f));
+  rat = make_shared<GLTransformedRenderable>(rawRat, mat4(1.0));
   ratDirection = 0;
   maze->GetEntry(ratX, ratY);
   maze->GetExit(exitX, exitY);
   UpdateRatGeometry();
 
-  auto scene = make_shared<GLCompositeGeometry>();
+  auto scene = make_shared<GLCompositeRenderable>();
   scene->AddGeometry(maze);
   scene->AddGeometry(rat);
   geometry = scene;
@@ -158,7 +158,7 @@ void GLExampleApplication::CheckWin()
 {
   if(ratX != exitX || ratY != exitY) return;
   glutMouseFunc(nullptr);
-  geometry.reset(new GLSmell(0.8f, 256));
+  geometry.reset(new GLSmiley(0.8f, 256));
   geometry->SetVertexAttributes();
   geometry->Buffer();
 }

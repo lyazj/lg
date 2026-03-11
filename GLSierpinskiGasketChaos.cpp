@@ -1,4 +1,4 @@
-#include "SierpinskiGasket2.h"
+#include "GLSierpinskiGasketChaos.h"
 
 #include <math.h>
 
@@ -6,7 +6,7 @@
 
 using namespace std;
 
-SierpinskiGasket2::SierpinskiGasket2(GLint p) : points(p)
+GLSierpinskiGasketChaos::GLSierpinskiGasketChaos(GLint p) : points(p)
 {
   vec2 triangle[3] = {
     { cosf(0.0f * 2.0f * pi / 3.0f + pi / 2.0f), sinf(0.0f * 2.0f * pi / 3.0f + pi / 2.0f) },
@@ -24,9 +24,9 @@ SierpinskiGasket2::SierpinskiGasket2(GLint p) : points(p)
   }
 }
 
-SierpinskiGasket2::~SierpinskiGasket2()
+GLSierpinskiGasketChaos::~GLSierpinskiGasketChaos()
 {
   // empty
 }
 
-void SierpinskiGasket2::IssueDraw() const { GLDrawArrays(GL_POINTS, 0, (GLsizei)vertices.size()); }
+void GLSierpinskiGasketChaos::IssueDraw() const { GLDrawArrays(GL_POINTS, 0, (GLsizei)vertices.size()); }

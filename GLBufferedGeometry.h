@@ -5,13 +5,13 @@
 #include <vector>
 
 #include "GLBuffer.h"
-#include "GLPrimitiveGeometry.h"
+#include "GLSimpleRenderable.h"
 #include "GLVertexArray.h"
 
-class GLElementGeometry : public GLPrimitiveGeometry {
+class GLBufferedGeometry : public GLSimpleRenderable {
 public:
-  GLElementGeometry();
-  ~GLElementGeometry() override;
+  GLBufferedGeometry();
+  ~GLBufferedGeometry() override;
 
   const GLVertexArray &GetVertexArray() const override { return vertexArray; }
   const GLBuffer &GetVertexBuffer() const override { return vertexBuffer; }
@@ -31,10 +31,10 @@ protected:
 };
 
 template<GLint D>
-class GLElementGeometryD : public GLElementGeometry {
+class GLBufferedGeometryD : public GLBufferedGeometry {
 public:
-  GLElementGeometryD() = default;
-  ~GLElementGeometryD() override = default;
+  GLBufferedGeometryD() = default;
+  ~GLBufferedGeometryD() override = default;
 
   GLint GetDimension() const override final { return D; }
   GLint GetNVertex() const override final { return (GLint)vertices.size(); }
@@ -48,7 +48,7 @@ protected:
 };
 
 template<GLint D>
-inline void GLElementGeometryD<D>::GetVertex(GLint i, vec2 &v) const
+inline void GLBufferedGeometryD<D>::GetVertex(GLint i, vec2 &v) const
 {
   if constexpr(D == 2) {
     v = vertices[i];
@@ -58,7 +58,7 @@ inline void GLElementGeometryD<D>::GetVertex(GLint i, vec2 &v) const
 }
 
 template<GLint D>
-inline void GLElementGeometryD<D>::GetVertex(GLint i, vec3 &v) const
+inline void GLBufferedGeometryD<D>::GetVertex(GLint i, vec3 &v) const
 {
   if constexpr(D == 3) {
     v = vertices[i];
