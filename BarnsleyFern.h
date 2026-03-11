@@ -1,8 +1,8 @@
 #pragma once
 
-#include "GLBasicGeometry.h"
+#include "GLElementGeometry.h"
 
-class BarnsleyFern : public GLBasicGeometry<2> {
+class BarnsleyFern : public GLElementGeometryD<2> {
 public:
   BarnsleyFern(GLint points);
   ~BarnsleyFern() override;

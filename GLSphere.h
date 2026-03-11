@@ -1,9 +1,9 @@
 #pragma once
 
-#include "GLBasicGeometry.h"
+#include "GLElementGeometry.h"
 #include "GLBuffer.h"
 
-class GLSphere : public GLBasicGeometry<3> {
+class GLSphere : public GLElementGeometryD<3> {
 public:
   GLSphere(GLfloat radius, GLint slices, GLint stacks);
   ~GLSphere() override;

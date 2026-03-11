@@ -3,4 +3,4 @@ LG:
   - Leyun's GL
 
 Memo on caveats:
-  - Avoid duplicate Geometry::Buffer() calls for the same object in the scene graph.
+  - Avoid duplicate Geometry::SetVertexAttributes() and Geometry::Buffer() calls for the same object in the scene graph.

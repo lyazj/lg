@@ -1,8 +1,8 @@
 #pragma once
 
-#include "GLBasicGeometry.h"
+#include "GLElementGeometry.h"
 
-class KochSnowflake : public GLBasicGeometry<2> {
+class KochSnowflake : public GLElementGeometryD<2> {
 public:
   KochSnowflake(GLint order);
   ~KochSnowflake() override;

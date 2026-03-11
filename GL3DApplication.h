@@ -13,7 +13,7 @@ protected:
   using GLApplication::SetProjection;
 
   void Init() override;
-  virtual void Reshape(int w, int h) override;
+  void Reshape(int w, int h) override;
 
   GLfloat fov, near, far;
 };

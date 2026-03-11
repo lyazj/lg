@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "GLBasicGeometry.h"
+#include "GLElementGeometry.h"
 
 enum class MazeType : unsigned char {
   Backtracking,
@@ -17,7 +17,7 @@ struct MazeCell {
   bool down  : 1;
 };
 
-class Maze : public GLBasicGeometry<2> {
+class Maze : public GLElementGeometryD<2> {
 public:
   Maze(GLint width, GLint height, MazeType type = MazeType::Backtracking);
   ~Maze() override;

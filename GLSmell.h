@@ -1,8 +1,8 @@
 #pragma once
 
-#include "GLBasicGeometry.h"
+#include "GLElementGeometry.h"
 
-class GLSmell : public GLBasicGeometry<2> {
+class GLSmell : public GLElementGeometryD<2> {
 public:
   GLSmell(GLfloat radius, GLint segments);
   ~GLSmell() override;

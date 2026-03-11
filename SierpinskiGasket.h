@@ -1,8 +1,8 @@
 #pragma once
 
-#include "GLBasicGeometry.h"
+#include "GLElementGeometry.h"
 
-class SierpinskiGasket : public GLBasicGeometry<2> {
+class SierpinskiGasket : public GLElementGeometryD<2> {
 public:
   SierpinskiGasket(GLint order, GLfloat noise = 0.0f);
   ~SierpinskiGasket() override;

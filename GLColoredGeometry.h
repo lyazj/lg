@@ -4,22 +4,17 @@
 #include <vector>
 
 #include "GLBuffer.h"
-#include "GLGeometry.h"
+#include "GLPrimitiveGeometryDecorator.h"
 
-class GLColoredGeometry : public GLGeometry {
+class GLColoredGeometry : public GLPrimitiveGeometryDecorator {
 public:
-  GLColoredGeometry(GLBasicGeometryPtr g) : geometry(std::move(g)) { }
+  GLColoredGeometry(GLPrimitiveGeometryPtr g) : GLPrimitiveGeometryDecorator(std::move(g)) { }
   ~GLColoredGeometry() override = default;
 
-  const GLBasicGeometryPtr &GetGeometry() const { return geometry; }
-  void SetGeometry(const GLBasicGeometryPtr &g) { geometry = g; }
-
-  virtual void SetVertexAttributes() const override;
   void Buffer() const override;
   void Draw(const mat4 &model) const override;
 
 protected:
-  GLBasicGeometryPtr geometry;
   GLBuffer colorBuffer;
   mutable std::vector<vec4> colors;
 
@@ -28,7 +23,7 @@ protected:
 
 class GLSingleColorGeometry : public GLColoredGeometry {
 public:
-  GLSingleColorGeometry(GLBasicGeometryPtr g, const vec4 &c) : GLColoredGeometry(std::move(g)), color(c) { }
+  GLSingleColorGeometry(GLPrimitiveGeometryPtr g, const vec4 &c) : GLColoredGeometry(std::move(g)), color(c) { }
   ~GLSingleColorGeometry() override = default;
 
   const vec4 &GetColor() const { return color; }
@@ -37,5 +32,14 @@ public:
 protected:
   vec4 color;
 
+  void Color() const override;
+};
+
+class GLRandomColorGeometry : public GLColoredGeometry {
+public:
+  GLRandomColorGeometry(GLPrimitiveGeometryPtr g) : GLColoredGeometry(std::move(g)) { }
+  ~GLRandomColorGeometry() override = default;
+
+protected:
   void Color() const override;
 };

@@ -1,9 +1,7 @@
 #include "GLColoredGeometry.h"
 
-#include "GLBasicGeometry.h"
+#include "GLElementGeometry.h"
 #include "GLProgram.h"
-
-void GLColoredGeometry::SetVertexAttributes() const { geometry->SetVertexAttributes(); }
 
 void GLColoredGeometry::Buffer() const
 {
@@ -22,3 +20,10 @@ void GLColoredGeometry::Draw(const mat4 &model) const
 }
 
 void GLSingleColorGeometry::Color() const { colors.assign(geometry->GetNVertex(), color); }
+
+void GLRandomColorGeometry::Color() const
+{
+  GLint n = geometry->GetNVertex();
+  colors.reserve(n);
+  for(GLint i = 0; i < n; ++i) colors.push_back(vec4(drand48(), drand48(), drand48(), 1.0));
+}

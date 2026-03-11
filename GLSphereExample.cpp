@@ -3,7 +3,7 @@
 
 #include "GL3DApplication.h"
 #include "GLAxes.h"
-#include "GLBuffer.h"
+#include "GLColoredGeometry.h"
 #include "GLCompositeGeometry.h"
 #include "GLProgram.h"
 #include "GLSphere.h"
@@ -12,40 +12,25 @@
 
 using namespace std;
 
-class GLExampleSphere : public GLSphere {
+class GLExampleSphere : public GLColoredGeometry {
 public:
   GLExampleSphere(GLfloat radius, GLint slices, GLint stacks);
   ~GLExampleSphere() override = default;
 
-  void SetVertexAttributes() const override;
-
 protected:
-  GLBuffer colorBuffer;
-  std::vector<vec4> colors;
-
-  void IssueBuffer() const override;
+  void Color() const override { }
 };
 
-GLExampleSphere::GLExampleSphere(GLfloat r, GLint sl, GLint st) : GLSphere(r, sl, st)
+GLExampleSphere::GLExampleSphere(GLfloat r, GLint sl, GLint st) : GLColoredGeometry(make_shared<GLSphere>(r, sl, st))
 {
-  colors.reserve(vertices.size());
-  for(const vec3 &vertex : vertices) {
-    GLfloat lambda = vertex.z / radius / 2.0f + 0.5f;
+  GLint n = geometry->GetNVertex();
+  colors.reserve(n);
+  for(GLint i = 0; i < n; ++i) {
+    vec3 vertex;
+    geometry->GetVertex(i, vertex);
+    GLfloat lambda = vertex.z / r / 2.0f + 0.5f;
     colors.emplace_back(lambda, lambda, lambda, 1.0f);
   }
-}
-
-void GLExampleSphere::SetVertexAttributes() const
-{
-  GLSphere::SetVertexAttributes();
-  colorBuffer.Bind();
-  GLProgram::SetVertexAttributePointer("a_color", 4);
-}
-
-void GLExampleSphere::IssueBuffer() const
-{
-  GLSphere::IssueBuffer();
-  colorBuffer.Buffer(colors);
 }
 
 class GLExampleApplication final : public GL3DApplication {

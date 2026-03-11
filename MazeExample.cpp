@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "GLApplication.h"
+#include "GLColoredGeometry.h"
 #include "GLCompositeGeometry.h"
 #include "GLProgram.h"
 #include "GLSmell.h"
@@ -23,7 +24,7 @@ public:
 private:
   GLint width, height;
   shared_ptr<Maze> maze;
-  shared_ptr<GLTransformedGeometry> rat;
+  GLTransformedGeometryPtr rat;
   GLGeometryPtr geometry;
 
   GLint ratDirection;
@@ -74,7 +75,9 @@ void GLExampleApplication::Init()
   vec3 ratA = { ratRadius, 0.0f, 0.0f };
   vec3 ratB = { -ratRadius, ratRadius * 0.5f, 0.0f };
   vec3 ratC = { -ratRadius, -ratRadius * 0.5f, 0.0f };
-  rat = make_shared<GLTransformedGeometry>(make_shared<GLTriangle>(ratA, ratB, ratC), mat4(1.0));
+  GLPrimitiveGeometryPtr rawRat = make_shared<GLTriangle>(ratA, ratB, ratC);
+  rawRat = make_shared<GLSingleColorGeometry>(rawRat, vec4(0.0f, 1.0f, 0.0f, 1.0f));
+  rat = make_shared<GLTransformedGeometry>(rawRat, mat4(1.0));
   ratDirection = 0;
   maze->GetEntry(ratX, ratY);
   maze->GetExit(exitX, exitY);

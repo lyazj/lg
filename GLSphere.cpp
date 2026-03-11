@@ -60,7 +60,7 @@ GLSphere::~GLSphere()
 
 void GLSphere::IssueBuffer() const
 {
-  GLBasicGeometry::IssueBuffer();
+  GLElementGeometryD::IssueBuffer();
   elementBuffer.Buffer(elements);
 }
 
