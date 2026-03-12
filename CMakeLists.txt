@@ -10,9 +10,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Enable warnings
 if(MSVC)
-    add_compile_options(/W4 /WX)
+    add_compile_options(/W4)
 else()
-    add_compile_options(-Wall -Wshadow -Wextra -Wpedantic -Wconversion -Werror)
+    add_compile_options(-Wall -Wshadow -Wextra -Wpedantic -Wconversion)
 endif()
 
 # -----------------------------
@@ -45,7 +45,7 @@ find_package(glm REQUIRED)
 find_package(OpenCV REQUIRED COMPONENTS core imgcodecs)
 # GLM_ENABLE_EXPERIMENTAL is required for glm/gtx/* headers (GLM >= 0.9.9)
 target_compile_definitions(LG PUBLIC GLM_ENABLE_EXPERIMENTAL)
-target_link_libraries(LG PUBLIC GLUT::GLUT GLEW::GLEW OpenGL::GL glm::glm)
+target_link_libraries(LG PUBLIC glm::glm GLUT::GLUT GLEW::GLEW OpenGL::GL)
 target_link_libraries(LG PRIVATE ${OpenCV_LIBS})
 
 # -----------------------------

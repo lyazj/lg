@@ -7,7 +7,7 @@
 unsigned GetElapsedTime();
 
 // Thread-unsafe.
-void RandSeed(unsigned long);
+void RandSeed(unsigned long long);
 GLint RandInt();
 GLint RandInt(GLint a);
 GLint RandInt(GLint a, GLint b);

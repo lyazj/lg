@@ -141,7 +141,7 @@ void GLApplication::SaveScreen(const fs::path &path, GLenum mode) const
   image.Save(path);
 }
 
-void GLApplication::PreInit() { RandSeed(time(0)); }
+void GLApplication::PreInit() { RandSeed((unsigned long long)time(0)); }
 
 void GLApplication::InitGL()
 {
