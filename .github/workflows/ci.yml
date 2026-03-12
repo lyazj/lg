@@ -35,21 +35,10 @@ jobs:
           brew update
           brew install glew freeglut glm graphicsmagick
 
-      - name: Cache vcpkg binary packages
-        if: runner.os == 'Windows'
-        uses: actions/cache@v4
-        with:
-          path: C:\vcpkg_archives
-          key: vcpkg-${{ runner.os }}-${{ hashFiles('.github/workflows/ci.yml') }}
-          restore-keys: vcpkg-${{ runner.os }}-
-
       - name: Install dependencies (Windows)
         if: runner.os == 'Windows'
-        env:
-          VCPKG_DEFAULT_BINARY_CACHE: C:\vcpkg_archives
-        run: |
-          New-Item -ItemType Directory -Force -Path C:\vcpkg_archives | Out-Null
-          vcpkg install glew freeglut glm graphicsmagick pkgconf --triplet x64-windows
+        run: |  # Skip graphicsmagick pkgconf.
+          vcpkg install glew freeglut glm --triplet x64-windows
 
       - name: Configure (Linux / macOS)
         if: runner.os != 'Windows'
