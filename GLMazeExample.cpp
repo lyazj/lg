@@ -32,6 +32,7 @@ private:
 
   void UpdateRatGeometry();
   void Mouse(int button, int state, int x, int y);
+  void KeyDown(unsigned char key, int x, int y);
   void TurnLeft() { ratDirection = (ratDirection + 1) % 4; }
   void TurnRight() { ratDirection = (ratDirection + 3) % 4; }
   void MoveForward();
@@ -60,6 +61,8 @@ void GLExampleApplication::Init()
   GLApplication::Init();
   glutMouseFunc(
       [](int b, int s, int x, int y) { ((GLExampleApplication *)GLApplication::GetInstance())->Mouse(b, s, x, y); });
+  glutKeyboardFunc(
+      [](unsigned char k, int x, int y) { ((GLExampleApplication *)GLApplication::GetInstance())->KeyDown(k, x, y); });
 
   UseProgram(GLProgram::GetDefaultProgram());
 
@@ -121,6 +124,15 @@ void GLExampleApplication::Mouse(int button, int state, int, int)
   UpdateRatGeometry();
   CheckWin();
   glutPostRedisplay();
+}
+
+void GLExampleApplication::KeyDown(unsigned char key, int x, int y)
+{
+  switch(key) {
+  case 'L': case 'l': return Mouse(GLUT_LEFT_BUTTON, GLUT_DOWN, x, y);
+  case ' ': return Mouse(GLUT_MIDDLE_BUTTON, GLUT_DOWN, x, y);
+  case 'R': case 'r': return Mouse(GLUT_RIGHT_BUTTON, GLUT_DOWN, x, y);
+  }
 }
 
 void GLExampleApplication::MoveForward()
