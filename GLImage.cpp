@@ -23,5 +23,5 @@ void GLImage::Save(const fs::path &path) const
   case GLImageType::RGBA: format = "RGBA"; break;
   default: abort();
   }
-  Magick::Image(width, height, format, Magick::CharPixel, data.data()).write(path);
+  Magick::Image(width, height, format, Magick::CharPixel, data.data()).write(path.string());
 }
