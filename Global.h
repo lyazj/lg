@@ -22,11 +22,8 @@ using mat2 = mat<2>;
 using mat3 = mat<3>;
 using mat4 = mat<4>;
 
+#include <filesystem>
 #include <memory>
-
-namespace std { namespace filesystem {
-
-}}  // namespace std::filesystem
 
 namespace fs = std::filesystem;
 using std::byte;
