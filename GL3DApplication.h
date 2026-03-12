@@ -2,6 +2,10 @@
 
 #include "GLApplication.h"
 
+// Undefine Windows macros...
+#undef near
+#undef far
+
 class GL3DApplication : public GLApplication {
 public:
   GL3DApplication(int &argc, char *argv[]);
