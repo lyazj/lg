@@ -1,4 +1,7 @@
+#include <fstream>
 #include <glm/gtx/transform.hpp>
+#include <iostream>
+#include <thread>
 #include <vector>
 
 #include "GL3DApplication.h"
@@ -38,6 +41,7 @@ GLExampleSphere::GLExampleSphere(GLfloat r, GLint sl, GLint st)
 class GLExampleApplication final : public GL3DApplication {
 public:
   using GL3DApplication::GL3DApplication;
+  ~GLExampleApplication() override;
 
   void PreInit() override;
   void Init() override;
@@ -52,9 +56,15 @@ private:
   GLCompositeRenderablePtr scene;
 
   GLfloat period, time, ballHeight;
+  unsigned recordDuration;
+  unsigned ts = 0;  // safe when wraps around
+  vector<unsigned> tss;
+  bool recordCreated = false;
+  thread recordThread;
 
   void Idle();
   void UpdateBallTransform();
+  void CreateRecord();
 };
 
 int main(int argc, char *argv[])
@@ -63,6 +73,11 @@ int main(int argc, char *argv[])
   application = make_shared<GLExampleApplication>(argc, argv);
   application->Run();
   return 0;
+}
+
+GLExampleApplication::~GLExampleApplication()
+{
+  if(recordThread.joinable()) recordThread.join();
 }
 
 void GLExampleApplication::PreInit()
@@ -104,22 +119,31 @@ void GLExampleApplication::Init()
   scene->SetVertexAttributes();
   scene->Buffer();
 
-  period = sqrtf(2 * ballInitialHeight / g) * 2.0f;  // s
-  time = 0.0f;                                       // s
-  ballHeight = ballInitialHeight;                    // m
+  period = sqrtf(2 * ballInitialHeight / g) * 2.0f;    // s
+  time = 0.0f;                                         // s
+  recordDuration = unsigned(3000.0f * period + 0.5f);  // ms
+  ballHeight = ballInitialHeight;                      // m
 }
 
 void GLExampleApplication::Display()
 {
   Clear();
   scene->Draw(model);
+  if(!recordCreated) {
+    if(ts < recordDuration) {
+      SaveScreen("BouncingBallExample_" + to_string(ts) + ".png", GL_BACK);
+      tss.push_back(ts);
+    } else {
+      recordCreated = true;
+      recordThread = thread(&GLExampleApplication::CreateRecord, this);
+    }
+  }
   Flush();
 }
 
 void GLExampleApplication::Idle()
 {
-  static int ts;  // int: safe when overflows
-  int t = GetElapsedTime();
+  unsigned t = (unsigned)GetElapsedTime();
   if((t - ts) * 60ULL < 1000ULL) return;
   GLfloat dt = GLfloat(t - ts) / 1000.0f;  // s
   ts = t;
@@ -140,3 +164,23 @@ void GLExampleApplication::Idle()
 }
 
 void GLExampleApplication::UpdateBallTransform() { ball->SetModel(glm::translate(vec3(0.0f, ballHeight, 0.0f))); }
+
+void GLExampleApplication::CreateRecord()  // Called in a separate thread.
+{
+  ofstream ofs("BouncingBallExample.txt");
+  tss.push_back(recordDuration);
+  for(size_t i = 0; i + 1 < tss.size(); ++i) {
+    ofs << "file BouncingBallExample_" << tss[i] << ".png\n";
+    ofs << "duration " << GLfloat(tss[i + 1] - tss[i]) * 0.001f << "\n";
+  }
+  ofs.close();
+
+  const char *cmd =  // Command line suggested by ChatGPT. Controls quality and file size.
+      "ffmpeg -y -f concat -safe 0 -i BouncingBallExample.txt -c:v libx264 -crf 12 -preset slow -pix_fmt yuv420p "
+      "-movflags +faststart BouncingBallExample.mp4";
+  if(system(cmd)) { }  // We can do nothing on error.
+
+  remove("BouncingBallExample.txt");
+  for(unsigned t : tss) remove(("BouncingBallExample_" + to_string(t) + ".png").c_str());
+  tss.clear();  // tss is never accessed in the main thread after this point.
+}

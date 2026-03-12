@@ -124,9 +124,11 @@ void GLApplication::DisableDepthTest()
 
 void GLApplication::Clear() const { glClear(clearMask); }
 
-void GLApplication::SaveScreen(const fs::path &path) const
+void GLApplication::SaveScreen(const fs::path &path, GLenum mode) const
 {
   vector<byte> pixels(width * height * 4);
+  glFinish();
+  glReadBuffer(mode);
   GLReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 
   GLImage image;

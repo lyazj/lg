@@ -37,7 +37,7 @@ public:
   void DisableDepthTest();
   void Clear() const;
 
-  void SaveScreen(const fs::path &path) const;
+  void SaveScreen(const fs::path &path, GLenum mode) const;
 
 protected:
   // Single-window only: singleton routes GLUT callbacks.

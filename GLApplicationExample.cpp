@@ -59,7 +59,7 @@ void GLExampleApplication::Init()
   renderable->Buffer();
 
   Display();
-  SaveScreen(GetScreenshotName());
+  SaveScreen(GetScreenshotName(), GL_FRONT);
 }
 
 void GLExampleApplication::Display()
