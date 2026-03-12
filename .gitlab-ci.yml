@@ -1,0 +1,33 @@
+stages:
+  - build
+
+# Job for Linux (Ubuntu)
+build-linux:
+  image: ubuntu:latest
+  stage: build
+  script:
+    - sudo apt-get update
+    - sudo apt-get install -y libgl-dev libglew-dev freeglut3-dev libglm-dev graphicsmagick-libmagick-dev-compat
+    - cmake -B build -DCMAKE_BUILD_TYPE=Release
+    - cmake --build build --config Release
+
+# Job for macOS (Using macOS runner)
+build-macos:
+  image: applexcode:latest
+  stage: build
+  script:
+    - brew update
+    - brew install glew freeglut glm graphicsmagick
+    - cmake -B build -DCMAKE_BUILD_TYPE=Release
+    - cmake --build build --config Release
+
+# Job for Windows (Using Windows runner)
+build-windows:
+  image: mcr.microsoft.com/windows/servercore:ltsc2022  # Windows image
+  stage: build
+  script:
+    - powershell -Command "vcpkg install glew freeglut glm --triplet x64-windows"
+    - cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
+    - cmake --build build --config Release
+  only:
+    - main
