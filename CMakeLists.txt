@@ -37,16 +37,16 @@ endforeach()
 # -----------------------------
 add_library(LG SHARED ${LIB_SOURCES})
 
-# Link libraries for OpenGL, GLEW, GLUT, GLM, OpenCV
+# Link libraries for OpenGL, GLEW, GLUT, GLM, ImageMagic
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(GLUT REQUIRED)
 find_package(glm REQUIRED)
-find_package(OpenCV REQUIRED COMPONENTS core imgcodecs)
+find_package(ImageMagick COMPONENTS Magick++ REQUIRED)
 # GLM_ENABLE_EXPERIMENTAL is required for glm/gtx/* headers (GLM >= 0.9.9)
 target_compile_definitions(LG PUBLIC GLM_ENABLE_EXPERIMENTAL)
 target_link_libraries(LG PUBLIC glm::glm GLUT::GLUT GLEW::GLEW OpenGL::GL)
-target_link_libraries(LG PRIVATE ${OpenCV_LIBS})
+target_link_libraries(LG PRIVATE ImageMagick::Magick++)
 
 # -----------------------------
 # Create executable for each example
