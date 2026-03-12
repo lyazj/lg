@@ -14,7 +14,7 @@ unsigned GetElapsedTime() { return (unsigned)glutGet(GLUT_ELAPSED_TIME); }
 static mt19937 gRandom;
 void RandSeed(unsigned long long s) { gRandom.seed((mt19937::result_type)s); }
 GLint RandInt() { return uniform_int_distribution<GLint>()(gRandom); }
-GLint RandInt(GLint a) { return uniform_int_distribution<GLint>(a)(gRandom); }
+GLint RandInt(GLint a) { return uniform_int_distribution<GLint>(0, a)(gRandom); }
 GLint RandInt(GLint a, GLint b) { return uniform_int_distribution<GLint>(a, b)(gRandom); }
 GLfloat RandFloat() { return uniform_real_distribution<GLfloat>()(gRandom); }
 vec2 RandVec2() { return { RandFloat(), RandFloat() }; }

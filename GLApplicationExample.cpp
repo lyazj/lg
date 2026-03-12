@@ -134,7 +134,7 @@ void GLExampleApplication::InitGeometry()
     return;
   }
 
-  if(strcmp(argv[1], "Maze") == 0) {
+  if(strcmp(argv[1], "GLMaze") == 0) {
     GLint w = 20, h = 20;
     GLMazeType type = GLMazeType::Backtracking;
     if(argc > 2) w = stoi(argv[2]);

@@ -8,14 +8,21 @@ GL_DEFINE_WRAPPER(ReadPixels)
 
 using namespace std;
 
+GLApplication *GLApplication::gInstance;
+
 GLApplication::GLApplication(int &ac, char *av[])
     : argc(ac),
       argv(av),
       programName(argv[0]),
       programShortName(fs::path(programName).stem().string()),
       displayMode(GLUT_SINGLE | GLUT_RGBA | GLUT_DEPTH),  // negligible overhead
+#ifdef _WIN32
+      width(512),
+      height(512),
+#else /* _WIN32 */
       width(1024),
       height(1024),
+#endif /* _WIN32 */
       title(programShortName),
       windowId(-1),
       projection(1.0),
@@ -24,11 +31,11 @@ GLApplication::GLApplication(int &ac, char *av[])
       flush(glFlush),
       clearMask(GL_COLOR_BUFFER_BIT)
 {
-  if(tInstance) abort();
-  tInstance = this;
+  if(gInstance) abort();
+  gInstance = this;
 }
 
-GLApplication::~GLApplication() { tInstance = nullptr; }
+GLApplication::~GLApplication() { gInstance = nullptr; }
 
 void GLApplication::Run()
 {
@@ -155,7 +162,11 @@ void GLApplication::Init()
 {
   glClearColor(1.0, 1.0, 1.0, 1.0);
   glPointSize(1.0);
+#ifdef _WIN32
+  glLineWidth(1.0);
+#else /* _WIN32 */
   glLineWidth(2.0);
+#endif /* _WIN32 */
   GLProgram::SetDefaultVertexAttributes();
 
   glutDisplayFunc([] { GLApplication::GetInstance()->Display(); });

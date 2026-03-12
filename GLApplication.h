@@ -12,7 +12,7 @@ public:
   GLApplication(const GLApplication &) = delete;
   GLApplication &operator=(const GLApplication &) = delete;
 
-  static GLApplication *GetInstance() { return tInstance; }
+  static GLApplication *GetInstance() { return gInstance; }
 
   virtual void Run();
 
@@ -40,7 +40,7 @@ public:
 
 protected:
   // Single-window only: singleton routes GLUT callbacks.
-  inline static thread_local GLApplication *tInstance;
+  static GLApplication *gInstance;
 
   int &argc;
   char **argv;
