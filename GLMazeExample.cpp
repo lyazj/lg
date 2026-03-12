@@ -64,7 +64,7 @@ void GLExampleApplication::Init()
   UseProgram(GLProgram::GetDefaultProgram());
 
   if(argc != 3) {
-    cerr << "Usage: " << GetProgramShortName() << " <width> <height>" << endl;
+    cerr << "Usage: " << programShortName << " <width> <height>" << endl;
     exit(EXIT_FAILURE);
   }
   width = stoi(argv[1]);

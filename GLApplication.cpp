@@ -13,10 +13,12 @@ using namespace std;
 GLApplication::GLApplication(int &ac, char *av[])
     : argc(ac),
       argv(av),
+      programName(argv[0]),
+      programShortName(fs::path(programName).stem().string()),
       displayMode(GLUT_SINGLE | GLUT_RGBA | GLUT_DEPTH),  // negligible overhead
       width(1024),
       height(1024),
-      title(GetProgramShortName()),
+      title(programShortName),
       windowId(-1),
       projection(1.0),
       view(1.0),
@@ -139,7 +141,7 @@ void GLApplication::SaveScreen(const fs::path &path, GLenum mode) const
   image.Save(path);
 }
 
-void GLApplication::PreInit() { srand48(time(0)); }
+void GLApplication::PreInit() { RandSeed(time(0)); }
 
 void GLApplication::InitGL()
 {

@@ -72,7 +72,7 @@ void GLExampleApplication::Display()
 void GLExampleApplication::InitGeometry()
 {
   if(argc == 1) {
-    cerr << "Usage: " << GetProgramShortName() << " <renderable> [ <args> ... ]" << endl;
+    cerr << "Usage: " << programShortName << " <renderable> [ <args> ... ]" << endl;
     exit(EXIT_FAILURE);
   }
 

@@ -4,9 +4,17 @@
 
 #include "Global.h"
 
-const char *GetProgramName();
-const char *GetProgramShortName();
-int GetElapsedTime();
+unsigned GetElapsedTime();
+
+// Thread-unsafe.
+void RandSeed(unsigned long);
+GLint RandInt();
+GLint RandInt(GLint a);
+GLint RandInt(GLint a, GLint b);
+GLfloat RandFloat();
+vec2 RandVec2();
+vec3 RandVec3();
+vec4 RandVec4();
 
 void GLCheckError();
 

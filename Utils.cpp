@@ -1,17 +1,25 @@
 #include "Utils.h"
 
-#include <errno.h>
-
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 #include <iostream>
+#include <random>
 #include <vector>
 
 using namespace std;
 
-const char *GetProgramName() { return program_invocation_name; }
+unsigned GetElapsedTime() { return (unsigned)glutGet(GLUT_ELAPSED_TIME); }
 
-const char *GetProgramShortName() { return program_invocation_short_name; }
-
-int GetElapsedTime() { return glutGet(GLUT_ELAPSED_TIME); }
+static mt19937 gRandom;
+void RandSeed(unsigned long s) { gRandom.seed(s); }
+GLint RandInt() { return uniform_int_distribution<GLint>()(gRandom); }
+GLint RandInt(GLint a) { return uniform_int_distribution<GLint>(a)(gRandom); }
+GLint RandInt(GLint a, GLint b) { return uniform_int_distribution<GLint>(a, b)(gRandom); }
+GLfloat RandFloat() { return uniform_real_distribution<GLfloat>()(gRandom); }
+vec2 RandVec2() { return { RandFloat(), RandFloat() }; }
+vec3 RandVec3() { return { RandFloat(), RandFloat(), RandFloat() }; }
+vec4 RandVec4() { return { RandFloat(), RandFloat(), RandFloat(), RandFloat() }; }
 
 void GLCheckError()
 {

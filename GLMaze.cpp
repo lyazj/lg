@@ -12,7 +12,7 @@ namespace {
 void Shuffle(GLint a[], GLint n)
 {
   for(GLint i = n - 1; i > 0; --i) {
-    GLint j = GLint(lrand48() % (i + 1));
+    GLint j = RandInt(i + 1);
     swap(a[i], a[j]);
   }
 }
@@ -30,7 +30,7 @@ private:
 
 GLint RandomizedQueue::Pop()
 {
-  GLint i = GLint(lrand48() % data.size());
+  GLint i = RandInt((GLint)data.size());
   GLint x = data[i];
   data[i] = data.back();
   data.pop_back();
@@ -133,7 +133,7 @@ void GLMazeGenerator::GenerateBacktracking()
 // The four corner cells have a higher probability to be selected as entry.
 void GLMazeGenerator::GenerateEntry()
 {
-  entry = GLint(lrand48() % (2 * (width + height)));
+  entry = RandInt(2 * (width + height));
   GetEntry(width, height, entry, xs, ys);
 }
 
@@ -143,25 +143,25 @@ void GLMazeGenerator::GenerateExit()
   // Top-left corner.
   if(xt == 0 && yt == 0) {
     exit = 0;
-    if(lrand48() % 2) exit = 2 * width;
+    if(RandInt(2)) exit = 2 * width;
   }
 
   // Top-right corner.
   else if(xt == 0 && yt == width - 1) {
     exit = width - 1;
-    if(lrand48() % 2) exit = 2 * width + height;
+    if(RandInt(2)) exit = 2 * width + height;
   }
 
   // Bottom-left corner.
   else if(xt == height - 1 && yt == 0) {
     exit = width;
-    if(lrand48() % 2) exit = 2 * width + height - 1;
+    if(RandInt(2)) exit = 2 * width + height - 1;
   }
 
   // Bottom-right corner.
   else if(xt == height - 1 && yt == width - 1) {
     exit = 2 * width - 1;
-    if(lrand48() % 2) exit = 2 * width + 2 * height - 1;
+    if(RandInt(2)) exit = 2 * width + 2 * height - 1;
   }
 
   else if(xt == 0) {  // Top border.

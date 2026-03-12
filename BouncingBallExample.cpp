@@ -143,7 +143,7 @@ void GLExampleApplication::Display()
 
 void GLExampleApplication::Idle()
 {
-  unsigned t = (unsigned)GetElapsedTime();
+  unsigned t = GetElapsedTime();
   if((t - ts) * 60ULL < 1000ULL) return;
   GLfloat dt = GLfloat(t - ts) / 1000.0f;  // s
   ts = t;

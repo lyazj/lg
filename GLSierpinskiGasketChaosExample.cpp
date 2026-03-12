@@ -69,7 +69,7 @@ void GLExampleApplication::Display()
   Clear();
   renderable->Draw(model);
   mat4 t = trans;
-  for(int i = 0; i < ntrans; ++i) {
+  for(GLint i = 0; i < ntrans; ++i) {
     renderable->Draw(model * t);
     t *= trans;
   }
@@ -78,8 +78,8 @@ void GLExampleApplication::Display()
 
 void GLExampleApplication::Idle()
 {
-  static int ts;
-  int t = (int)(GetElapsedTime() * 60ULL / 1000ULL);
+  static unsigned ts;
+  unsigned t = (unsigned)(GetElapsedTime() * 60ULL / 1000ULL);
   if(t == ts) return;
   ts = t;
   SetModel(glm::rotate(model, 2.0f * pi / 60.0f / 10.0f, vec3(0.0f, 0.0f, 1.0f)));

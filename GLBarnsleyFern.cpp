@@ -32,7 +32,7 @@ GLBarnsleyFern::GLBarnsleyFern(GLint p) : points(p)
   vec2 x(0.0, 0.0);
   vertices.push_back(x);
   for(GLint i = 1; i < points; ++i) {
-    size_t j = upper_bound(begin(cdf), end(cdf), drand48()) - begin(cdf);
+    size_t j = upper_bound(begin(cdf), end(cdf), RandFloat()) - begin(cdf);
     x = a[j] * x + b[j];
     vertices.push_back(x);
   }

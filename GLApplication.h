@@ -45,6 +45,8 @@ protected:
 
   int &argc;
   char **argv;
+  std::string programName;
+  std::string programShortName;
   unsigned displayMode;
   int width, height;
   std::string title;

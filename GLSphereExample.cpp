@@ -89,8 +89,8 @@ void GLExampleApplication::Display()
 
 void GLExampleApplication::Idle()
 {
-  static int ts;
-  int t = (int)(GetElapsedTime() * 60ULL / 1000ULL);
+  static unsigned ts;
+  unsigned t = unsigned(GetElapsedTime() * 60ULL / 1000ULL);
   if(t == ts) return;
   ts = t;
   SetModel(glm::rotate(model, 2.0f * pi / 60.0f / 10.0f, vec3(0.0f, 1.0f, 0.0f)));

@@ -15,9 +15,9 @@ static void Construct(vector<vec2> &vertices, const vec2 &a, const vec2 &b, cons
     return;
   }
   noise /= 2.0f;
-  vec2 ab = (a + b) / 2.0f + vec2(drand48() * noise, drand48() * noise);
-  vec2 bc = (b + c) / 2.0f + vec2(drand48() * noise, drand48() * noise);
-  vec2 ca = (c + a) / 2.0f + vec2(drand48() * noise, drand48() * noise);
+  vec2 ab = (a + b) / 2.0f + vec2(RandFloat() * noise, RandFloat() * noise);
+  vec2 bc = (b + c) / 2.0f + vec2(RandFloat() * noise, RandFloat() * noise);
+  vec2 ca = (c + a) / 2.0f + vec2(RandFloat() * noise, RandFloat() * noise);
   Construct(vertices, a, ab, ca, order, noise);
   Construct(vertices, b, bc, ab, order, noise);
   Construct(vertices, c, ca, bc, order, noise);
