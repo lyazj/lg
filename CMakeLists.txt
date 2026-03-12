@@ -9,7 +9,11 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Enable warnings
-add_compile_options(-Wall -Wshadow -Wextra -Wpedantic -Wconversion -Werror)
+if(MSVC)
+    add_compile_options(/W4 /WX)
+else()
+    add_compile_options(-Wall -Wshadow -Wextra -Wpedantic -Wconversion -Werror)
+endif()
 
 # -----------------------------
 # Collect all source files
@@ -33,12 +37,15 @@ endforeach()
 # -----------------------------
 add_library(LG SHARED ${LIB_SOURCES})
 
-# Link libraries for OpenGL, GLEW, GLUT, OpenCV
+# Link libraries for OpenGL, GLEW, GLUT, GLM, OpenCV
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(GLUT REQUIRED)
+find_package(glm REQUIRED)
 find_package(OpenCV REQUIRED COMPONENTS core imgcodecs)
-target_link_libraries(LG PUBLIC GLUT::GLUT GLEW::GLEW OpenGL::GL)
+# GLM_ENABLE_EXPERIMENTAL is required for glm/gtx/* headers (GLM >= 0.9.9)
+target_compile_definitions(LG PUBLIC GLM_ENABLE_EXPERIMENTAL)
+target_link_libraries(LG PUBLIC GLUT::GLUT GLEW::GLEW OpenGL::GL glm::glm)
 target_link_libraries(LG PRIVATE ${OpenCV_LIBS})
 
 # -----------------------------
