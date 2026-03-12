@@ -6,7 +6,8 @@ using namespace std;
 
 void GLImage::Load(const fs::path &path)
 {
-  Magick::Image img(path);
+  // We do need .string() on Windows unfortunately...
+  Magick::Image img(path.string());
   width = (GLint)img.columns(), height = (GLint)img.rows();
   type = img.matte() ? GLImageType::RGBA : GLImageType::RGB;
   data.resize(width * height * (type == GLImageType::RGBA ? 4 : 3));
