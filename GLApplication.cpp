@@ -1,7 +1,5 @@
 #include "GLApplication.h"
 
-#include <filesystem>
-
 #include "GLImage.h"
 #include "GLProgram.h"
 #include "Utils.h"
