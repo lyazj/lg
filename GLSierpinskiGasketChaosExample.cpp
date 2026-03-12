@@ -36,7 +36,6 @@ void GLExampleApplication::PreInit()
   GLApplication::PreInit();
 
   SetTitle("GLSierpinskiGasketChaos Example");
-  EnableDoubleBuffer();
 }
 
 void GLExampleApplication::Init()

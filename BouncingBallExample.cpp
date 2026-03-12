@@ -85,6 +85,7 @@ void GLExampleApplication::PreInit()
   GL3DApplication::PreInit();
 
   SetTitle("Bouncing Ball Example");
+  EnableDoubleBuffer();
 }
 
 void GLExampleApplication::Init()
@@ -129,19 +130,11 @@ void GLExampleApplication::Display()
 {
   Clear();
   scene->Draw(model);
-#ifndef _WIN32
   if(!recordCreated && ts < recordDuration) {
     SaveScreen("BouncingBallExample_" + to_string(ts) + ".png", GL_BACK);
     tss.push_back(ts);
   }
-#endif /* _WIN32 */
   Flush();
-#ifdef _WIN32
-  if(!recordCreated && ts < recordDuration) {
-    SaveScreen("BouncingBallExample_" + to_string(ts) + ".png", GL_FRONT);
-    tss.push_back(ts);
-  }
-#endif /* _WIN32 */
   if(!recordCreated && ts >= recordDuration) {
     recordCreated = true;
     recordThread = thread(&GLExampleApplication::CreateRecord, this);
