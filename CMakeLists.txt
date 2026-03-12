@@ -37,16 +37,27 @@ endforeach()
 # -----------------------------
 add_library(LG SHARED ${LIB_SOURCES})
 
-# Link libraries for OpenGL, GLEW, GLUT, GLM, OpenCV
+# Link libraries for OpenGL, GLEW, GLUT, GLM, ImageMagick
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(GLUT REQUIRED)
 find_package(glm REQUIRED)
-find_package(OpenCV REQUIRED COMPONENTS core imgcodecs)
+# Use pkg-config on Linux/macOS: it carries quantum-depth and HDRI compile flags automatically.
+# Use CMake's FindImageMagick module on Windows (e.g., via vcpkg).
+if(WIN32)
+  find_package(ImageMagick REQUIRED COMPONENTS Magick++)
+  target_include_directories(LG PRIVATE ${ImageMagick_INCLUDE_DIRS})
+  target_link_libraries(LG PRIVATE ${ImageMagick_LIBRARIES})
+else()
+  find_package(PkgConfig REQUIRED)
+  pkg_search_module(Magick++ REQUIRED IMPORTED_TARGET
+    Magick++-7.Q16HDRI Magick++-7.Q16 Magick++-7.Q8HDRI Magick++-7.Q8
+    Magick++-6.Q16HDRI Magick++-6.Q16 Magick++-6.Q8HDRI Magick++-6.Q8 Magick++)
+  target_link_libraries(LG PRIVATE PkgConfig::Magick++)
+endif()
 # GLM_ENABLE_EXPERIMENTAL is required for glm/gtx/* headers (GLM >= 0.9.9)
 target_compile_definitions(LG PUBLIC GLM_ENABLE_EXPERIMENTAL)
 target_link_libraries(LG PUBLIC glm::glm GLUT::GLUT GLEW::GLEW OpenGL::GL)
-target_link_libraries(LG PRIVATE ${OpenCV_LIBS})
 
 # -----------------------------
 # Create executable for each example
