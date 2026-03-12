@@ -1,6 +1,6 @@
 #include "GL3DApplication.h"
 
-#include <glm/gtx/transform.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 using namespace std;
 

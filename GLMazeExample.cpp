@@ -1,4 +1,4 @@
-#include <glm/gtx/transform.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 
 #include "GLApplication.h"
@@ -106,7 +106,7 @@ void GLExampleApplication::UpdateRatGeometry()
 {
   GLfloat x, y;
   maze->GetNormalizedPosition((GLfloat)ratX + 0.5f, (GLfloat)ratY + 0.5f, x, y);
-  mat4 m = glm::translate(vec3(x, y, 0.0));
+  mat4 m = glm::translate(mat4(1.0), vec3(x, y, 0.0));
   m = glm::rotate(m, (GLfloat)ratDirection * 90.0f * deg, vec3(0.0f, 0.0f, 1.0f));
   rat->SetModel(m);
 }

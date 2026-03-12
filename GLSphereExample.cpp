@@ -1,4 +1,4 @@
-#include <glm/gtx/transform.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <vector>
 
 #include "GL3DApplication.h"
@@ -71,7 +71,7 @@ void GLExampleApplication::Init()
 
   auto scene = make_shared<GLCompositeRenderable>();
   GLRenderablePtr sphere = make_shared<GLExampleSphere>(0.2, 64, 32);
-  sphere = make_shared<GLTransformedRenderable>(sphere, glm::rotate(20.0f * deg, vec3(0.0f, 1.0f, 0.0f)));
+  sphere = make_shared<GLTransformedRenderable>(sphere, glm::rotate(mat4(1.0), 20.0f * deg, vec3(0.0f, 1.0f, 0.0f)));
   scene->AddGeometry(sphere);
   scene->AddGeometry(make_shared<GLAxes>());
   renderable = scene;
