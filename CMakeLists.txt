@@ -35,7 +35,11 @@ endforeach()
 # -----------------------------
 # Create library from non-example sources
 # -----------------------------
-add_library(LG SHARED ${LIB_SOURCES})
+if(MSVC)
+    add_library(LG STATIC ${LIB_SOURCES})
+else()
+    add_library(LG SHARED ${LIB_SOURCES})
+endif()
 
 # Link libraries for OpenGL, GLEW, GLUT, GLM, GraphicsMagick++
 find_package(OpenGL REQUIRED)
