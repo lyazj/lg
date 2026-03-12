@@ -109,8 +109,8 @@ void GLExampleApplication::Init()
   // The y = 0 Plane.
   GLSimpleRenderablePtr rect = make_shared<GLRectangle>(10.0f, 10.0f);  // m
   rect = make_shared<GLUniformColorDecorator>(rect, vec4(0.95f, 0.95f, 0.95f, 1.0f));
-  auto rectangle = make_shared<GLTransformedRenderable>(rect, glm::rotate(mat4(1.0), -90.0f * deg, vec3(1.0f, 0.0f, 0.0f)));
-  scene->AddGeometry(rectangle);
+  auto r = make_shared<GLTransformedRenderable>(rect, glm::rotate(mat4(1.0), -90.0f * deg, vec3(1.0f, 0.0f, 0.0f)));
+  scene->AddGeometry(r);
 
   // The ball.
   auto sphere = make_shared<GLExampleSphere>(ballRadius, 64, 32);
@@ -163,7 +163,10 @@ void GLExampleApplication::Idle()
   glutPostRedisplay();
 }
 
-void GLExampleApplication::UpdateBallTransform() { ball->SetModel(glm::translate(mat4(1.0), vec3(0.0f, ballHeight, 0.0f))); }
+void GLExampleApplication::UpdateBallTransform()
+{
+  ball->SetModel(glm::translate(mat4(1.0), vec3(0.0f, ballHeight, 0.0f)));
+}
 
 void GLExampleApplication::CreateRecord()  // Called in a separate thread.
 {
