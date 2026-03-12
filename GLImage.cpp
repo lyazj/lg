@@ -25,6 +25,7 @@ void GLImage::Load(const fs::path &path [[maybe_unused]])
   data.resize(width * height * (type == GLImageType::RGBA ? 4 : 3));
   const char *format = type == GLImageType::RGBA ? "RGBA" : "RGB";
   img.write(0, 0, width, height, format, Magick::CharPixel, data.data());
+  img.flip();
 #else  /* HAS_MAGICK */
   cerr << "Warning: GLImage::Load() unavailable" << endl;
 #endif /* HAS_MAGICK */
@@ -39,7 +40,9 @@ void GLImage::Save(const fs::path &path [[maybe_unused]]) const
   case GLImageType::RGBA: format = "RGBA"; break;
   default: abort();
   }
-  Magick::Image(width, height, format, Magick::CharPixel, data.data()).write(path.string());
+  Magick::Image img(width, height, format, Magick::CharPixel, data.data());
+  img.flip();
+  img.write(path.string());
 #else  /* HAS_MAGICK */
   cerr << "Warning: GLImage::Save() unavailable" << endl;
 #endif /* HAS_MAGICK */
