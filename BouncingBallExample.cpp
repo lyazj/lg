@@ -149,10 +149,10 @@ void GLExampleApplication::Idle()
   ts = t;
 
   time += dt;  // s
-  if(__builtin_expect(time >= period, false)) {
+  if(Expect(time >= period, false)) {
     time -= period;
     // Handle cases where Idle() is delayed (e.g., after a long pause).
-    if(__builtin_expect(time >= period, false)) time -= floorf(time / period) * period;
+    if(Expect(time >= period, false)) time -= floorf(time / period) * period;
   }
 
   GLfloat t0 = time;

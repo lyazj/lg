@@ -16,6 +16,12 @@ vec2 RandVec2();
 vec3 RandVec3();
 vec4 RandVec4();
 
+#ifdef __GNUC__
+#define Expect(e, v) __builtin_expect((e), (v))
+#else /* __GNUC__ */
+#define Expect(e, v) (e)
+#endif /* __GNUC__ */
+
 void GLCheckError();
 
 void GLCompileShader(GLuint shader);
