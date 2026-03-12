@@ -19,7 +19,7 @@ GLApplication::GLApplication(int &ac, char *av[])
 #ifdef _WIN32
       width(512),
       height(512),
-#else /* _WIN32 */
+#else  /* _WIN32 */
       width(1024),
       height(1024),
 #endif /* _WIN32 */
@@ -146,7 +146,11 @@ void GLApplication::SaveScreen(const fs::path &path, GLenum mode) const
   image.Save(path);
 }
 
-void GLApplication::PreInit() { RandSeed((unsigned long long)time(0)); }
+void GLApplication::PreInit()
+{
+  RandSeed((unsigned long long)time(0));
+  GLImage::Init(argv[0]);
+}
 
 void GLApplication::InitGL()
 {
@@ -164,7 +168,7 @@ void GLApplication::Init()
   glPointSize(1.0);
 #ifdef _WIN32
   glLineWidth(1.0);
-#else /* _WIN32 */
+#else  /* _WIN32 */
   glLineWidth(2.0);
 #endif /* _WIN32 */
   GLProgram::SetDefaultVertexAttributes();

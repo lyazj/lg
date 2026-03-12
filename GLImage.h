@@ -12,6 +12,8 @@ enum class GLImageType {
 
 class GLImage {
 public:
+  static void Init(const char *name);
+
   void Load(const fs::path &path);
   void Save(const fs::path &path) const;
 

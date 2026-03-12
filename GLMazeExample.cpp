@@ -129,9 +129,11 @@ void GLExampleApplication::Mouse(int button, int state, int, int)
 void GLExampleApplication::KeyDown(unsigned char key, int x, int y)
 {
   switch(key) {
-  case 'L': case 'l': return Mouse(GLUT_LEFT_BUTTON, GLUT_DOWN, x, y);
+  case 'L':
+  case 'l': return Mouse(GLUT_LEFT_BUTTON, GLUT_DOWN, x, y);
   case ' ': return Mouse(GLUT_MIDDLE_BUTTON, GLUT_DOWN, x, y);
-  case 'R': case 'r': return Mouse(GLUT_RIGHT_BUTTON, GLUT_DOWN, x, y);
+  case 'R':
+  case 'r': return Mouse(GLUT_RIGHT_BUTTON, GLUT_DOWN, x, y);
   }
 }
 

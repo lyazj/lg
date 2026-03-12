@@ -6,7 +6,6 @@ on:
 
 permissions:
   contents: read
-  actions: write
 
 jobs:
   build:
@@ -37,7 +36,7 @@ jobs:
 
       - name: Install dependencies (Windows)
         if: runner.os == 'Windows'
-        run: |  # Skip graphicsmagick pkgconf.
+        run: |  # Skip graphicsmagick and pkgconf.
           vcpkg install glew freeglut glm --triplet x64-windows
 
       - name: Configure (Linux / macOS)
