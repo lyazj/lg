@@ -42,11 +42,11 @@ find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(GLUT REQUIRED)
 find_package(glm REQUIRED)
-find_package(ImageMagick COMPONENTS Magick++ REQUIRED)
+find_package(ImageMagick REQUIRED)
 # GLM_ENABLE_EXPERIMENTAL is required for glm/gtx/* headers (GLM >= 0.9.9)
 target_compile_definitions(LG PUBLIC GLM_ENABLE_EXPERIMENTAL)
 target_link_libraries(LG PUBLIC glm::glm GLUT::GLUT GLEW::GLEW OpenGL::GL)
-target_link_libraries(LG PRIVATE ImageMagick::Magick++)
+target_link_libraries(LG PRIVATE ImageMagick)
 
 # -----------------------------
 # Create executable for each example

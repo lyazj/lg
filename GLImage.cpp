@@ -1,6 +1,6 @@
 #include "GLImage.h"
 
-#include <Magick++.h>
+#include <Magick++.h>  // graphicsmagick-libmagick-dev-compat
 
 using namespace std;
 
@@ -8,7 +8,7 @@ void GLImage::Load(const fs::path &path)
 {
   Magick::Image img(path);
   width = (GLint)img.columns(), height = (GLint)img.rows();
-  type = img.hasChannel(Magick::AlphaPixelChannel) ? GLImageType::RGBA : GLImageType::RGB;
+  type = img.matte() ? GLImageType::RGBA : GLImageType::RGB;
   data.resize(width * height * (type == GLImageType::RGBA ? 4 : 3));
   const char *format = type == GLImageType::RGBA ? "RGBA" : "RGB";
   img.write(0, 0, width, height, format, Magick::CharPixel, data.data());
