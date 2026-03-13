@@ -171,7 +171,7 @@ void GLApplication::SaveScreen() const
 void GLApplication::PreInit()
 {
   RandSeed((unsigned long long)time(0));
-  GLImage::Init(argv[0]);
+  GLImage::Init();
 }
 
 void GLApplication::InitGL()

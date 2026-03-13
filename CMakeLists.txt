@@ -60,6 +60,12 @@ if(NOT MSVC)
     target_link_libraries(LG PRIVATE ${GM_LIBRARIES})
 endif()
 
+include(FetchContent)
+FetchContent_Declare(STB GIT_REPOSITORY https://github.com/nothings/stb.git GIT_TAG master)
+FetchContent_MakeAvailable(STB)
+target_compile_definitions(LG PRIVATE HAS_STB)
+target_include_directories(LG PRIVATE ${STB_SOURCE_DIR})
+
 # -----------------------------
 # Create executable for each example
 # -----------------------------

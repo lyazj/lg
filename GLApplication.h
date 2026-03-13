@@ -16,6 +16,8 @@ public:
 
   virtual void Run();
 
+  std::string GetProgramName() const { return programName; }
+  std::string GetProgramShortName() const { return programShortName; }
   void SetDisplayMode(unsigned m);
   void SetWindowSize(int w, int h);
   void SetTitle(const std::string &t);

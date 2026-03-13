@@ -10,9 +10,15 @@ enum class GLImageType {
   RGBA,
 };
 
+enum class GLImageBackend {
+  Default,
+  GraphicsMagick,
+  STB,
+};
+
 class GLImage {
 public:
-  static void Init(const char *name);
+  static void Init(GLImageBackend backend = GLImageBackend::Default);
 
   void Load(const fs::path &path);
   void Save(const fs::path &path) const;
@@ -31,4 +37,6 @@ private:
   GLint width = 0, height = 0;
   std::vector<byte> data;
   GLImageType type = GLImageType::UNKNOWN;
+
+  class Backend;
 };
