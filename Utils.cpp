@@ -9,8 +9,6 @@
 
 using namespace std;
 
-unsigned GetElapsedTime() { return (unsigned)glutGet(GLUT_ELAPSED_TIME); }
-
 static mt19937 gRandom;
 
 void RandSeed(unsigned long long s) { gRandom.seed((mt19937::result_type)s); }

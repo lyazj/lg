@@ -28,11 +28,12 @@ private:
 
   GLint ratDirection;
   GLint ratX, ratY, exitX, exitY;
+  bool won;
 
   void UpdateRatGeometry();
-  void Mouse(int button, int state, int x, int y);
-  void KeyDown(unsigned char key, int x, int y);
-  void SpecialKeyDown(int key, int x, int y);
+  void MouseDown(Mouse button, int x, int y) override;
+  void KeyDown(unsigned char key, int x, int y) override;
+  void SpecialKeyDown(SpecialKey key, int x, int y) override;
   void TurnLeft() { ratDirection = (ratDirection + 1) % 4; }
   void TurnRight() { ratDirection = (ratDirection + 3) % 4; }
   void MoveForward();
@@ -59,12 +60,6 @@ void GLExampleApplication::PreInit()
 void GLExampleApplication::Init()
 {
   GLApplication::Init();
-  glutMouseFunc(
-      [](int b, int s, int x, int y) { ((GLExampleApplication *)GLApplication::GetInstance())->Mouse(b, s, x, y); });
-  glutKeyboardFunc(
-      [](unsigned char k, int x, int y) { ((GLExampleApplication *)GLApplication::GetInstance())->KeyDown(k, x, y); });
-  glutSpecialFunc(
-      [](int k, int x, int y) { ((GLExampleApplication *)GLApplication::GetInstance())->SpecialKeyDown(k, x, y); });
 
   UseProgram(GLProgram::GetDefaultProgram());
 
@@ -87,6 +82,7 @@ void GLExampleApplication::Init()
   maze->GetEntry(ratX, ratY);
   maze->GetExit(exitX, exitY);
   UpdateRatGeometry();
+  won = false;
 
   auto scene = make_shared<GLCompositeRenderable>();
   scene->AddGeometry(maze);
@@ -113,39 +109,37 @@ void GLExampleApplication::UpdateRatGeometry()
   rat->SetModel(m);
 }
 
-void GLExampleApplication::Mouse(int button, int state, int, int)
+void GLExampleApplication::MouseDown(Mouse button, int, int)
 {
-  if(state == GLUT_UP) return;
-  if(state != GLUT_DOWN) abort();
-  switch(button) {  // My mouse also generates 3 (scroll-up), 4 (scroll-down), 7 (backward), and 8 (forward).
-  case GLUT_LEFT_BUTTON: TurnLeft(); break;
-  case GLUT_RIGHT_BUTTON: TurnRight(); break;
-  case GLUT_MIDDLE_BUTTON: MoveForward(); break;
-  default: cerr << "Warning: unknown mouse button " << button << endl; break;  // So don't abort() here.
+  if(won) exit(EXIT_SUCCESS);
+  switch(button) {
+  case Mouse::Left: TurnLeft(); break;
+  case Mouse::Right: TurnRight(); break;
+  case Mouse::Middle: MoveForward(); break;
   }
   UpdateRatGeometry();
   CheckWin();
-  glutPostRedisplay();
+  PostRedisplay();
 }
 
 void GLExampleApplication::KeyDown(unsigned char key, int x, int y)
 {
   switch(key) {
   case 'L':
-  case 'l': return Mouse(GLUT_LEFT_BUTTON, GLUT_DOWN, x, y);
-  case ' ': return Mouse(GLUT_MIDDLE_BUTTON, GLUT_DOWN, x, y);
+  case 'l': return MouseDown(Mouse::Left, x, y);
+  case ' ': return MouseDown(Mouse::Middle, x, y);
   case 'R':
-  case 'r': return Mouse(GLUT_RIGHT_BUTTON, GLUT_DOWN, x, y);
+  case 'r': return MouseDown(Mouse::Right, x, y);
   }
 }
 
-void GLExampleApplication::SpecialKeyDown(int key, int x, int y)
+void GLExampleApplication::SpecialKeyDown(SpecialKey key, int x, int y)
 {
   switch(key) {
-  case GLUT_KEY_RIGHT: return ratDirection = 0, KeyDown(' ', x, y);
-  case GLUT_KEY_UP: return ratDirection = 1, KeyDown(' ', x, y);
-  case GLUT_KEY_LEFT: return ratDirection = 2, KeyDown(' ', x, y);
-  case GLUT_KEY_DOWN: return ratDirection = 3, KeyDown(' ', x, y);
+  case SpecialKey::Right: return ratDirection = 0, KeyDown(' ', x, y);
+  case SpecialKey::Up: return ratDirection = 1, KeyDown(' ', x, y);
+  case SpecialKey::Left: return ratDirection = 2, KeyDown(' ', x, y);
+  case SpecialKey::Down: return ratDirection = 3, KeyDown(' ', x, y);
   }
 }
 
@@ -183,7 +177,7 @@ bool GLExampleApplication::GetForwardPosition(GLint &x, GLint &y)
 void GLExampleApplication::CheckWin()
 {
   if(ratX != exitX || ratY != exitY) return;
-  glutMouseFunc(nullptr);
+  won = true;
   renderable.reset(new GLSmiley(0.8f, 256));
   renderable->SetVertexAttributes();
   renderable->Buffer();

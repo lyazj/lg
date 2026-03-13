@@ -1,5 +1,10 @@
 #include "GLApplication.h"
 
+#include <GL/glut.h>
+
+#include <iostream>
+#include <unordered_map>
+
 #include "GLImage.h"
 #include "GLProgram.h"
 #include "Utils.h"
@@ -131,6 +136,10 @@ void GLApplication::DisableDepthTest()
 
 void GLApplication::Clear() const { glClear(clearMask); }
 
+unsigned GLApplication::GetElapsedTime() { return (unsigned)glutGet(GLUT_ELAPSED_TIME); }
+
+void GLApplication::PostRedisplay() const { glutPostRedisplay(); }
+
 void GLApplication::SaveScreen(const fs::path &path, GLenum mode) const
 {
   vector<byte> pixels(width * height * 4);
@@ -173,9 +182,61 @@ void GLApplication::Init()
 #endif /* _WIN32 */
   GLProgram::SetDefaultVertexAttributes();
 
+  static unordered_map<int, Mouse> buttonMap = {
+    { GLUT_LEFT_BUTTON, Mouse::Left },
+    { GLUT_MIDDLE_BUTTON, Mouse::Middle },
+    { GLUT_RIGHT_BUTTON, Mouse::Right },
+  };
+  static unordered_map<int, SpecialKey> specialKeyMap = {
+    { GLUT_KEY_LEFT, SpecialKey::Left },
+    { GLUT_KEY_RIGHT, SpecialKey::Right },
+    { GLUT_KEY_UP, SpecialKey::Up },
+    { GLUT_KEY_DOWN, SpecialKey::Down },
+  };
+
   glutDisplayFunc([] { GLApplication::GetInstance()->Display(); });
+
   glutReshapeFunc([](int w, int h) { GLApplication::GetInstance()->Reshape(w, h); });
+
+  glutIdleFunc([] { GLApplication::GetInstance()->Idle(); });
+
+  glutMouseFunc([](int b, int s, int x, int y) {
+    auto it = buttonMap.find(b);
+    if(it == buttonMap.end()) {
+      cerr << "Warning: Unrecognized mouse button: " << b << endl;
+      return;
+    }
+    switch(s) {
+    case GLUT_DOWN: return GLApplication::GetInstance()->MouseDown(it->second, x, y);
+    case GLUT_UP: return GLApplication::GetInstance()->MouseUp(it->second, x, y);
+    default: abort();
+    }
+  });
+
+  glutKeyboardFunc([](unsigned char k, int x, int y) { GLApplication::GetInstance()->KeyDown(k, x, y); });
+
+  glutKeyboardUpFunc([](unsigned char k, int x, int y) { GLApplication::GetInstance()->KeyUp(k, x, y); });
+
+  glutSpecialFunc([](int k, int x, int y) {
+    auto it = specialKeyMap.find(k);
+    if(it == specialKeyMap.end()) {
+      cerr << "Warning: Unrecognized special key: " << k << endl;
+      return;
+    }
+    GLApplication::GetInstance()->SpecialKeyDown(it->second, x, y);
+  });
+
+  glutSpecialUpFunc([](int k, int x, int y) {
+    auto it = specialKeyMap.find(k);
+    if(it == specialKeyMap.end()) {
+      cerr << "Warning: Unrecognized special key: " << k << endl;
+      return;
+    }
+    GLApplication::GetInstance()->SpecialKeyUp(it->second, x, y);
+  });
 }
+
+void GLApplication::Display() { }
 
 void GLApplication::Reshape(int w, int h)
 {
@@ -183,3 +244,19 @@ void GLApplication::Reshape(int w, int h)
   width = w;
   height = h;
 }
+
+void GLApplication::Idle() { }
+
+void GLApplication::MouseDown(Mouse button [[maybe_unused]], int x [[maybe_unused]], int y [[maybe_unused]]) { }
+
+void GLApplication::MouseUp(Mouse button [[maybe_unused]], int x [[maybe_unused]], int y [[maybe_unused]]) { }
+
+void GLApplication::KeyDown(unsigned char key [[maybe_unused]], int x [[maybe_unused]], int y [[maybe_unused]]) { }
+
+void GLApplication::KeyUp(unsigned char key [[maybe_unused]], int x [[maybe_unused]], int y [[maybe_unused]]) { }
+
+void GLApplication::SpecialKeyDown(SpecialKey key [[maybe_unused]], int x [[maybe_unused]], int y [[maybe_unused]]) { }
+
+void GLApplication::SpecialKeyUp(SpecialKey key [[maybe_unused]], int x [[maybe_unused]], int y [[maybe_unused]]) { }
+
+void GLApplication::Loop() { glutMainLoop(); }

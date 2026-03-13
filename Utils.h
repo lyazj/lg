@@ -4,8 +4,6 @@
 
 #include "Global.h"
 
-unsigned GetElapsedTime();
-
 // Thread-unsafe.
 void RandSeed(unsigned long long);
 GLint RandInt();

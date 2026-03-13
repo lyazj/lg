@@ -62,7 +62,7 @@ private:
   bool recordCreated = false;
   thread recordThread;
 
-  void Idle();
+  void Idle() override;
   void UpdateBallTransform();
   void CreateRecord();
 };
@@ -91,7 +91,6 @@ void GLExampleApplication::PreInit()
 void GLExampleApplication::Init()
 {
   GL3DApplication::Init();
-  glutIdleFunc([] { ((GLExampleApplication *)GLApplication::GetInstance())->Idle(); });
 
   vec3 camera(10.0f, 10.0f, 10.0f);  // m
   vec3 target(0.0f, 0.0f, 0.0f);
@@ -160,7 +159,7 @@ void GLExampleApplication::Idle()
   ballHeight = ballInitialHeight - 0.5f * g * t0 * t0;  // m
 
   UpdateBallTransform();
-  glutPostRedisplay();
+  PostRedisplay();
 }
 
 void GLExampleApplication::UpdateBallTransform()

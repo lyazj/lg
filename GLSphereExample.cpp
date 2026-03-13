@@ -44,7 +44,8 @@ public:
 
 private:
   GLRenderablePtr renderable;
-  void Idle();
+
+  void Idle() override;
 };
 
 int main(int argc, char *argv[])
@@ -65,7 +66,6 @@ void GLExampleApplication::PreInit()
 void GLExampleApplication::Init()
 {
   GL3DApplication::Init();
-  glutIdleFunc([] { ((GLExampleApplication *)GLApplication::GetInstance())->Idle(); });
 
   UseProgram(GLProgram::GetDefaultProgram());
 
@@ -94,5 +94,5 @@ void GLExampleApplication::Idle()
   if(t == ts) return;
   ts = t;
   SetModel(glm::rotate(model, 2.0f * pi / 60.0f / 10.0f, vec3(0.0f, 1.0f, 0.0f)));
-  glutPostRedisplay();
+  PostRedisplay();
 }

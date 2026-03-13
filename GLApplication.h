@@ -36,6 +36,9 @@ public:
   void DisableDepthTest();
   void Clear() const;
 
+  unsigned GetElapsedTime();
+  void PostRedisplay() const;
+
   void SaveScreen(const fs::path &path, GLenum mode) const;
 
 protected:
@@ -55,10 +58,29 @@ protected:
   GLProgramPtr program;
   GLbitfield clearMask;
 
+  enum class Mouse {
+    Left,
+    Middle,
+    Right,
+  };
+  enum class SpecialKey {
+    Up,
+    Down,
+    Left,
+    Right,
+  };
+
   virtual void PreInit();
   virtual void InitGL();
   virtual void Init();
-  virtual void Display() { }
+  virtual void Display();
   virtual void Reshape(int w, int h);
-  virtual void Loop() { glutMainLoop(); }
+  virtual void Idle();
+  virtual void MouseDown(Mouse, int x, int y);
+  virtual void MouseUp(Mouse, int x, int y);
+  virtual void KeyDown(unsigned char key, int x, int y);
+  virtual void KeyUp(unsigned char key, int x, int y);
+  virtual void SpecialKeyDown(SpecialKey key, int x, int y);
+  virtual void SpecialKeyUp(SpecialKey key, int x, int y);
+  virtual void Loop();
 };

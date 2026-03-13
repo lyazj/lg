@@ -4,7 +4,7 @@
 
 #include "GLBufferedGeometry.h"
 
-enum class GLMazeType : unsigned char {
+enum class GLMazeType {
   Backtracking,
   Prim,
   Kruskal,
