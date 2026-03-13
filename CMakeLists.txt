@@ -61,10 +61,10 @@ if(NOT MSVC)
 endif()
 
 include(FetchContent)
-FetchContent_Declare(STB GIT_REPOSITORY https://github.com/nothings/stb.git GIT_TAG master)
-FetchContent_MakeAvailable(STB)
+FetchContent_Declare(stb GIT_REPOSITORY https://github.com/nothings/stb.git GIT_TAG master)
+FetchContent_MakeAvailable(stb)
 target_compile_definitions(LG PRIVATE HAS_STB)
-target_include_directories(LG PRIVATE ${STB_SOURCE_DIR})
+target_include_directories(LG SYSTEM PRIVATE ${stb_SOURCE_DIR})
 
 # -----------------------------
 # Create executable for each example
