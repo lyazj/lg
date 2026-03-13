@@ -2,6 +2,10 @@
 
 #include <GL/glut.h>
 
+#ifdef FREEGLUT
+#include <GL/freeglut_ext.h>
+#endif /* FREEGLUT */
+
 #include <iostream>
 #include <unordered_map>
 
@@ -157,6 +161,13 @@ void GLApplication::SaveScreen(const fs::path &path, GLenum mode) const
   image.Save(path);
 }
 
+void GLApplication::SaveScreen() const
+{
+  fs::path path = programShortName + "_" + to_string(GetSystemTime()) + ".png";
+  SaveScreen(path, GL_FRONT);
+  clog << "Info: screen saved to: " << path << endl;
+}
+
 void GLApplication::PreInit()
 {
   RandSeed((unsigned long long)time(0));
@@ -217,14 +228,30 @@ void GLApplication::Init()
     { GLUT_KEY_HOME, SpecialKey::Home },
     { GLUT_KEY_END, SpecialKey::End },
     { GLUT_KEY_INSERT, SpecialKey::Insert },
-    { 112, SpecialKey::ShiftLeft },
-    { 113, SpecialKey::ShiftRight },
-    { 114, SpecialKey::CtrlLeft },
-    { 115, SpecialKey::CtrlRight },
-    { 116, SpecialKey::AltLeft },
-    { 117, SpecialKey::AltRight },
-    { 118, SpecialKey::SuperLeft },
-    { 119, SpecialKey::SuperRight },
+#ifdef GLUT_KEY_SHIFT_L
+    { GLUT_KEY_SHIFT_L, SpecialKey::ShiftLeft },
+#endif /* GLUT_KEY_SHIFT_L */
+#ifdef GLUT_KEY_SHIFT_R
+    { GLUT_KEY_SHIFT_R, SpecialKey::ShiftRight },
+#endif /* GLUT_KEY_SHIFT_R */
+#ifdef GLUT_KEY_CTRL_L
+    { GLUT_KEY_CTRL_L, SpecialKey::CtrlLeft },
+#endif /* GLUT_KEY_CTRL_L */
+#ifdef GLUT_KEY_CTRL_R
+    { GLUT_KEY_CTRL_R, SpecialKey::CtrlRight },
+#endif /* GLUT_KEY_CTRL_R */
+#ifdef GLUT_KEY_ALT_L
+    { GLUT_KEY_ALT_L, SpecialKey::AltLeft },
+#endif /* GLUT_KEY_ALT_L */
+#ifdef GLUT_KEY_ALT_R
+    { GLUT_KEY_ALT_R, SpecialKey::AltRight },
+#endif /* GLUT_KEY_ALT_R */
+#ifdef GLUT_KEY_SUPER_L
+    { GLUT_KEY_SUPER_L, SpecialKey::SuperLeft },
+#endif /* GLUT_KEY_SUPER_L */
+#ifdef GLUT_KEY_SUPER_R
+    { GLUT_KEY_SUPER_R, SpecialKey::SuperRight },
+#endif /* GLUT_KEY_SUPER_R */
   };
 
   glutDisplayFunc([] { GLApplication::GetInstance()->Display(); });
@@ -318,7 +345,12 @@ void GLApplication::MouseDown(Mouse button [[maybe_unused]], int x [[maybe_unuse
 
 void GLApplication::MouseUp(Mouse button [[maybe_unused]], int x [[maybe_unused]], int y [[maybe_unused]]) { }
 
-void GLApplication::KeyDown(unsigned char key [[maybe_unused]], int x [[maybe_unused]], int y [[maybe_unused]]) { }
+void GLApplication::KeyDown(unsigned char key, int x [[maybe_unused]], int y [[maybe_unused]])
+{
+  if(key == 022 /* Ctrl-R */) PostRedisplay();
+  if(key == 023 /* Ctrl-S */) SaveScreen();
+  if(key == 027 /* Ctrl-W */) exit(EXIT_SUCCESS);
+}
 
 void GLApplication::KeyUp(unsigned char key [[maybe_unused]], int x [[maybe_unused]], int y [[maybe_unused]]) { }
 
@@ -327,6 +359,19 @@ void GLApplication::SpecialKeyDown(SpecialKey key [[maybe_unused]], int x [[mayb
 void GLApplication::SpecialKeyUp(SpecialKey key [[maybe_unused]], int x [[maybe_unused]], int y [[maybe_unused]]) { }
 
 void GLApplication::Loop() { glutMainLoop(); }
+
+void GLApplication::GetKeyModifiers(bool &shift, bool &ctrl, bool &alt, bool &super) const
+{
+  int modifiers = glutGetModifiers();
+  shift = modifiers & GLUT_ACTIVE_SHIFT;
+  ctrl = modifiers & GLUT_ACTIVE_CTRL;
+  alt = modifiers & GLUT_ACTIVE_ALT;
+#ifdef GLUT_ACTIVE_SUPER
+  super = modifiers & GLUT_ACTIVE_SUPER;
+#else  /* GLUT_ACTIVE_SUPER */
+  super = false;
+#endif /* GLUT_ACTIVE_SUPER */
+}
 
 void GLApplication::ShowFrameRate() const
 {

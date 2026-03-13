@@ -125,6 +125,7 @@ void GLExampleApplication::MouseDown(Mouse button, int, int)
 
 void GLExampleApplication::KeyDown(unsigned char key, int x, int y)
 {
+  GLApplication::KeyDown(key, x, y);
   switch(key) {
   case 'L':
   case 'l': return MouseDown(Mouse::LeftButton, x, y);

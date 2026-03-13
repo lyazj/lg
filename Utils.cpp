@@ -17,6 +17,12 @@ uint64_t GetTime()
   return duration_cast<nanoseconds>(steady_clock::now().time_since_epoch()).count();
 }
 
+uint64_t GetSystemTime()
+{
+  using namespace std::chrono;
+  return duration_cast<nanoseconds>(system_clock::now().time_since_epoch()).count();
+}
+
 uint64_t GetStartTime() { return gStartTime; }
 
 uint64_t GetElapsedTime() { return GetTime() - GetStartTime(); }

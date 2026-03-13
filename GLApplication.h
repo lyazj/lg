@@ -42,6 +42,7 @@ public:
   GLfloat GetRealFrameRate() const { return (GLfloat)frameCount / ((GLfloat)frameTime / 1e9f); }
 
   void SaveScreen(const fs::path &path, GLenum mode) const;
+  void SaveScreen() const;
 
 protected:
   // Single-window only: singleton routes GLUT callbacks.
@@ -96,5 +97,6 @@ protected:
   virtual void SpecialKeyUp(SpecialKey key, int x, int y);
   virtual void Loop();
 
+  void GetKeyModifiers(bool &shift, bool &ctrl, bool &alt, bool &super) const;
   void ShowFrameRate() const;
 };
