@@ -62,7 +62,7 @@ private:
   bool recordCreated = false;
   thread recordThread;
 
-  void Idle() override;
+  void Frame(uint64_t t, uint64_t dt) override;
   void UpdateBallTransform();
   void CreateRecord();
 };
@@ -140,14 +140,10 @@ void GLExampleApplication::Display()
   }
 }
 
-void GLExampleApplication::Idle()
+void GLExampleApplication::Frame(uint64_t t, uint64_t dt)
 {
-  unsigned t = GetElapsedTime();
-  if((t - ts) * 60ULL < 1000ULL) return;
-  GLfloat dt = GLfloat(t - ts) / 1000.0f;  // s
-  ts = t;
-
-  time += dt;  // s
+  ts = (unsigned)NsToMs(t);
+  time += (GLfloat)dt * 1e-9f;  // s
   if(Expect(time >= period, false)) {
     time -= period;
     // Handle cases where Idle() is delayed (e.g., after a long pause).
@@ -159,7 +155,6 @@ void GLExampleApplication::Idle()
   ballHeight = ballInitialHeight - 0.5f * g * t0 * t0;  // m
 
   UpdateBallTransform();
-  PostRedisplay();
 }
 
 void GLExampleApplication::UpdateBallTransform()

@@ -35,9 +35,11 @@ public:
   void EnableDepthTest();
   void DisableDepthTest();
   void Clear() const;
-
-  unsigned GetElapsedTime();
   void PostRedisplay() const;
+
+  void SetFrameRate(GLint fr) { frameRate = fr; }
+  GLint GetFrameRate() const { return frameRate; }
+  GLfloat GetRealFrameRate() const { return (GLfloat)frameCount / ((GLfloat)frameTime / 1e9f); }
 
   void SaveScreen(const fs::path &path, GLenum mode) const;
 
@@ -57,6 +59,10 @@ protected:
   void (*flush)();
   GLProgramPtr program;
   GLbitfield clearMask;
+  GLint frameRate;
+  GLint showFrameRateInterval;
+  uint64_t frameCount;
+  uint64_t frameTime;
 
   enum class Mouse {
     Left,
@@ -75,7 +81,8 @@ protected:
   virtual void Init();
   virtual void Display();
   virtual void Reshape(int w, int h);
-  virtual void Idle();
+  virtual void FrameTimer(unsigned mt);
+  virtual void Frame(uint64_t t, uint64_t dt);
   virtual void MouseDown(Mouse, int x, int y);
   virtual void MouseUp(Mouse, int x, int y);
   virtual void KeyDown(unsigned char key, int x, int y);
@@ -83,4 +90,6 @@ protected:
   virtual void SpecialKeyDown(SpecialKey key, int x, int y);
   virtual void SpecialKeyUp(SpecialKey key, int x, int y);
   virtual void Loop();
+
+  void ShowFrameRate() const;
 };

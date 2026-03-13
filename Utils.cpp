@@ -9,6 +9,18 @@
 
 using namespace std;
 
+static uint64_t gStartTime = GetTime();
+
+uint64_t GetTime()
+{
+  using namespace std::chrono;
+  return duration_cast<nanoseconds>(steady_clock::now().time_since_epoch()).count();
+}
+
+uint64_t GetStartTime() { return gStartTime; }
+
+uint64_t GetElapsedTime() { return GetTime() - GetStartTime(); }
+
 static mt19937 gRandom;
 
 void RandSeed(unsigned long long s) { gRandom.seed((mt19937::result_type)s); }

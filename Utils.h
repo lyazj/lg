@@ -4,6 +4,11 @@
 
 #include "Global.h"
 
+uint64_t GetTime();
+uint64_t GetStartTime();
+uint64_t GetElapsedTime();
+inline uint64_t NsToMs(uint64_t ns) { return (ns + 500'000) / 1'000'000; }
+
 // Thread-unsafe.
 void RandSeed(unsigned long long);
 GLint RandInt();

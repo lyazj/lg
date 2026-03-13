@@ -8,7 +8,6 @@
 #include "GLProgram.h"
 #include "GLSphere.h"
 #include "GLTransformedRenderable.h"
-#include "Utils.h"
 
 using namespace std;
 
@@ -45,7 +44,7 @@ public:
 private:
   GLRenderablePtr renderable;
 
-  void Idle() override;
+  void Frame(uint64_t t, uint64_t dt) override;
 };
 
 int main(int argc, char *argv[])
@@ -87,12 +86,7 @@ void GLExampleApplication::Display()
   Flush();
 }
 
-void GLExampleApplication::Idle()
+void GLExampleApplication::Frame(uint64_t t [[maybe_unused]], uint64_t dt)
 {
-  static unsigned ts;
-  unsigned t = unsigned(GetElapsedTime() * 60ULL / 1000ULL);
-  if(t == ts) return;
-  ts = t;
-  SetModel(glm::rotate(model, 2.0f * pi / 60.0f / 10.0f, vec3(0.0f, 1.0f, 0.0f)));
-  PostRedisplay();
+  SetModel(glm::rotate(model, 2.0f * pi * (GLfloat)dt / 1e10f, vec3(0.0f, 1.0f, 0.0f)));
 }

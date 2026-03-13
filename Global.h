@@ -1,6 +1,8 @@
 #pragma once
 
 #include <GL/glew.h>
+#include <stddef.h>
+#include <stdint.h>
 
 #include <glm/fwd.hpp>
 #include <glm/gtc/constants.hpp>

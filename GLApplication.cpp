@@ -34,7 +34,11 @@ GLApplication::GLApplication(int &ac, char *av[])
       view(1.0),
       model(1.0),
       flush(glFlush),
-      clearMask(GL_COLOR_BUFFER_BIT)
+      clearMask(GL_COLOR_BUFFER_BIT),
+      frameRate(60),
+      showFrameRateInterval(1000),
+      frameCount(0),
+      frameTime(0)
 {
   if(gInstance) abort();
   gInstance = this;
@@ -136,8 +140,6 @@ void GLApplication::DisableDepthTest()
 
 void GLApplication::Clear() const { glClear(clearMask); }
 
-unsigned GLApplication::GetElapsedTime() { return (unsigned)glutGet(GLUT_ELAPSED_TIME); }
-
 void GLApplication::PostRedisplay() const { glutPostRedisplay(); }
 
 void GLApplication::SaveScreen(const fs::path &path, GLenum mode) const
@@ -198,7 +200,7 @@ void GLApplication::Init()
 
   glutReshapeFunc([](int w, int h) { GLApplication::GetInstance()->Reshape(w, h); });
 
-  glutIdleFunc([] { GLApplication::GetInstance()->Idle(); });
+  glutTimerFunc(0, [](int v) { GLApplication::GetInstance()->FrameTimer(v); }, (int)NsToMs(frameTime));
 
   glutMouseFunc([](int b, int s, int x, int y) {
     auto it = buttonMap.find(b);
@@ -234,6 +236,10 @@ void GLApplication::Init()
     }
     GLApplication::GetInstance()->SpecialKeyUp(it->second, x, y);
   });
+
+  if(showFrameRateInterval) {
+    glutTimerFunc(showFrameRateInterval, [](int) { GLApplication::GetInstance()->ShowFrameRate(); }, 0);
+  }
 }
 
 void GLApplication::Display() { }
@@ -245,7 +251,37 @@ void GLApplication::Reshape(int w, int h)
   height = h;
 }
 
-void GLApplication::Idle() { }
+void GLApplication::FrameTimer(unsigned mt)  // mt: expected time in ms
+{
+  uint64_t t = GetElapsedTime();
+
+  // Calculate the expected time span since the last frame, modulo 2^31 ms.
+  int mdt = mt - (unsigned)NsToMs(frameTime);
+
+  // Discard obsolete timer events to make sure the system responds.
+  if(mdt >= 0) {
+    //clog << "Info: GLApplication::FrameTimer(): frame: t = " << t << " ns, dt = " << mdt << " ns" << endl;
+    Frame(t, t - frameTime);
+    PostRedisplay();
+  }
+
+  // Calculate the delay since the expected time, modulo 2^31 ms.
+  int mdelay = (unsigned)NsToMs(t) - mt;
+
+  // Calculate the remaining time until the next expected frame, modulo 2^31 ms.
+  int mremain = int(1000.0f / (GLfloat)frameRate - (float)mdelay + 0.5f);
+  if(mremain < 0) mremain = 0;
+
+  // Calcluate the expected time for the next frame, modulo 2^32 ms.
+  mt = (unsigned)NsToMs(t) + mremain;
+
+  // Schedule the next timer event.
+  glutTimerFunc(mremain, [](int v) { GLApplication::GetInstance()->FrameTimer((unsigned)v); }, mt);
+  ++frameCount;
+  frameTime = t;
+}
+
+void GLApplication::Frame(uint64_t t [[maybe_unused]], uint64_t dt [[maybe_unused]]) { }
 
 void GLApplication::MouseDown(Mouse button [[maybe_unused]], int x [[maybe_unused]], int y [[maybe_unused]]) { }
 
@@ -260,3 +296,11 @@ void GLApplication::SpecialKeyDown(SpecialKey key [[maybe_unused]], int x [[mayb
 void GLApplication::SpecialKeyUp(SpecialKey key [[maybe_unused]], int x [[maybe_unused]], int y [[maybe_unused]]) { }
 
 void GLApplication::Loop() { glutMainLoop(); }
+
+void GLApplication::ShowFrameRate() const
+{
+  clog << "Info: frame rate: " << GetRealFrameRate() << " fps" << endl;
+  if(showFrameRateInterval) {
+    glutTimerFunc(showFrameRateInterval, [](int) { GLApplication::GetInstance()->ShowFrameRate(); }, 0);
+  }
+}
