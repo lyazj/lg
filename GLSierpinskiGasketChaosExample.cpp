@@ -75,5 +75,4 @@ void GLExampleApplication::Display()
 void GLExampleApplication::Frame(uint64_t t [[maybe_unused]], uint64_t dt)
 {
   SetModel(glm::rotate(model, 2.0f * pi * (GLfloat)dt / 1e10f, vec3(0.0f, 0.0f, 1.0f)));
-  PostRedisplay();
 }
