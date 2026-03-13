@@ -12,7 +12,7 @@ enum class GLImageType {
 
 enum class GLImageBackend {
   Default,
-  GraphicsMagick,
+  Magick,
   STB,
 };
 

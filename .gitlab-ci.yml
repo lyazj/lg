@@ -7,7 +7,7 @@ build-linux:
   stage: build
   script:
     - apt-get update
-    - apt-get install -y build-essential cmake libgl-dev libglew-dev freeglut3-dev libglm-dev graphicsmagick-libmagick-dev-compat
+    - apt-get install -y build-essential cmake git libgl-dev libglew-dev freeglut3-dev libglm-dev graphicsmagick-libmagick-dev-compat
     - cmake -B build -DCMAKE_BUILD_TYPE=Release
     - cmake --build build --config Release
 

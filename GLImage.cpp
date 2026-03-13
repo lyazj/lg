@@ -60,7 +60,8 @@ void GLImage::Backend::GLImageMagickBackend::Load(
   Magick::Image img(path.string());
   img.flip();
   image.width = (GLint)img.columns(), image.height = (GLint)img.rows();
-  image.type = img.matte() ? GLImageType::RGBA : GLImageType::RGB;
+  //image.type = img.matte() ? GLImageType::RGBA : GLImageType::RGB;
+  image.type = GLImageType::RGBA;  // Force RGBA for simplicity.
   image.data.resize(image.width * image.height * (image.type == GLImageType::RGBA ? 4 : 3));
   const char *format = image.type == GLImageType::RGBA ? "RGBA" : "RGB";
   img.write(0, 0, image.width, image.height, format, Magick::CharPixel, image.data.data());
@@ -101,13 +102,15 @@ void GLImage::Backend::GLImageSTBBackend::Load(
     GLImage &image [[maybe_unused]], const fs::path &path [[maybe_unused]]) const
 {
   int n;
-  unsigned char *d = stbi_load(path.string().c_str(), &image.width, &image.height, &n, 0);
+  unsigned char *d = stbi_load(path.string().c_str(), &image.width, &image.height, &n, 4);
   if(!d) {
-    cerr << "Error loading image: " << stbi_failure_reason() << endl;
-    image.width = image.height = 0, image.data.clear(), image.type = GLImageType::UNKNOWN;
+    cerr << "Error loading image: " << path << ": " << stbi_failure_reason() << endl;
+    image.width = image.height = 0;
+    image.data.clear();
+    image.type = GLImageType::UNKNOWN;
     return;
   }
-  image.type = n == 4 ? GLImageType::RGBA : GLImageType::RGB;
+  image.type = GLImageType::RGBA;
   image.data.assign((const byte *)d, (const byte *)d + image.width * image.height * n);
   stbi_image_free(d);
 }
@@ -122,7 +125,7 @@ void GLImage::Backend::GLImageSTBBackend::Save(
   default: abort();
   }
   if(stbi_write_png(path.string().c_str(), image.width, image.height, n, image.data.data(), 0) == 0) {
-    cerr << "Error saving image: " << stbi_failure_reason() << endl;
+    cerr << "Error saving image: " << path << endl;
   }
 }
 
@@ -135,8 +138,8 @@ void GLImage::Backend::Init(GLImageBackend backend)
   if(gInstance) abort();
 
 #ifndef HAS_MAGICK
-  if(backend == GLImageBackend::GraphicsMagick) {
-    cerr << "Warning: GraphicsMagick backend unavailable, falling back to default" << endl;
+  if(backend == GLImageBackend::Magick) {
+    cerr << "Warning: Magick backend unavailable, falling back to default" << endl;
     backend = GLImageBackend::Default;
   }
 #endif /* HAS_MAGICK */
@@ -150,7 +153,7 @@ void GLImage::Backend::Init(GLImageBackend backend)
 
   if(backend == GLImageBackend::Default) {
 #ifdef HAS_MAGICK
-    backend = GLImageBackend::GraphicsMagick;
+    backend = GLImageBackend::Magick;
 #else /* HAS_MAGICK */
 #ifdef HAS_STB
     backend = GLImageBackend::STB;
@@ -165,7 +168,7 @@ void GLImage::Backend::Init(GLImageBackend backend)
     break;
 
 #ifdef HAS_MAGICK
-  case GLImageBackend::GraphicsMagick: gInstance = make_unique<GLImageMagickBackend>(); break;
+  case GLImageBackend::Magick: gInstance = make_unique<GLImageMagickBackend>(); break;
 #endif /* HAS_MAGICK */
 
 #ifdef HAS_STB
