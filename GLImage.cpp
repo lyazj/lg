@@ -53,8 +53,7 @@ GLImage::Backend::GLImageMagickBackend::GLImageMagickBackend()
   Magick::InitializeMagick(GLApplication::GetInstance()->GetProgramName().c_str());
 }
 
-void GLImage::Backend::GLImageMagickBackend::Load(
-    GLImage &image [[maybe_unused]], const fs::path &path [[maybe_unused]]) const
+void GLImage::Backend::GLImageMagickBackend::Load(GLImage &image, const fs::path &path) const
 {
   // We do need .string() on Windows unfortunately...
   Magick::Image img(path.string());
@@ -67,8 +66,7 @@ void GLImage::Backend::GLImageMagickBackend::Load(
   img.write(0, 0, image.width, image.height, format, Magick::CharPixel, image.data.data());
 }
 
-void GLImage::Backend::GLImageMagickBackend::Save(
-    const GLImage &image [[maybe_unused]], const fs::path &path [[maybe_unused]]) const
+void GLImage::Backend::GLImageMagickBackend::Save(const GLImage &image, const fs::path &path) const
 {
   const char *format = nullptr;
   switch(image.type) {
@@ -98,8 +96,7 @@ GLImage::Backend::GLImageSTBBackend::GLImageSTBBackend()
   stbi_flip_vertically_on_write(1);
 }
 
-void GLImage::Backend::GLImageSTBBackend::Load(
-    GLImage &image [[maybe_unused]], const fs::path &path [[maybe_unused]]) const
+void GLImage::Backend::GLImageSTBBackend::Load(GLImage &image, const fs::path &path) const
 {
   int n;
   unsigned char *d = stbi_load(path.string().c_str(), &image.width, &image.height, &n, 4);
@@ -115,8 +112,7 @@ void GLImage::Backend::GLImageSTBBackend::Load(
   stbi_image_free(d);
 }
 
-void GLImage::Backend::GLImageSTBBackend::Save(
-    const GLImage &image [[maybe_unused]], const fs::path &path [[maybe_unused]]) const
+void GLImage::Backend::GLImageSTBBackend::Save(const GLImage &image, const fs::path &path) const
 {
   int n;
   switch(image.type) {
