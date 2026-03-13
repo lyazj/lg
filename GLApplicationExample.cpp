@@ -15,7 +15,6 @@
 #include "GLSierpinskiGasketChaos.h"
 #include "GLSmiley.h"
 #include "GLTriangle.h"
-#include "Utils.h"
 
 using namespace std;
 

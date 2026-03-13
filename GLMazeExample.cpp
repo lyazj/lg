@@ -9,7 +9,6 @@
 #include "GLSmiley.h"
 #include "GLTransformedRenderable.h"
 #include "GLTriangle.h"
-#include "Utils.h"
 
 using namespace std;
 
@@ -33,6 +32,7 @@ private:
   void UpdateRatGeometry();
   void Mouse(int button, int state, int x, int y);
   void KeyDown(unsigned char key, int x, int y);
+  void SpecialKeyDown(int key, int x, int y);
   void TurnLeft() { ratDirection = (ratDirection + 1) % 4; }
   void TurnRight() { ratDirection = (ratDirection + 3) % 4; }
   void MoveForward();
@@ -63,6 +63,8 @@ void GLExampleApplication::Init()
       [](int b, int s, int x, int y) { ((GLExampleApplication *)GLApplication::GetInstance())->Mouse(b, s, x, y); });
   glutKeyboardFunc(
       [](unsigned char k, int x, int y) { ((GLExampleApplication *)GLApplication::GetInstance())->KeyDown(k, x, y); });
+  glutSpecialFunc(
+      [](int k, int x, int y) { ((GLExampleApplication *)GLApplication::GetInstance())->SpecialKeyDown(k, x, y); });
 
   UseProgram(GLProgram::GetDefaultProgram());
 
@@ -134,6 +136,16 @@ void GLExampleApplication::KeyDown(unsigned char key, int x, int y)
   case ' ': return Mouse(GLUT_MIDDLE_BUTTON, GLUT_DOWN, x, y);
   case 'R':
   case 'r': return Mouse(GLUT_RIGHT_BUTTON, GLUT_DOWN, x, y);
+  }
+}
+
+void GLExampleApplication::SpecialKeyDown(int key, int x, int y)
+{
+  switch(key) {
+  case GLUT_KEY_RIGHT: return ratDirection = 0, KeyDown(' ', x, y);
+  case GLUT_KEY_UP: return ratDirection = 1, KeyDown(' ', x, y);
+  case GLUT_KEY_LEFT: return ratDirection = 2, KeyDown(' ', x, y);
+  case GLUT_KEY_DOWN: return ratDirection = 3, KeyDown(' ', x, y);
   }
 }
 
