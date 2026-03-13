@@ -32,6 +32,7 @@ void GLBufferedColorDecorator::Draw(const mat4 &model) const
 void GLRandomColorDecorator::SetColor() const
 {
   GLint n = renderable->GetNVertex();
+  colors.clear();
   colors.reserve(n);
   for(GLint i = 0; i < n; ++i) colors.push_back(vec4(RandVec3(), 1.0));
 }

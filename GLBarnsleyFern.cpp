@@ -26,7 +26,7 @@ constexpr vec2 b[4] = {
 
 }  // namespace
 
-GLBarnsleyFern::GLBarnsleyFern(GLint p) : points(p)
+GLBarnsleyFern::GLBarnsleyFern(GLint p) : points(max<GLint>(1, p))
 {
   vertices.reserve(points);
   vec2 x(0.0, 0.0);

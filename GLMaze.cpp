@@ -365,7 +365,9 @@ void GLMaze::GenerateVertex(GLint x, GLint y)
 }
 
 GLMaze::GLMaze(GLint w, GLint h, GLMazeType type)
-    : width(max<GLint>(1, w)), height(max<GLint>(1, h)), cells(h, vector<GLMazeCell>(w, { false, false, false, false }))
+    : width(max<GLint>(1, w)),
+      height(max<GLint>(1, h)),
+      cells(height, vector<GLMazeCell>(width, { false, false, false, false }))
 {
   switch(type) {
   case GLMazeType::Backtracking: GLMazeGenerator(entry, exit, cells).GenerateBacktracking(); break;

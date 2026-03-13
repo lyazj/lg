@@ -2,6 +2,8 @@
 
 #include <math.h>
 
+#include <algorithm>
+
 #include "Utils.h"
 
 using namespace std;
@@ -23,7 +25,7 @@ static void Construct(vector<vec2> &vertices, const vec2 &a, const vec2 &b, cons
   Construct(vertices, c, ca, bc, order, noise);
 }
 
-GLSierpinskiGasket::GLSierpinskiGasket(GLint o, GLfloat f) : order(o), noise(f)
+GLSierpinskiGasket::GLSierpinskiGasket(GLint o, GLfloat f) : order(max<GLint>(0, o)), noise(f)
 {
   vertices.reserve((size_t)pow(3, order + 1));
   vec2 a(cosf(0.0f * 2.0f * pi / 3.0f + pi / 2.0f), sinf(0.0f * 2.0f * pi / 3.0f + pi / 2.0f));

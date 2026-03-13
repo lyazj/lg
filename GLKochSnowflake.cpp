@@ -2,6 +2,8 @@
 
 #include <math.h>
 
+#include <algorithm>
+
 #include "Utils.h"
 
 using namespace std;
@@ -23,7 +25,7 @@ static void Construct(vector<vec2> &vertices, const vec2 &a, const vec2 &b, GLin
   Construct(vertices, d, b, order);
 }
 
-GLKochSnowflake::GLKochSnowflake(GLint o) : order(o)
+GLKochSnowflake::GLKochSnowflake(GLint o) : order(max<GLint>(0, o))
 {
   vertices.reserve((size_t)(pow(4, order) * 3));
   vec2 a(cosf(0.0f * 2.0f * pi / 3.0f), sinf(0.0f * 2.0f * pi / 3.0f));
