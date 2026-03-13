@@ -64,17 +64,22 @@ protected:
   uint64_t frameCount;
   uint64_t frameTime;
 
+  // clang-format off
   enum class Mouse {
-    Left,
-    Middle,
-    Right,
+    LeftButton, MiddleButton, RightButton,
+    WheelUp, WheelDown, WheelRight, WheelLeft,
+    Backward, Forward,
   };
+  // clang-format on
+
+  // clang-format off
   enum class SpecialKey {
-    Up,
-    Down,
-    Left,
-    Right,
+    F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
+    Up, Down, Left, Right,
+    PageUp, PageDown, Home, End, Insert,
+    ShiftLeft, ShiftRight, CtrlLeft, CtrlRight, AltLeft, AltRight, SuperLeft, SuperRight,
   };
+  // clang-format on
 
   virtual void PreInit();
   virtual void InitGL();

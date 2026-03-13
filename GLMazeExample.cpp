@@ -113,9 +113,10 @@ void GLExampleApplication::MouseDown(Mouse button, int, int)
 {
   if(won) exit(EXIT_SUCCESS);
   switch(button) {
-  case Mouse::Left: TurnLeft(); break;
-  case Mouse::Right: TurnRight(); break;
-  case Mouse::Middle: MoveForward(); break;
+  case Mouse::LeftButton: TurnLeft(); break;
+  case Mouse::RightButton: TurnRight(); break;
+  case Mouse::MiddleButton: MoveForward(); break;
+  default: break;
   }
   UpdateRatGeometry();
   CheckWin();
@@ -126,10 +127,10 @@ void GLExampleApplication::KeyDown(unsigned char key, int x, int y)
 {
   switch(key) {
   case 'L':
-  case 'l': return MouseDown(Mouse::Left, x, y);
-  case ' ': return MouseDown(Mouse::Middle, x, y);
+  case 'l': return MouseDown(Mouse::LeftButton, x, y);
+  case ' ': return MouseDown(Mouse::MiddleButton, x, y);
   case 'R':
-  case 'r': return MouseDown(Mouse::Right, x, y);
+  case 'r': return MouseDown(Mouse::RightButton, x, y);
   }
 }
 
@@ -140,6 +141,7 @@ void GLExampleApplication::SpecialKeyDown(SpecialKey key, int x, int y)
   case SpecialKey::Up: return ratDirection = 1, KeyDown(' ', x, y);
   case SpecialKey::Left: return ratDirection = 2, KeyDown(' ', x, y);
   case SpecialKey::Down: return ratDirection = 3, KeyDown(' ', x, y);
+  default: break;
   }
 }
 
