@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(MSVC)
     add_compile_options(/W4)
 else()
-    add_compile_options(-Wall -Wshadow -Wextra -Wpedantic -Wconversion)
+    add_compile_options(-Wall -Wshadow -Wextra -Wpedantic -Wconversion -Wno-sign-conversion)
 endif()
 
 # -----------------------------

@@ -189,7 +189,7 @@ inline Endian ProbeEndian()
 uint16_t ToLittleEndian16(uint16_t x)
 {
   if(ProbeEndian() == LittleEndian) return x;
-  return (x >> 8) | (x << 8);
+  return uint16_t((x >> 8) | (x << 8));
 }
 
 uint32_t ToLittleEndian32(uint32_t x)
