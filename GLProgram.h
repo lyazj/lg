@@ -43,6 +43,7 @@ public:
   void SetUniform(const char *name, const mat4 &value) const;
 
   static GLProgramPtr GetDefaultProgram();
+  static GLProgramPtr GetDefaultTextureProgram();
 
 private:
   GLuint id;

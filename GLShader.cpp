@@ -27,14 +27,36 @@ uniform mat4 u_model;
 uniform mat4 u_view;
 uniform mat4 u_projection;
 
-in vec4 a_position;
+in vec3 a_position;
 in vec4 a_color;
 out vec4 v_color;
 
 void main()
 {
-  gl_Position = u_projection * u_view * u_model * a_position;
+  gl_Position = u_projection * u_view * u_model * vec4(a_position, 1.0);
   v_color = a_color;
+}
+  )");
+}
+
+GLShaderPtr GLShader::GetDefaultTextureVertexShader()
+{
+  return make_shared<GLShader>(GL_VERTEX_SHADER,
+      R"(
+#version 150
+
+uniform mat4 u_model;
+uniform mat4 u_view;
+uniform mat4 u_projection;
+
+in vec3 a_position;
+in vec2 a_texCoord0;
+out vec2 v_texCoord0;
+
+void main()
+{
+  gl_Position = u_projection * u_view * u_model * vec4(a_position, 1.0);
+  v_texCoord0 = a_texCoord0;
 }
   )");
 }
@@ -51,6 +73,24 @@ out vec4 f_color;
 void main()
 {
   f_color = v_color;
+}
+  )");
+}
+
+GLShaderPtr GLShader::GetDefaultTextureFragmentShader()
+{
+  return make_shared<GLShader>(GL_FRAGMENT_SHADER,
+      R"(
+#version 150
+
+uniform sampler2D u_texture0;
+
+in vec2 v_texCoord0;
+out vec4 f_color;
+
+void main()
+{
+  f_color = texture(u_texture0, v_texCoord0);
 }
   )");
 }

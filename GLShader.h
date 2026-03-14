@@ -15,7 +15,9 @@ public:
   void Detach(GLuint program) const;
 
   static GLShaderPtr GetDefaultVertexShader();
+  static GLShaderPtr GetDefaultTextureVertexShader();
   static GLShaderPtr GetDefaultFragmentShader();
+  static GLShaderPtr GetDefaultTextureFragmentShader();
 
 private:
   GLenum type;

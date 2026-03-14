@@ -188,3 +188,13 @@ GLProgramPtr GLProgram::GetDefaultProgram()
   program->DetachShaders();
   return program;
 }
+
+GLProgramPtr GLProgram::GetDefaultTextureProgram()
+{
+  GLProgramPtr program(new GLProgram);
+  program->AttachShader(GLShader::GetDefaultTextureVertexShader());
+  program->AttachShader(GLShader::GetDefaultTextureFragmentShader());
+  program->Link();
+  program->DetachShaders();
+  return program;
+}
