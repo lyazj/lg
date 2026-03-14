@@ -7,8 +7,10 @@
 #endif /* HAS_MAGICK */
 
 #ifdef HAS_STB
+#ifdef NEED_STB_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
+#endif /* NEED_STB_IMPLEMENTATION */
 #include <stb_image.h>
 #include <stb_image_write.h>
 #endif /* HAS_STB */
