@@ -40,6 +40,7 @@ endif()
 
 option(USE_MAGICK "Enable GraphicsMagick++ support" ON)
 option(USE_STB "Enable stb_image support" ON)
+option(CI_BUILD "Enable CI-specific build settings" OFF)
 
 # Link libraries for OpenGL, GLEW, GLUT, GLM, GraphicsMagick++, and stb_image
 find_package(OpenGL REQUIRED)
@@ -88,4 +89,7 @@ foreach(EXAMPLE_SRC ${EXAMPLE_SOURCES})
     get_filename_component(EXAMPLE_NAME ${EXAMPLE_SRC} NAME_WE)
     add_executable(${EXAMPLE_NAME} ${EXAMPLE_SRC})
     target_link_libraries(${EXAMPLE_NAME} PRIVATE LG)
+    if(CI_BUILD AND (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
+        target_link_options(${EXAMPLE_NAME} PRIVATE -Wl,--rpath=.)
+    endif()
 endforeach()

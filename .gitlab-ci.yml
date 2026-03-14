@@ -9,10 +9,10 @@ build-linux:
     - apt-get install -y build-essential clang cmake git libgl-dev libglew-dev freeglut3-dev libglm-dev graphicsmagick-libmagick-dev-compat
     - export CC=clang CXX=clang++
     - export BUILD=build_${CC}_$(uname -m)_$(uname -s)_ubuntu_latest_$(git rev-parse --short HEAD)
-    - cmake -B ${BUILD} -DCMAKE_BUILD_TYPE=RelWithDebInfo && cmake --build ${BUILD}
+    - cmake -B ${BUILD} -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCI_BUILD=ON && cmake --build ${BUILD}
     - export CC=gcc CXX=g++
     - export BUILD=build_${CC}_$(uname -m)_$(uname -s)_ubuntu_latest_$(git rev-parse --short HEAD)
-    - cmake -B ${BUILD} -DCMAKE_BUILD_TYPE=RelWithDebInfo && cmake --build ${BUILD}
+    - cmake -B ${BUILD} -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCI_BUILD=ON && cmake --build ${BUILD}
   artifacts:
     paths:
       - build_*/libLG.so
