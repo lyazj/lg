@@ -22,7 +22,7 @@ public:
   ~GLExampleSphere() override = default;
 
 protected:
-  void SetColor() const override { }
+  void SetColors() const override { }
 };
 
 GLExampleSphere::GLExampleSphere(GLfloat r, GLint sl, GLint st)

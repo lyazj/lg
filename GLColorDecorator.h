@@ -38,7 +38,7 @@ protected:
   GLBuffer colorBuffer;
   mutable std::vector<vec4> colors;
 
-  virtual void SetColor() const = 0;
+  virtual void SetColors() const = 0;
 };
 
 class GLRandomColorDecorator : public GLBufferedColorDecorator {
@@ -47,5 +47,5 @@ public:
   ~GLRandomColorDecorator() override = default;
 
 protected:
-  void SetColor() const override;
+  void SetColors() const override;
 };

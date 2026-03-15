@@ -36,6 +36,7 @@ using std::byte;
 GL_DECLARE_CLASS(GLApplication)
 GL_DECLARE_CLASS(GLProgram)
 GL_DECLARE_CLASS(GLShader)
+GL_DECLARE_CLASS(GLTexture)
 GL_DECLARE_CLASS(GLRenderable)
 GL_DECLARE_CLASS(GLSimpleRenderable)
 GL_DECLARE_CLASS(GLBufferedGeometry)

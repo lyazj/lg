@@ -16,7 +16,7 @@ void GLUniformColorDecorator::Draw(const mat4 &model) const
 void GLBufferedColorDecorator::Buffer() const
 {
   renderable->Buffer();
-  SetColor();
+  SetColors();
   colorBuffer.Buffer(colors);
 }
 
@@ -29,7 +29,7 @@ void GLBufferedColorDecorator::Draw(const mat4 &model) const
   GLProgram::DisableVertexAttribute("a_color");
 }
 
-void GLRandomColorDecorator::SetColor() const
+void GLRandomColorDecorator::SetColors() const
 {
   GLint n = renderable->GetNVertex();
   colors.clear();

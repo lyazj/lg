@@ -34,6 +34,7 @@ public:
   static void SetVertexAttribute(const char *name, const vec4 &value);
 
   GLint GetUniformLocation(const char *name) const;
+  void SetDefaultUniforms() const;
   void SetUniform(const char *name, GLfloat value) const;
   void SetUniform(const char *name, GLint value) const;
   void SetUniform(const char *name, const vec2 &value) const;
