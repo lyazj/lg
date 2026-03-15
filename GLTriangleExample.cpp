@@ -52,16 +52,16 @@ void GLExampleApplication::Display()
   Clear();
   mat4 m;
 
-  GLProgram::SetVertexAttribute("a_color", vec4(1.0, 0.0, 0.0, 1.0));
+  GLProgram::SetVertexAttribute("a_color", vec4(1.0f, 0.0f, 0.0f, 1.0f));
   m = mat4(1.0f);
   renderable->Draw(model * m);
 
-  GLProgram::SetVertexAttribute("a_color", vec4(0.0, 1.0, 0.0, 1.0));
+  GLProgram::SetVertexAttribute("a_color", vec4(0.0f, 1.0f, 0.0f, 1.0f));
   m = mat4(1.0f);
   m = glm::rotate(m, 20.0f * deg, vec3(0.0f, 0.0f, 1.0f));
   renderable->Draw(model * m);
 
-  GLProgram::SetVertexAttribute("a_color", vec4(0.0, 0.0, 1.0, 1.0));
+  GLProgram::SetVertexAttribute("a_color", vec4(0.0f, 0.0f, 1.0f, 1.0f));
   m = mat4(1.0f);
   m = glm::rotate(m, 40.0f * deg, vec3(0.0f, 0.0f, 1.0f));
   m = glm::translate(m, vec3(0.0f, 0.0f, 0.2f));

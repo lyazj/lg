@@ -88,7 +88,7 @@ void GLProgram::SetDefaultVertexAttributes()
 void GLProgram::SetDefaultVertexAttribute(const char *name)
 {
   if(strcmp(name, "a_color") == 0) {
-    GLProgram::SetVertexAttribute("a_color", vec4(0.0, 0.0, 1.0, 1.0));
+    GLProgram::SetVertexAttribute("a_color", vec4(0.0f, 0.0f, 1.0f, 1.0f));
   } else {
     cerr << "Warning: no default value for vertex attribute '" << name << "'" << endl;
   }
@@ -136,9 +136,9 @@ GLint GLProgram::GetUniformLocation(const char *name) const
 
 void GLProgram::SetDefaultUniforms() const
 {
-  SetUniform("u_model", vec4(1.0));
-  SetUniform("u_view", vec4(1.0));
-  SetUniform("u_projection", vec4(1.0));
+  SetUniform("u_model", vec4(1.0f));
+  SetUniform("u_view", vec4(1.0f));
+  SetUniform("u_projection", vec4(1.0f));
   SetUniform("u_texture0", 0);
   SetUniform("u_texture1", 1);
 

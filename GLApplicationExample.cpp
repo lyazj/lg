@@ -129,7 +129,7 @@ void GLExampleApplication::InitGeometry()
     if(argc > 2) points = stoi(argv[2]);
     auto fern = make_shared<GLBarnsleyFern>(points);
     fern->Normalize();
-    renderable.reset(new GLUniformColorDecorator(fern, { 0.0, 1.0, 0.0, 1.0 }));
+    renderable.reset(new GLUniformColorDecorator(fern, { 0.0f, 1.0f, 0.0f, 1.0f }));
     return;
   }
 

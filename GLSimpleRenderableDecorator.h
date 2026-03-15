@@ -19,17 +19,19 @@ public:
 
   void SetVertexAttributes() const override { renderable->SetVertexAttributes(); }
   void Buffer() const override { renderable->Buffer(); }
-  void Draw(const mat4 &model) const override;
+  void Draw(const mat4 &model) const override final;
 
-  const GLVertexArray &GetVertexArray() const override { return renderable->GetVertexArray(); }
-  const GLBuffer &GetVertexBuffer() const override { return renderable->GetVertexBuffer(); }
+  const GLVertexArray &GetVertexArray() const override final { return renderable->GetVertexArray(); }
+  const GLBuffer &GetVertexBuffer() const override final { return renderable->GetVertexBuffer(); }
 
-  GLint GetDimension() const override { return renderable->GetDimension(); }
-  GLint GetNVertex() const override { return renderable->GetNVertex(); }
-  void GetVertex(GLint i, vec2 &v) const override { renderable->GetVertex(i, v); }
-  void GetVertex(GLint i, vec3 &v) const override { renderable->GetVertex(i, v); }
+  GLint GetDimension() const override final { return renderable->GetDimension(); }
+  GLint GetNVertex() const override final { return renderable->GetNVertex(); }
+  void GetVertex(GLint i, vec2 &v) const override final { renderable->GetVertex(i, v); }
+  void GetVertex(GLint i, vec3 &v) const override final { renderable->GetVertex(i, v); }
 
 protected:
   GLSimpleRenderablePtr renderable;
   GLProgramPtr program;
+
+  virtual void IssueDraw(const mat4 &model) const { renderable->Draw(model); }
 };

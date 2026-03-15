@@ -15,7 +15,7 @@ GLSierpinskiGasketChaos::GLSierpinskiGasketChaos(GLint p) : points(p)
   };
 
   vertices.reserve(points);
-  vec2 x(0.0, 0.0);
+  vec2 x(0.0f, 0.0f);
   vertices.push_back(x);
   for(GLint i = 1; i < points; ++i) {
     GLint j = RandInt(3);

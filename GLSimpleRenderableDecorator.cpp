@@ -10,6 +10,6 @@ void GLSimpleRenderableDecorator::Draw(const mat4 &model) const
   GLApplication *app = GLApplication::GetInstance();
   GLProgramPtr previousProgram = app->GetProgram();
   app->UseProgram(program);
-  renderable->Draw(model);
+  IssueDraw(model);
   app->UseProgram(previousProgram);
 }

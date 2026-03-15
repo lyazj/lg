@@ -5,15 +5,17 @@
 #include <algorithm>
 #include <glm/vec3.hpp>
 
+#include "GLProgram.h"
 #include "GLTexture.h"
+#include "GLVertexArray.h"
 
 using namespace std;
 
-void GLTextureDecorator::Draw(const mat4 &model) const
+void GLTextureDecorator::IssueDraw(const mat4 &model) const
 {
   glActiveTexture(GL_TEXTURE0);
   texture->Bind();
-  GLSimpleRenderableDecorator::Draw(model);
+  GLSimpleRenderableDecorator::IssueDraw(model);
 }
 
 void GLBufferedTextureDecorator::Buffer() const
@@ -21,6 +23,15 @@ void GLBufferedTextureDecorator::Buffer() const
   GLTextureDecorator::Buffer();
   SetTexCoords();
   texCoordBuffer.Buffer(texCoords);
+}
+
+void GLBufferedTextureDecorator::IssueDraw(const mat4 &model) const
+{
+  GetVertexArray().Bind();
+  texCoordBuffer.Bind();
+  GLProgram::SetVertexAttributePointer("a_texCoord0", 2);
+  GLTextureDecorator::IssueDraw(model);
+  GLProgram::DisableVertexAttribute("a_texCoord0");
 }
 
 void GL2DTextureDecorator::SetTexCoords() const
@@ -36,10 +47,13 @@ void GL2DTextureDecorator::SetTexCoords() const
     ymax = max(ymax, v.y);
   }
 
+  texCoords.clear();
   texCoords.reserve(n);
   for(GLint i = 0; i < n; ++i) {
     vec3 v;
     GetVertex(i, v);
-    texCoords.emplace_back((v.x - xmin) / (xmax - xmin), (v.y - ymin) / (ymax - ymin));
+    GLfloat x = xmin == xmax ? 0.5f : (v.x - xmin) / (xmax - xmin);
+    GLfloat y = ymin == ymax ? 0.5f : (v.y - ymin) / (ymax - ymin);
+    texCoords.emplace_back(x, y);
   }
 }

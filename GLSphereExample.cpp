@@ -69,8 +69,8 @@ void GLExampleApplication::Init()
   UseProgram(GLProgram::GetDefaultProgram());
 
   auto scene = make_shared<GLCompositeRenderable>();
-  GLRenderablePtr sphere = make_shared<GLExampleSphere>(0.2, 64, 32);
-  sphere = make_shared<GLTransformedRenderable>(sphere, glm::rotate(mat4(1.0), 20.0f * deg, vec3(0.0f, 1.0f, 0.0f)));
+  GLRenderablePtr sphere = make_shared<GLExampleSphere>(0.2f, 64, 32);
+  sphere = make_shared<GLTransformedRenderable>(sphere, glm::rotate(mat4(1.0f), 20.0f * deg, vec3(0.0f, 1.0f, 0.0f)));
   scene->AddGeometry(sphere);
   scene->AddGeometry(make_shared<GLAxes>());
   renderable = scene;

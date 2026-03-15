@@ -29,7 +29,7 @@ constexpr vec2 b[4] = {
 GLBarnsleyFern::GLBarnsleyFern(GLint p) : points(max<GLint>(1, p))
 {
   vertices.reserve(points);
-  vec2 x(0.0, 0.0);
+  vec2 x(0.0f, 0.0f);
   vertices.push_back(x);
   for(GLint i = 1; i < points; ++i) {
     size_t j = upper_bound(begin(cdf), end(cdf), RandFloat()) - begin(cdf);

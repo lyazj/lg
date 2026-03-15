@@ -34,9 +34,9 @@ GLApplication::GLApplication(int &ac, char *av[])
 #endif /* _WIN32 */
       title(programShortName),
       windowId(-1),
-      projection(1.0),
-      view(1.0),
-      model(1.0),
+      projection(1.0f),
+      view(1.0f),
+      model(1.0f),
       flush(glFlush),
       clearMask(GL_COLOR_BUFFER_BIT),
       frameRate(60),
@@ -186,12 +186,12 @@ void GLApplication::InitGL()
 
 void GLApplication::Init()
 {
-  glClearColor(1.0, 1.0, 1.0, 1.0);
-  glPointSize(1.0);
+  glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+  glPointSize(1.0f);
 #ifdef _WIN32
-  glLineWidth(1.0);
+  glLineWidth(1.0f);
 #else  /* _WIN32 */
-  glLineWidth(2.0);
+  glLineWidth(2.0f);
 #endif /* _WIN32 */
   GLProgram::SetDefaultVertexAttributes();
 

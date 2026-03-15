@@ -18,10 +18,10 @@ public:
   const GLTexturePtr &GetTexture() const { return texture; }
   void SetTexture(const GLTexturePtr &t) { texture = t; }
 
-  void Draw(const mat4 &model) const override;
-
 protected:
   GLTexturePtr texture;
+
+  void IssueDraw(const mat4 &model) const override;
 };
 
 class GLBufferedTextureDecorator : public GLTextureDecorator {
@@ -34,6 +34,7 @@ protected:
   GLBuffer texCoordBuffer;
   mutable std::vector<vec2> texCoords;
 
+  void IssueDraw(const mat4 &model) const override;
   virtual void SetTexCoords() const = 0;
 };
 

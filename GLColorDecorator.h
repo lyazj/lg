@@ -20,10 +20,10 @@ public:
   const vec4 &GetColor() const { return color; }
   void SetColor(const vec4 &c) { color = c; }
 
-  void Draw(const mat4 &model) const override;
-
 protected:
   vec4 color;
+
+  void IssueDraw(const mat4 &model) const override;
 };
 
 class GLBufferedColorDecorator : public GLColorDecorator {
@@ -31,12 +31,12 @@ public:
   using GLColorDecorator::GLColorDecorator;
 
   void Buffer() const override;
-  void Draw(const mat4 &model) const override;
 
 protected:
   GLBuffer colorBuffer;
   mutable std::vector<vec4> colors;
 
+  void IssueDraw(const mat4 &model) const override;
   virtual void SetColors() const = 0;
 };
 

@@ -77,7 +77,7 @@ void GLExampleApplication::Init()
   vec3 ratC = { -ratRadius, -ratRadius * 0.5f, 0.0f };
   GLSimpleRenderablePtr rawRat = make_shared<GLTriangle>(ratA, ratB, ratC);
   rawRat = make_shared<GLUniformColorDecorator>(rawRat, vec4(0.0f, 1.0f, 0.0f, 1.0f));
-  rat = make_shared<GLTransformedRenderable>(rawRat, mat4(1.0));
+  rat = make_shared<GLTransformedRenderable>(rawRat, mat4(1.0f));
   ratDirection = 0;
   maze->GetEntry(ratX, ratY);
   maze->GetExit(exitX, exitY);
@@ -104,7 +104,7 @@ void GLExampleApplication::UpdateRatGeometry()
 {
   GLfloat x, y;
   maze->GetNormalizedPosition((GLfloat)ratX + 0.5f, (GLfloat)ratY + 0.5f, x, y);
-  mat4 m = glm::translate(mat4(1.0), vec3(x, y, 0.0));
+  mat4 m = glm::translate(mat4(1.0f), vec3(x, y, 0.0f));
   m = glm::rotate(m, (GLfloat)ratDirection * 90.0f * deg, vec3(0.0f, 0.0f, 1.0f));
   rat->SetModel(m);
 }
