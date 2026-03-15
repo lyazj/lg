@@ -100,6 +100,8 @@ void GLApplication::UseProgram(const GLProgramPtr &p)
     p->SetUniform("u_projection", projection);
     p->SetUniform("u_view", view);
     p->SetUniform("u_model", model);
+    p->SetUniform("u_texture0", 0);  // [XXX] This is duplicated.
+    p->SetUniform("u_texture1", 1);  // [XXX] This is duplicated.
   }
   program = p;
 }
@@ -194,6 +196,8 @@ void GLApplication::Init()
   glLineWidth(2.0f);
 #endif /* _WIN32 */
   GLProgram::SetDefaultVertexAttributes();
+
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
   static unordered_map<int, Mouse> buttonMap = {
     { GLUT_LEFT_BUTTON, Mouse::LeftButton },

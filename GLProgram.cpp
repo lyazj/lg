@@ -82,7 +82,7 @@ void GLProgram::SetDefaultVertexAttributes()
 {
   GLProgram::SetDefaultVertexAttribute("a_color");
 
-  // [XXX] Add defaults for other attributes.
+  // [TODO] Add defaults for other attributes.
 }
 
 void GLProgram::SetDefaultVertexAttribute(const char *name)
@@ -134,17 +134,6 @@ GLint GLProgram::GetUniformLocation(const char *name) const
   return it->second;
 }
 
-void GLProgram::SetDefaultUniforms() const
-{
-  SetUniform("u_model", vec4(1.0f));
-  SetUniform("u_view", vec4(1.0f));
-  SetUniform("u_projection", vec4(1.0f));
-  SetUniform("u_texture0", 0);
-  SetUniform("u_texture1", 1);
-
-  // [XXX] Add defaults for other uniforms.
-}
-
 void GLProgram::SetUniform(const char *name, GLfloat value) const
 {
   GLint uniform = GetUniformLocation(name);
@@ -194,7 +183,6 @@ GLProgramPtr GLProgram::GetDefaultProgram()
   program->AttachShader(GLShader::GetDefaultFragmentShader());
   program->Link();
   program->DetachShaders();
-  program->SetDefaultUniforms();
   return program;
 }
 
@@ -205,6 +193,5 @@ GLProgramPtr GLProgram::GetDefaultTextureProgram()
   program->AttachShader(GLShader::GetDefaultTextureFragmentShader());
   program->Link();
   program->DetachShaders();
-  program->SetDefaultUniforms();
   return program;
 }

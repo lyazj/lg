@@ -29,7 +29,7 @@ public:
 private:
   GLRenderablePtr renderable;
 
-  void InitGeometry();
+  void InitRenderable();
   string GetScreenshotName() const;
 };
 
@@ -53,7 +53,7 @@ void GLExampleApplication::Init()
   GLApplication::Init();
   UseProgram(GLProgram::GetDefaultProgram());
 
-  InitGeometry();
+  InitRenderable();
   renderable->SetVertexAttributes();
   renderable->Buffer();
 
@@ -68,7 +68,7 @@ void GLExampleApplication::Display()
   Flush();
 }
 
-void GLExampleApplication::InitGeometry()
+void GLExampleApplication::InitRenderable()
 {
   if(argc == 1) {
     cerr << "Usage: " << programShortName << " <renderable> [ <args> ... ]" << endl;

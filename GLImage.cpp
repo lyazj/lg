@@ -62,8 +62,7 @@ void GLImage::Backend::GLImageMagickBackend::Load(GLImage &image, const fs::path
   Magick::Image img(path.string());
   img.flip();
   image.width = (GLint)img.columns(), image.height = (GLint)img.rows();
-  //image.type = img.matte() ? GLImageType::RGBA : GLImageType::RGB;
-  image.type = GLImageType::RGBA;  // Force RGBA for simplicity.
+  image.type = img.matte() ? GLImageType::RGBA : GLImageType::RGB;
   image.data.resize(image.width * image.height * (image.type == GLImageType::RGBA ? 4 : 3));
   const char *format = image.type == GLImageType::RGBA ? "RGBA" : "RGB";
   img.write(0, 0, image.width, image.height, format, Magick::CharPixel, image.data.data());

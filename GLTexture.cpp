@@ -23,6 +23,7 @@ void GLTexture::Unbind() const { glBindTexture(target, 0); }
 
 void GLTexture::Texture(GLenum iFormat, GLsizei width, GLenum format, const void *data) const
 {
+  // [TODO]
   Bind();
   GLTexImage1D(target, 0, iFormat, width, 0, format, GL_UNSIGNED_BYTE, data);
 }
@@ -30,12 +31,18 @@ void GLTexture::Texture(GLenum iFormat, GLsizei width, GLenum format, const void
 void GLTexture::Texture(GLenum iFormat, GLsizei width, GLsizei height, GLenum format, const void *data) const
 {
   Bind();
+  glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   GLTexImage2D(target, 0, iFormat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+  glGenerateMipmap(target);
 }
 
 void GLTexture::Texture(
     GLenum iFormat, GLsizei width, GLsizei height, GLsizei depth, GLenum format, const void *data) const
 {
+  // [TODO]
   Bind();
   GLTexImage3D(target, 0, iFormat, width, height, depth, 0, format, GL_UNSIGNED_BYTE, data);
 }
