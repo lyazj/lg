@@ -8,7 +8,7 @@
 
 class GLColorDecorator : public GLSimpleRenderableDecorator {
 public:
-  GLColorDecorator(GLSimpleRenderablePtr r) : GLSimpleRenderableDecorator(std::move(r)) { }
+  GLColorDecorator(GLSimpleRenderablePtr r) : GLSimpleRenderableDecorator(std::move(r), nullptr) { }
   ~GLColorDecorator() override = default;
 };
 
@@ -28,8 +28,7 @@ protected:
 
 class GLBufferedColorDecorator : public GLColorDecorator {
 public:
-  GLBufferedColorDecorator(GLSimpleRenderablePtr r) : GLColorDecorator(std::move(r)) { }
-  ~GLBufferedColorDecorator() override = default;
+  using GLColorDecorator::GLColorDecorator;
 
   void Buffer() const override;
   void Draw(const mat4 &model) const override;
@@ -43,8 +42,7 @@ protected:
 
 class GLRandomColorDecorator : public GLBufferedColorDecorator {
 public:
-  GLRandomColorDecorator(GLSimpleRenderablePtr r) : GLBufferedColorDecorator(std::move(r)) { }
-  ~GLRandomColorDecorator() override = default;
+  using GLBufferedColorDecorator::GLBufferedColorDecorator;
 
 protected:
   void SetColors() const override;

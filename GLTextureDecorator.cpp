@@ -1,8 +1,10 @@
 #include "GLTextureDecorator.h"
 
-#include <algorithm>
+#include <math.h>
 
-#include "GLApplication.h"
+#include <algorithm>
+#include <glm/vec3.hpp>
+
 #include "GLTexture.h"
 
 using namespace std;
@@ -11,21 +13,12 @@ void GLTextureDecorator::Draw(const mat4 &model) const
 {
   glActiveTexture(GL_TEXTURE0);
   texture->Bind();
-
-  if(program) {
-    GLApplication *app = GLApplication::GetInstance();
-    GLProgramPtr previousProgram = app->GetProgram();
-    app->UseProgram(program);
-    renderable->Draw(model);
-    app->UseProgram(previousProgram);
-  } else {
-    renderable->Draw(model);
-  }
+  GLSimpleRenderableDecorator::Draw(model);
 }
 
 void GLBufferedTextureDecorator::Buffer() const
 {
-  renderable->Buffer();
+  GLTextureDecorator::Buffer();
   SetTexCoords();
   texCoordBuffer.Buffer(texCoords);
 }
@@ -33,10 +26,10 @@ void GLBufferedTextureDecorator::Buffer() const
 void GL2DTextureDecorator::SetTexCoords() const
 {
   GLfloat xmin = INFINITY, xmax = -INFINITY, ymin = INFINITY, ymax = -INFINITY;
-  GLint n = renderable->GetNVertex();
+  GLint n = GetNVertex();
   for(GLint i = 0; i < n; ++i) {
     vec3 v;
-    renderable->GetVertex(i, v);
+    GetVertex(i, v);
     xmin = min(xmin, v.x);
     xmax = max(xmax, v.x);
     ymin = min(ymin, v.y);
@@ -46,7 +39,7 @@ void GL2DTextureDecorator::SetTexCoords() const
   texCoords.reserve(n);
   for(GLint i = 0; i < n; ++i) {
     vec3 v;
-    renderable->GetVertex(i, v);
+    GetVertex(i, v);
     texCoords.emplace_back((v.x - xmin) / (xmax - xmin), (v.y - ymin) / (ymax - ymin));
   }
 }

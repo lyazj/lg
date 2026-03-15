@@ -4,7 +4,6 @@
 #include <iostream>
 #include <unordered_map>
 
-#include "GLApplication.h"
 #include "GLShader.h"
 #include "Utils.h"
 
@@ -57,8 +56,6 @@ void GLProgram::Link()
 }
 
 void GLProgram::Use() const { glUseProgram(id); }
-
-GLProgram *GLProgram::GetCurrentProgram() { return GLApplication::GetInstance()->GetProgram().get(); }
 
 GLint GLProgram::GetVertexAttributeLocation(const char *name) { return vertexAttributeMap.at(name); }
 

@@ -1,5 +1,6 @@
 #include "GLBufferedGeometry.h"
 
+#include "GLApplication.h"
 #include "GLBuffer.h"
 #include "GLProgram.h"
 
@@ -39,5 +40,5 @@ void GLBufferedGeometry::Bind() const { vertexArray.Bind(); }
 
 void GLBufferedGeometry::SetUniforms(const mat4 &model) const
 {
-  GLProgram::GetCurrentProgram()->SetUniform("u_model", model);
+  GLApplication::GetInstance()->GetProgram()->SetUniform("u_model", model);
 }

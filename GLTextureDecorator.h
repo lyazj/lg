@@ -8,8 +8,8 @@
 
 class GLTextureDecorator : public GLSimpleRenderableDecorator {
 public:
-  GLTextureDecorator(GLSimpleRenderablePtr r, GLTexturePtr t, GLProgramPtr p)
-      : GLSimpleRenderableDecorator(std::move(r)), texture(std::move(t)), program(std::move(p))
+  GLTextureDecorator(GLSimpleRenderablePtr r, GLProgramPtr p, GLTexturePtr t)
+      : GLSimpleRenderableDecorator(std::move(r), std::move(p)), texture(std::move(t))
   {
     // empty
   }
@@ -22,17 +22,11 @@ public:
 
 protected:
   GLTexturePtr texture;
-  GLProgramPtr program;
 };
 
 class GLBufferedTextureDecorator : public GLTextureDecorator {
 public:
-  GLBufferedTextureDecorator(GLSimpleRenderablePtr r, GLTexturePtr t, GLProgramPtr p)
-      : GLTextureDecorator(std::move(r), std::move(t), std::move(p))
-  {
-    // empty
-  }
-  ~GLBufferedTextureDecorator() override = default;
+  using GLTextureDecorator::GLTextureDecorator;
 
   void Buffer() const override;
 
@@ -45,12 +39,7 @@ protected:
 
 class GL2DTextureDecorator : public GLBufferedTextureDecorator {
 public:
-  GL2DTextureDecorator(GLSimpleRenderablePtr r, GLTexturePtr t, GLProgramPtr p)
-      : GLBufferedTextureDecorator(std::move(r), std::move(t), std::move(p))
-  {
-    // empty
-  }
-  ~GL2DTextureDecorator() override = default;
+  using GLBufferedTextureDecorator::GLBufferedTextureDecorator;
 
 protected:
   void SetTexCoords() const override;

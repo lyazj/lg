@@ -19,8 +19,6 @@ public:
   void Link();
   void Use() const;  // Should only be called by GLApplication.
 
-  static GLProgram *GetCurrentProgram();
-
   static GLint GetVertexAttributeLocation(const char *name);  // thread-unsafe
   static void SetVertexAttributePointer(const char *, GLint, GLenum, GLboolean, GLsizei, const void *);
   static void SetVertexAttributePointer(const char *name, GLint size, const void *pointer = nullptr);
