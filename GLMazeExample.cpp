@@ -12,6 +12,8 @@
 
 using namespace std;
 
+GL_DECLARE_CLASS(GLMaze)
+
 class GLExampleApplication final : public GLApplication {
 public:
   using GLApplication::GLApplication;
@@ -22,7 +24,7 @@ public:
 
 private:
   GLint width, height;
-  shared_ptr<GLMaze> maze;
+  GLMazePtr maze;
   GLTransformedRenderablePtr rat;
   GLRenderablePtr renderable;
 

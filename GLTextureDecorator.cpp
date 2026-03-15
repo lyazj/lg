@@ -3,6 +3,7 @@
 #include <math.h>
 
 #include <algorithm>
+#include <glm/geometric.hpp>
 #include <glm/vec3.hpp>
 
 #include "GLProgram.h"
@@ -34,7 +35,7 @@ void GLBufferedTextureDecorator::IssueDraw(const mat4 &model) const
   GLProgram::DisableVertexAttribute("a_texCoord0");
 }
 
-void GL2DTextureDecorator::SetTexCoords() const
+void GLPlanarTextureDecorator::SetTexCoords() const
 {
   GLfloat xmin = INFINITY, xmax = -INFINITY, ymin = INFINITY, ymax = -INFINITY;
   GLint n = GetNVertex();
@@ -55,5 +56,19 @@ void GL2DTextureDecorator::SetTexCoords() const
     GLfloat x = xmin == xmax ? 0.5f : (v.x - xmin) / (xmax - xmin);
     GLfloat y = ymin == ymax ? 0.5f : (v.y - ymin) / (ymax - ymin);
     texCoords.emplace_back(x, y);
+  }
+}
+
+void GLSphericalTextureDecorator::SetTexCoords() const
+{
+  GLint n = GetNVertex();
+  texCoords.clear();
+  texCoords.reserve(n);
+  for(GLint i = 0; i < n; ++i) {
+    vec3 v;
+    GetVertex(i, v);
+    GLfloat theta = atan2f(hypotf(v.x, v.y), v.z);
+    GLfloat phi = atan2f(v.y, v.x);
+    texCoords.emplace_back((phi + pi) / (2.0f * pi), 1.0f - theta / pi);
   }
 }

@@ -82,6 +82,8 @@ if(USE_STB)
     endif()
 endif()
 
+file(DOWNLOAD "https://upload.wikimedia.org/wikipedia/commons/3/3e/Equirectangular-projection-topographic-world.jpg" "${CMAKE_CURRENT_BINARY_DIR}/world.jpg" SHOW_PROGRESS)
+
 # -----------------------------
 # Create executable for each example
 # -----------------------------

@@ -9,6 +9,8 @@
 
 using namespace std;
 
+GL_DECLARE_CLASS(GLPlanarTextureDecorator)
+
 class GLExampleApplication final : public GLApplication {
 public:
   using GLApplication::GLApplication;
@@ -20,7 +22,7 @@ public:
 
 private:
   GLint imageWidth, imageHeight;
-  shared_ptr<GL2DTextureDecorator> renderable;
+  GLPlanarTextureDecoratorPtr renderable;
 
   void InitRenderable();
   void UpdateViewer();
@@ -84,7 +86,7 @@ void GLExampleApplication::InitRenderable()
     exit(EXIT_FAILURE);
   }
 
-  renderable = make_shared<GL2DTextureDecorator>(nullptr, nullptr, make_shared<GLTexture>());
+  renderable = make_shared<GLPlanarTextureDecorator>(nullptr, nullptr, make_shared<GLTexture>());
   renderable->GetTexture()->Texture(image);
   UpdateViewer();
 }

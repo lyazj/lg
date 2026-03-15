@@ -5,30 +5,32 @@ LG:
 Renderable management hierarchy:
 
   GLRenderable  (abstract: SetVertexAttributes, Buffer, Draw)
-  ├── GLCompositeRenderable                   [contains a list of child GLRenderable objects]
-  ├── GLTransformedRenderable                 [wraps any GLRenderable with a model matrix]
+  ├── GLCompositeRenderable                        [contains a list of child GLRenderable objects]
+  ├── GLTransformedRenderable                      [wraps any GLRenderable with a model matrix]
   └── GLSimpleRenderable  (abstract: adds GetVertexArray/Buffer, GetDimension/NVertex/Vertex)
-      ├── GLSimpleRenderableDecorator         [identity decorator wrapping a GLSimpleRenderable]
-      │   ├── GLColorDecorator                (abstract: color-related decorators)
-      │   │   ├── GLUniformColorDecorator     [applies one uniform color to the whole renderable]
-      │   │   └── GLBufferedColorDecorator    (abstract: adds a per-vertex color buffer)
-      │   │       └── GLRandomColorDecorator  [assigns random colors to vertices]
-      │   └── GLTextureDecorator              (abstract: texture-related decorators)
-      │       └── GLBufferedTextureDecorator  (abstract: adds a per-vertex texture coordinate buffer)
-      │           └── GL2DTextureDecorator    [applies normalized 2D texture coordinates]
+      ├── GLSimpleRenderableDecorator              [identity decorator wrapping a GLSimpleRenderable]
+      │   ├── GLColorDecorator                     (abstract: color-related decorators)
+      │   │   ├── GLUniformColorDecorator          [applies one uniform color to the whole renderable]
+      │   │   └── GLBufferedColorDecorator         (abstract: adds a per-vertex color buffer)
+      │   │       └── GLRandomColorDecorator       [assigns random colors to vertices]
+      │   └── GLTextureDecorator                   (abstract: texture-related decorators)
+      │       └── GLBufferedTextureDecorator       (abstract: adds a per-vertex texture coordinate buffer)
+      │           └── GLPlanarTextureDecorator     [generates planar UV from x-y coordinates]
+      │           └── GLSphericalTextureDecorator  [generates spherical UV from θ-φ coordinates]
       └── GLBufferedGeometry  (abstract: owns VAO/VBO; adds Bind, SetUniforms, IssueBuffer, IssueDraw)
-          └── GLBufferedGeometryD<D>          [template; D=2 or D=3; owns typed vertex list]
-              ├── GLTriangle                  (D=3)
-              ├── GLSphere                    (D=3)
-              ├── GLAxes                      (D=3)
-              ├── GLRectangle                 (D=2)
-              ├── GLCircle                    (D=2)
-              ├── GLSmiley                    (D=2)
-              ├── GLSierpinskiGasket          (D=2)
-              ├── GLSierpinskiGasketChaos     (D=2)
-              ├── GLKochSnowflake             (D=2)
-              ├── GLBarnsleyFern              (D=2)
-              └── GLMaze                      (D=2)
+          └── GLBufferedGeometryD<D>               [template; D=2 or D=3; owns typed vertex list]
+              ├── GLTriangle                       (D=3)
+              ├── GLSphere                         (D=3)
+              ├── GLAxes                           (D=3)
+              ├── GLRectangle                      (D=2)
+              ├── GLCircle                         (D=2)
+              ├── GLSmiley                         (D=2)
+              ├── GLSierpinskiGasket               (D=2)
+              ├── GLSierpinskiGasketChaos          (D=2)
+              ├── GLKochSnowflake                  (D=2)
+              ├── GLBarnsleyFern                   (D=2)
+              └── GLMaze                           (D=2)
 
 Memo on caveats:
   - Avoid duplicate Geometry::SetVertexAttributes() and Geometry::Buffer() calls for the same object in the scene graph.
+  - Seam vertices (φ = ±π) must be duplicated with u = 0 and u = 1; otherwise, spherical texture stretches across the seam.

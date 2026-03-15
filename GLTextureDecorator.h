@@ -6,6 +6,8 @@
 #include "GLBuffer.h"
 #include "GLSimpleRenderableDecorator.h"
 
+GL_DECLARE_CLASS(GLSphere)
+
 class GLTextureDecorator : public GLSimpleRenderableDecorator {
 public:
   GLTextureDecorator(GLSimpleRenderablePtr r, GLProgramPtr p, GLTexturePtr t)
@@ -38,7 +40,15 @@ protected:
   virtual void SetTexCoords() const = 0;
 };
 
-class GL2DTextureDecorator : public GLBufferedTextureDecorator {
+class GLPlanarTextureDecorator : public GLBufferedTextureDecorator {
+public:
+  using GLBufferedTextureDecorator::GLBufferedTextureDecorator;
+
+protected:
+  void SetTexCoords() const override;
+};
+
+class GLSphericalTextureDecorator : public GLBufferedTextureDecorator {
 public:
   using GLBufferedTextureDecorator::GLBufferedTextureDecorator;
 
