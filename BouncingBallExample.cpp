@@ -128,7 +128,7 @@ void GLExampleApplication::Init()
 void GLExampleApplication::Display()
 {
   Clear();
-  scene->Draw(model);
+  scene->Draw(GetModel());
   if(!recordCreated && ts < recordDuration) {
     SaveScreen("BouncingBallExample_" + to_string(ts) + ".png", GL_BACK);
     tss.push_back(ts);

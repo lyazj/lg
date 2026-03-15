@@ -39,6 +39,8 @@ void GLExampleApplication::PreInit()
   GLApplication::PreInit();
 
   SetTitle("Image Viewer Example");
+  SetFrameRate(0);
+  SetShowFrameRateInterval(0);
 }
 
 void GLExampleApplication::Init()
@@ -53,14 +55,20 @@ void GLExampleApplication::Init()
 void GLExampleApplication::Display()
 {
   Clear();
-  renderable->Draw(model);
+  renderable->Draw(GetModel());
   Flush();
+}
+
+void GLExampleApplication::Reshape(int w, int h)
+{
+  GLApplication::Reshape(w, h);
+  UpdateViewer();
 }
 
 void GLExampleApplication::InitRenderable()
 {
   if(argc != 2) {
-    cerr << "Usage: " << programShortName << " <image>" << endl;
+    cerr << "Usage: " << GetProgramShortName() << " <image>" << endl;
     exit(EXIT_FAILURE);
   }
 
@@ -84,7 +92,8 @@ void GLExampleApplication::InitRenderable()
 void GLExampleApplication::UpdateViewer()
 {
   GLfloat viewerWidth = 2.0f, viewerHeight = 2.0f;
-  GLfloat iWidth = (GLfloat)imageWidth / (GLfloat)width, iHeight = (GLfloat)imageHeight / (GLfloat)height;
+  GLfloat iWidth = (GLfloat)imageWidth / (GLfloat)GetWindowWidth();
+  GLfloat iHeight = (GLfloat)imageHeight / (GLfloat)GetWindowHeight();
   if(iWidth >= iHeight) {
     viewerHeight = iHeight * viewerWidth / iWidth;
   } else {
@@ -93,10 +102,4 @@ void GLExampleApplication::UpdateViewer()
   renderable->SetGeometry(make_shared<GLRectangle>(viewerWidth, viewerHeight));
   renderable->SetVertexAttributes();
   renderable->Buffer();
-}
-
-void GLExampleApplication::Reshape(int w, int h)
-{
-  GLApplication::Reshape(w, h);
-  UpdateViewer();
 }

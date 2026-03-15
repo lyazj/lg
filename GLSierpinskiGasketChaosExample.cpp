@@ -63,10 +63,10 @@ void GLExampleApplication::Init()
 void GLExampleApplication::Display()
 {
   Clear();
-  renderable->Draw(model);
+  renderable->Draw(GetModel());
   mat4 t = trans;
   for(GLint i = 0; i < ntrans; ++i) {
-    renderable->Draw(model * t);
+    renderable->Draw(GetModel() * t);
     t *= trans;
   }
   Flush();
@@ -74,5 +74,5 @@ void GLExampleApplication::Display()
 
 void GLExampleApplication::Frame(uint64_t t [[maybe_unused]], uint64_t dt)
 {
-  SetModel(glm::rotate(model, 2.0f * pi * (GLfloat)dt / 1e10f, vec3(0.0f, 0.0f, 1.0f)));
+  SetModel(glm::rotate(GetModel(), 2.0f * pi * (GLfloat)dt / 1e10f, vec3(0.0f, 0.0f, 1.0f)));
 }

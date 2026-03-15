@@ -46,6 +46,8 @@ void GLExampleApplication::PreInit()
   GLApplication::PreInit();
 
   SetTitle("GLApplication Example");
+  SetFrameRate(0);
+  SetShowFrameRateInterval(0);
 }
 
 void GLExampleApplication::Init()
@@ -64,14 +66,14 @@ void GLExampleApplication::Init()
 void GLExampleApplication::Display()
 {
   Clear();
-  renderable->Draw(model);
+  renderable->Draw(GetModel());
   Flush();
 }
 
 void GLExampleApplication::InitRenderable()
 {
   if(argc == 1) {
-    cerr << "Usage: " << programShortName << " <renderable> [ <args> ... ]" << endl;
+    cerr << "Usage: " << GetProgramShortName() << " <renderable> [ <args> ... ]" << endl;
     exit(EXIT_FAILURE);
   }
 
@@ -105,7 +107,7 @@ void GLExampleApplication::InitRenderable()
     if(argc > 2) order = stoi(argv[2]);
     if(argc > 3) noise = stof(argv[3]);
     renderable = make_shared<GLSierpinskiGasket>(order, noise);
-    SetModel(glm::translate(model, vec3(0.0f, -0.25f, 0.0f)));
+    SetModel(glm::translate(GetModel(), vec3(0.0f, -0.25f, 0.0f)));
     return;
   }
 
@@ -113,7 +115,7 @@ void GLExampleApplication::InitRenderable()
     GLint points = 1e6;
     if(argc > 2) points = stoi(argv[2]);
     renderable = make_shared<GLSierpinskiGasketChaos>(points);
-    SetModel(glm::translate(model, vec3(0.0f, -0.25f, 0.0f)));
+    SetModel(glm::translate(GetModel(), vec3(0.0f, -0.25f, 0.0f)));
     return;
   }
 

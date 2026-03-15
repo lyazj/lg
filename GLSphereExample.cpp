@@ -82,11 +82,11 @@ void GLExampleApplication::Init()
 void GLExampleApplication::Display()
 {
   Clear();
-  renderable->Draw(model);
+  renderable->Draw(GetModel());
   Flush();
 }
 
 void GLExampleApplication::Frame(uint64_t t [[maybe_unused]], uint64_t dt)
 {
-  SetModel(glm::rotate(model, 2.0f * pi * (GLfloat)dt / 1e10f, vec3(0.0f, 1.0f, 0.0f)));
+  SetModel(glm::rotate(GetModel(), 2.0f * pi * (GLfloat)dt / 1e10f, vec3(0.0f, 1.0f, 0.0f)));
 }

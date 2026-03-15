@@ -14,10 +14,11 @@ public:
   void SetProjection(GLfloat fov, GLfloat near, GLfloat far);
 
 protected:
-  using GLApplication::SetProjection;
-
   void Init() override;
   void Reshape(int w, int h) override;
+
+private:
+  using GLApplication::SetProjection;
 
   GLfloat fov, near, far;
 };

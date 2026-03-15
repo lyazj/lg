@@ -55,6 +55,8 @@ void GLExampleApplication::PreInit()
 
   SetTitle("GLMaze Example");
   EnableDoubleBuffer();
+  SetFrameRate(0);
+  SetShowFrameRateInterval(0);
 }
 
 void GLExampleApplication::Init()
@@ -64,7 +66,7 @@ void GLExampleApplication::Init()
   UseProgram(GLProgram::GetDefaultProgram());
 
   if(argc != 3) {
-    cerr << "Usage: " << programShortName << " <width> <height>" << endl;
+    cerr << "Usage: " << GetProgramShortName() << " <width> <height>" << endl;
     exit(EXIT_FAILURE);
   }
   width = stoi(argv[1]);
@@ -96,7 +98,7 @@ void GLExampleApplication::Init()
 void GLExampleApplication::Display()
 {
   Clear();
-  renderable->Draw(model);
+  renderable->Draw(GetModel());
   Flush();
 }
 

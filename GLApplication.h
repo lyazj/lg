@@ -20,14 +20,20 @@ public:
   std::string GetProgramShortName() const { return programShortName; }
   void SetDisplayMode(unsigned m);
   void SetWindowSize(int w, int h);
-  void SetTitle(const std::string &t);
+  GLint GetWindowWidth() const { return width; }
+  GLint GetWindowHeight() const { return height; }
   GLfloat GetAspect() const { return (GLfloat)width / (GLfloat)height; }
+  void SetTitle(const std::string &t);
+  const std::string &GetTitle() const { return title; }
   void EnableDoubleBuffer();
   void DisableDoubleBuffer();
   void Flush() const { flush(); }
 
   void UseProgram(const GLProgramPtr &p);
   const GLProgramPtr &GetProgram() const { return program; }
+  const mat4 &GetProjection() const { return projection; }
+  const mat4 &GetView() const { return view; }
+  const mat4 &GetModel() const { return model; }
   void SetProjection(const mat4 &p);
   void SetView(const mat4 &v);
   void SetModel(const mat4 &m);
@@ -39,9 +45,12 @@ public:
   void Clear() const;
   void PostRedisplay() const;
 
-  void SetFrameRate(GLint fr) { frameRate = fr; }
+  // [NOTE] Caution: No synchronization. Avoid duplicate callback registrations.
+  void SetFrameRate(GLint fr);
   GLint GetFrameRate() const { return frameRate; }
   GLfloat GetRealFrameRate() const { return (GLfloat)frameCount / ((GLfloat)frameTime / 1e9f); }
+  void SetShowFrameRateInterval(GLint i);
+  GLint GetShowFrameRateInterval() const { return showFrameRateInterval; }
 
   void SaveScreen(const fs::path &path, GLenum mode) const;
   void SaveScreen() const;
@@ -52,20 +61,6 @@ protected:
 
   int &argc;
   char **argv;
-  std::string programName;
-  std::string programShortName;
-  unsigned displayMode;
-  int width, height;
-  std::string title;
-  int windowId;
-  mat4 projection, view, model;
-  void (*flush)();
-  GLProgramPtr program;
-  GLbitfield clearMask;
-  GLint frameRate;
-  GLint showFrameRateInterval;
-  uint64_t frameCount;
-  uint64_t frameTime;
 
   // clang-format off
   enum class Mouse {
@@ -101,4 +96,20 @@ protected:
 
   void GetKeyModifiers(bool &shift, bool &ctrl, bool &alt, bool &super) const;
   void ShowFrameRate() const;
+
+private:
+  std::string programName;
+  std::string programShortName;
+  unsigned displayMode;
+  int width, height;
+  std::string title;
+  int windowId;
+  mat4 projection, view, model;
+  void (*flush)();
+  GLProgramPtr program;
+  GLbitfield clearMask;
+  GLint frameRate;
+  GLint showFrameRateInterval;
+  uint64_t frameCount;
+  uint64_t frameTime;
 };

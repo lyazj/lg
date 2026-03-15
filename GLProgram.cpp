@@ -129,7 +129,7 @@ GLint GLProgram::GetUniformLocation(const char *name) const
   auto [it, inserted] = uniformMap.emplace(name, -1);
   if(inserted) {
     it->second = glGetUniformLocation(id, name);
-    if(it->second < 0) cerr << "Warning: uniform '" << name << "' not found in program " << id << endl;
+    //if(it->second < 0) cerr << "Debug: uniform '" << name << "' not found in program " << id << endl;
   }
   return it->second;
 }

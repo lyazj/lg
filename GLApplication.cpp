@@ -148,6 +148,22 @@ void GLApplication::Clear() const { glClear(clearMask); }
 
 void GLApplication::PostRedisplay() const { glutPostRedisplay(); }
 
+void GLApplication::SetFrameRate(GLint fr)
+{
+  std::swap(frameRate, fr);
+  if(windowId >= 0 && frameRate && fr == 0) {
+    glutTimerFunc(0, [](int v) { GLApplication::GetInstance()->FrameTimer(v); }, (int)NsToMs(GetElapsedTime()));
+  }
+}
+
+void GLApplication::SetShowFrameRateInterval(GLint i)
+{
+  std::swap(showFrameRateInterval, i);
+  if(windowId >= 0 && showFrameRateInterval && i == 0) {
+    glutTimerFunc(showFrameRateInterval, [](int) { GLApplication::GetInstance()->ShowFrameRate(); }, 0);
+  }
+}
+
 void GLApplication::SaveScreen(const fs::path &path, GLenum mode) const
 {
   vector<byte> pixels(width * height * 4);
@@ -165,7 +181,7 @@ void GLApplication::SaveScreen(const fs::path &path, GLenum mode) const
 
 void GLApplication::SaveScreen() const
 {
-  fs::path path = programShortName + "_" + to_string(GetSystemTime()) + ".png";
+  fs::path path = GetProgramShortName() + "_" + to_string(GetSystemTime()) + ".png";
   SaveScreen(path, GL_FRONT);
   clog << "Info: screen saved to: " << path << endl;
 }
@@ -262,8 +278,6 @@ void GLApplication::Init()
 
   glutReshapeFunc([](int w, int h) { GLApplication::GetInstance()->Reshape(w, h); });
 
-  glutTimerFunc(0, [](int v) { GLApplication::GetInstance()->FrameTimer(v); }, (int)NsToMs(frameTime));
-
   glutMouseFunc([](int b, int s, int x, int y) {
     auto it = buttonMap.find(b);
     if(it == buttonMap.end()) {
@@ -299,6 +313,10 @@ void GLApplication::Init()
     GLApplication::GetInstance()->SpecialKeyUp(it->second, x, y);
   });
 
+  if(frameRate) {
+    glutTimerFunc(0, [](int v) { GLApplication::GetInstance()->FrameTimer(v); }, (int)NsToMs(frameTime));
+  }
+
   if(showFrameRateInterval) {
     glutTimerFunc(showFrameRateInterval, [](int) { GLApplication::GetInstance()->ShowFrameRate(); }, 0);
   }
@@ -327,18 +345,21 @@ void GLApplication::FrameTimer(unsigned mt)  // mt: expected time in ms
     PostRedisplay();
   }
 
-  // Calculate the delay since the expected time, modulo 2^31 ms.
-  int mdelay = (unsigned)NsToMs(t) - mt;
+  if(frameRate) {
+    // Calculate the delay since the expected time, modulo 2^31 ms.
+    int mdelay = (unsigned)NsToMs(t) - mt;
 
-  // Calculate the remaining time until the next expected frame, modulo 2^31 ms.
-  int mremain = int(1000.0f / (GLfloat)frameRate - (float)mdelay + 0.5f);
-  if(mremain < 0) mremain = 0;
+    // Calculate the remaining time until the next expected frame, modulo 2^31 ms.
+    int mremain = int(1000.0f / (GLfloat)frameRate - (float)mdelay + 0.5f);
+    if(mremain < 0) mremain = 0;
 
-  // Calcluate the expected time for the next frame, modulo 2^32 ms.
-  mt = (unsigned)NsToMs(t) + mremain;
+    // Calcluate the expected time for the next frame, modulo 2^32 ms.
+    mt = (unsigned)NsToMs(t) + mremain;
 
-  // Schedule the next timer event.
-  glutTimerFunc(mremain, [](int v) { GLApplication::GetInstance()->FrameTimer((unsigned)v); }, mt);
+    // Schedule the next timer event.
+    glutTimerFunc(mremain, [](int v) { GLApplication::GetInstance()->FrameTimer((unsigned)v); }, mt);
+  }
+
   ++frameCount;
   frameTime = t;
 }
