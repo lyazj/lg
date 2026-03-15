@@ -9,10 +9,13 @@ Renderable management hierarchy:
   ├── GLTransformedRenderable                 [wraps any GLRenderable with a model matrix]
   └── GLSimpleRenderable  (abstract: adds GetVertexArray/Buffer, GetDimension/NVertex/Vertex)
       ├── GLSimpleRenderableDecorator         [identity decorator wrapping a GLSimpleRenderable]
-      │   └── GLColorDecorator                (abstract: color-related decorators)
-      │       ├── GLUniformColorDecorator     [applies one uniform color to the whole renderable]
-      │       └── GLBufferedColorDecorator    (abstract: adds a per-vertex color buffer)
-      │           └── GLRandomColorDecorator  [assigns random colors to vertices]
+      │   ├── GLColorDecorator                (abstract: color-related decorators)
+      │   │   ├── GLUniformColorDecorator     [applies one uniform color to the whole renderable]
+      │   │   └── GLBufferedColorDecorator    (abstract: adds a per-vertex color buffer)
+      │   │       └── GLRandomColorDecorator  [assigns random colors to vertices]
+      │   └── GLTextureDecorator              (abstract: texture-related decorators)
+      │       └── GLBufferedTextureDecorator  (abstract: adds a per-vertex texture coordinate buffer)
+      │           └── GL2DTextureDecorator    [applies normalized 2D texture coordinates]
       └── GLBufferedGeometry  (abstract: owns VAO/VBO; adds Bind, SetUniforms, IssueBuffer, IssueDraw)
           └── GLBufferedGeometryD<D>          [template; D=2 or D=3; owns typed vertex list]
               ├── GLTriangle                  (D=3)
