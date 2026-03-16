@@ -17,3 +17,4 @@ build-linux:
     paths:
       - build_*/libLG.so
       - build_*/*Example
+      - build_*/*.jpg
