@@ -78,12 +78,7 @@ void GLProgram::DisableVertexAttribute(const char *name)
   glDisableVertexAttribArray(location);
 }
 
-void GLProgram::SetDefaultVertexAttributes()
-{
-  GLProgram::SetDefaultVertexAttribute("a_color");
-
-  // [TODO] Add defaults for other attributes.
-}
+void GLProgram::SetDefaultVertexAttributes() { GLProgram::SetDefaultVertexAttribute("a_color"); }
 
 void GLProgram::SetDefaultVertexAttribute(const char *name)
 {
