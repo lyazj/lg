@@ -19,7 +19,7 @@ GLSphere::GLSphere(GLfloat r, GLint sl, GLint st)
   auto addVertex = [this](GLfloat phi, GLfloat lambda) {
     GLfloat z = radius * sinf(phi), rho = radius * cosf(phi);
     GLfloat x = rho * cosf(lambda), y = rho * sinf(lambda);
-    texCoords.emplace_back(lambda / (2.0f * pi), 0.5 - phi / pi);
+    texCoords.emplace_back(lambda / (2.0f * pi), phi / pi + 0.5f);
     vertices.emplace_back(x, y, z);
   };
 

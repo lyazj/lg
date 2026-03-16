@@ -19,7 +19,7 @@ public:
   void Display() override;
 
 private:
-  GLRenderablePtr renderable;
+  GLTransformedRenderablePtr renderable;
 
   void Frame(uint64_t t, uint64_t dt) override;
 };
@@ -50,9 +50,17 @@ void GLExampleApplication::Init()
   world.Load("world.jpg");
   auto texture = make_shared<GLTexture>();
   texture->Texture(world);
-  renderable = make_shared<GLTextureDecorator>(sphere, nullptr, texture);
+  sphere = make_shared<GLTextureDecorator>(sphere, nullptr, texture);
+
+  // Move z-axis upwards.
   auto rotation = glm::rotate(mat4(1.0f), -90.0f * deg, vec3(1.0f, 0.0f, 0.0f));
-  renderable = make_shared<GLTransformedRenderable>(renderable, rotation);
+  renderable = make_shared<GLTransformedRenderable>(sphere, rotation);
+
+  // Spin.
+  renderable = make_shared<GLTransformedRenderable>(renderable, mat4(1.0f));
+
+  // Obliquity of the ecliptic.
+  SetModel(glm::rotate(mat4(1.0f), 23.44f * deg, vec3(0.0f, 0.0f, -1.0f)));
 
   renderable->SetVertexAttributes();
   renderable->Buffer();
@@ -67,5 +75,6 @@ void GLExampleApplication::Display()
 
 void GLExampleApplication::Frame(uint64_t t [[maybe_unused]], uint64_t dt)
 {
-  SetModel(glm::rotate(GetModel(), 2.0f * pi * (GLfloat)dt / 1e10f, vec3(0.0f, 1.0f, 0.0f)));
+  auto rotation = glm::rotate(renderable->GetModel(), 2.0f * pi * (GLfloat)dt / 1e10f, vec3(0.0f, 1.0f, 0.0f));
+  renderable->SetModel(rotation);
 }
