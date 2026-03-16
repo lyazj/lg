@@ -14,7 +14,7 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
 project(LG)
 
-file(ARCHIVE_EXTRACT INPUT "${CMAKE_CURRENT_SOURCE_DIR}/../install-win64.tar.gz" DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/..")
+file(ARCHIVE_EXTRACT INPUT "../install-win64.tar.gz" DESTINATION "..")
 set(CMAKE_INSTALL_PREFIX "../install-win64")
 
 # Use C++17
@@ -74,7 +74,7 @@ foreach(EXAMPLE_SRC ${EXAMPLE_SOURCES})
     get_filename_component(EXAMPLE_NAME ${EXAMPLE_SRC} NAME_WE)
     install(TARGETS ${EXAMPLE_NAME} RUNTIME DESTINATION bin)
 endforeach()
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../world.jpg" DESTINATION bin)
+install(FILES "../world.jpg" DESTINATION bin)
 install(FILES
     "/usr/lib/gcc/x86_64-w64-mingw32/13-win32/libgcc_s_seh-1.dll"
     "/usr/lib/gcc/x86_64-w64-mingw32/13-win32/libstdc++-6.dll"
