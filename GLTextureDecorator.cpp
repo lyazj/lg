@@ -69,6 +69,7 @@ void GLSphericalTextureDecorator::SetTexCoords() const
     GetVertex(i, v);
     GLfloat theta = atan2f(hypotf(v.x, v.y), v.z);
     GLfloat phi = atan2f(v.y, v.x);
-    texCoords.emplace_back((phi + pi) / (2.0f * pi), 1.0f - theta / pi);
+    if(phi < 0) phi += 2.0f * pi;
+    texCoords.emplace_back(clamp(phi / (2.0f * pi), 0.0f, 1.0f), clamp(1.0f - theta / pi, 0.0f, 1.0f));
   }
 }

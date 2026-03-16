@@ -50,7 +50,7 @@ void GLExampleApplication::Init()
   world.Load("world.jpg");
   auto texture = make_shared<GLTexture>();
   texture->Texture(world);
-  renderable = make_shared<GLSphericalTextureDecorator>(sphere, nullptr, texture);
+  renderable = make_shared<GLTextureDecorator>(sphere, nullptr, texture);
   auto rotation = glm::rotate(mat4(1.0f), -90.0f * deg, vec3(1.0f, 0.0f, 0.0f));
   renderable = make_shared<GLTransformedRenderable>(renderable, rotation);
 

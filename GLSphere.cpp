@@ -4,6 +4,7 @@
 
 #include <algorithm>
 
+#include "GLProgram.h"
 #include "Utils.h"
 
 using namespace std;
@@ -11,12 +12,14 @@ using namespace std;
 GLSphere::GLSphere(GLfloat r, GLint sl, GLint st)
     : radius(r), slices(max<GLint>(3, sl)), stacks(max<GLint>(2, st)), elementBuffer(GL_ELEMENT_ARRAY_BUFFER)
 {
-  vertices.reserve(2 + slices * (stacks - 1));
+  vertices.reserve(2 + (slices + 1) * (stacks - 1));
+  texCoords.reserve(2 + (slices + 1) * (stacks - 1));
   elements.reserve(2 * (slices + 1) + (stacks - 2) * (2 * slices + 2));
 
   auto addVertex = [this](GLfloat phi, GLfloat lambda) {
     GLfloat z = radius * sinf(phi), rho = radius * cosf(phi);
     GLfloat x = rho * cosf(lambda), y = rho * sinf(lambda);
+    texCoords.emplace_back(lambda / (2.0f * pi), 0.5 - phi / pi);
     vertices.emplace_back(x, y, z);
   };
 
@@ -24,7 +27,7 @@ GLSphere::GLSphere(GLfloat r, GLint sl, GLint st)
   addVertex(90.0f * deg, 0.0f * deg);
   for(GLint istack = 0; istack + 1 < stacks; ++istack) {
     GLfloat phi = (90.0f - 180.0f * GLfloat(istack + 1) / GLfloat(stacks)) * deg;
-    for(GLint islice = 0; islice < slices; ++islice) {
+    for(GLint islice = 0; islice <= slices; ++islice) {
       GLfloat lambda = (360.0f * GLfloat(islice) / GLfloat(slices)) * deg;
       addVertex(phi, lambda);
     }
@@ -34,23 +37,19 @@ GLSphere::GLSphere(GLfloat r, GLint sl, GLint st)
 
   // Render the north pole as a triangle fan.
   elements.push_back(0);
-  for(GLint islice = 0; islice < slices; ++islice) elements.push_back(islice + 1);
-  elements.push_back(1);
+  for(GLint islice = 0; islice <= slices; ++islice) elements.push_back(islice + 1);
 
   // Render the middle stacks as triangle strips.
-  for(GLint istack = 1, ibase = 1; istack + 1 < stacks; ++istack, ibase += slices) {
-    for(GLint islice = 0; islice < slices; ++islice) {
+  for(GLint istack = 1, ibase = 1; istack + 1 < stacks; ++istack, ibase += slices + 1) {
+    for(GLint islice = 0; islice <= slices; ++islice) {
       elements.push_back(ibase + islice);
-      elements.push_back(ibase + islice + slices);
+      elements.push_back(ibase + islice + slices + 1);
     }
-    elements.push_back(ibase);
-    elements.push_back(ibase + slices);
   }
 
   // Render the south pole as a triangle fan.
   elements.push_back(nVertex - 1);
-  for(GLint islice = 0; islice < slices; ++islice) elements.push_back(nVertex - 2 - islice);
-  elements.push_back(nVertex - 2);
+  for(GLint islice = 0; islice <= slices; ++islice) elements.push_back(nVertex - 2 - islice);
 }
 
 GLSphere::~GLSphere()
@@ -58,9 +57,17 @@ GLSphere::~GLSphere()
   // empty
 }
 
+void GLSphere::SetVertexAttributes() const
+{
+  GL3DBufferedGeometry::SetVertexAttributes();
+  texCoordBuffer.Bind();
+  GLProgram::SetVertexAttributePointer("a_texCoord0", 2);
+}
+
 void GLSphere::IssueBuffer() const
 {
   GL3DBufferedGeometry::IssueBuffer();
+  texCoordBuffer.Buffer(texCoords);
   elementBuffer.Buffer(elements);
 }
 

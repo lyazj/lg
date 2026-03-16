@@ -33,4 +33,3 @@ Renderable management hierarchy:
 
 Memo on caveats:
   - Avoid duplicate Geometry::SetVertexAttributes() and Geometry::Buffer() calls for the same object in the scene graph.
-  - Seam vertices (φ = ±π) must be duplicated with u = 0 and u = 1; otherwise, spherical texture stretches across the seam.
