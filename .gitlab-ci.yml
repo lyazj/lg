@@ -6,15 +6,30 @@ build-linux:
   stage: build
   script:
     - apt-get update
-    - apt-get install -y build-essential clang cmake git libgl-dev libglew-dev freeglut3-dev libglm-dev graphicsmagick-libmagick-dev-compat
+    - apt-get install -y build-essential clang cmake git libgl-dev libglew-dev freeglut3-dev libglm-dev graphicsmagick-libmagick-dev-compat libstb-dev
     - export CC=clang CXX=clang++
-    - export BUILD=build_${CC}_$(uname -m)_$(uname -s)_ubuntu_latest_$(git rev-parse --short HEAD)
+    - export BUILD=build-${CC}-$(uname -m)_$(git rev-parse --short HEAD)
     - cmake -B ${BUILD} -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCI_BUILD=ON && cmake --build ${BUILD}
     - export CC=gcc CXX=g++
-    - export BUILD=build_${CC}_$(uname -m)_$(uname -s)_ubuntu_latest_$(git rev-parse --short HEAD)
+    - export BUILD=build-${CC}-$(uname -m)_$(git rev-parse --short HEAD)
     - cmake -B ${BUILD} -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCI_BUILD=ON && cmake --build ${BUILD}
   artifacts:
     paths:
-      - build_*/libLG.so
-      - build_*/*Example
-      - build_*/*.jpg
+      - build-gcc-*/libLG.so
+      - build-gcc-*/*Example
+      - build-gcc-*/*.jpg
+
+build-win64:
+  image: ubuntu:latest
+  stage: build
+  script:
+    - apt-get update
+    - apt-get install -y mingw-w64 make cmake git libglm-dev libstb-dev
+    - export BUILD=build-mingw64-x86_64_$(git rev-parse --short HEAD)
+    - pushd build-win64
+    - cmake . -DCMAKE_BUILD_TYPE=RelWithDebInfo && make install
+    - popd
+    - mv install-win64/bin ${BUILD}
+  artifacts:
+    paths:
+      - build-mingw64-*/*
