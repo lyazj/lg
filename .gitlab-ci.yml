@@ -25,4 +25,4 @@ build-mingw64:
     - mv build-cross/install-mingw64/ install-mingw64-x86_64-$(git rev-parse --short HEAD)/
   artifacts:
     paths:
-      - install-mingw64-*/
+      - install-mingw64-*/bin/
