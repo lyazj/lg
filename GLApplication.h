@@ -27,7 +27,7 @@ public:
   const std::string &GetTitle() const { return title; }
   void EnableDoubleBuffer();
   void DisableDoubleBuffer();
-  void Flush() const { flush(); }
+  void Flush() const;
 
   void UseProgram(const GLProgramPtr &p);
   const GLProgramPtr &GetProgram() const { return program; }
@@ -105,7 +105,6 @@ private:
   std::string title;
   int windowId;
   mat4 projection, view, model;
-  void (*flush)();
   GLProgramPtr program;
   GLbitfield clearMask;
   GLint frameRate;

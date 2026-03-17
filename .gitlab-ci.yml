@@ -26,3 +26,17 @@ build-mingw64:
   artifacts:
     paths:
       - install-mingw64-*/bin/
+
+build-mingw32:
+  image: ubuntu:latest
+  stage: build
+  script:
+    - apt-get update
+    - apt-get install -y mingw-w64 make cmake git
+    - pushd build-cross
+    - ./build-mingw32.sh
+    - popd
+    - mv build-cross/install-mingw32/ install-mingw32-i686-$(git rev-parse --short HEAD)/
+  artifacts:
+    paths:
+      - install-mingw32-*/bin/

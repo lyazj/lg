@@ -37,7 +37,6 @@ GLApplication::GLApplication(int &ac, char *av[])
       projection(1.0f),
       view(1.0f),
       model(1.0f),
-      flush(glFlush),
       clearMask(GL_COLOR_BUFFER_BIT),
       frameRate(60),
       showFrameRateInterval(1000),
@@ -82,7 +81,6 @@ void GLApplication::EnableDoubleBuffer()
   if(windowId >= 0) abort();
   displayMode &= ~GLUT_SINGLE;
   displayMode |= GLUT_DOUBLE;
-  flush = glutSwapBuffers;
 }
 
 void GLApplication::DisableDoubleBuffer()
@@ -90,7 +88,15 @@ void GLApplication::DisableDoubleBuffer()
   if(windowId >= 0) abort();
   displayMode &= ~GLUT_DOUBLE;
   displayMode |= GLUT_SINGLE;
-  flush = glFlush;
+}
+
+void GLApplication::Flush() const
+{
+  if(displayMode & GLUT_DOUBLE) {
+    glutSwapBuffers();
+  } else {
+    glFlush();
+  }
 }
 
 void GLApplication::UseProgram(const GLProgramPtr &p)
