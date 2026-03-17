@@ -37,10 +37,10 @@ if(MSVC)
 else()
     add_library(LG SHARED ${LIB_SOURCES})
 endif()
+install(TARGETS LG RUNTIME DESTINATION bin)
 
 option(USE_MAGICK "Enable GraphicsMagick++ support" ON)
 option(USE_STB "Enable stb_image support" ON)
-option(CI_BUILD "Enable CI-specific build settings" OFF)
 
 # Link libraries for OpenGL, GLEW, GLUT, GLM, GraphicsMagick++, and stb_image
 find_package(OpenGL REQUIRED)
@@ -82,8 +82,21 @@ if(USE_STB)
     endif()
 endif()
 
-# https://upload.wikimedia.org/wikipedia/commons/3/3e/Equirectangular-projection-topographic-world.jpg
-file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/world.jpg" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/world.jpg")
+function(fetch_resource URL OUT_FILE)
+    if(NOT OUT_FILE)
+        get_filename_component(OUT_FILE ${URL} NAME)
+    endif()
+    set(OUT_PATH "${CMAKE_BINARY_DIR}/${OUT_FILE}")
+    if(NOT EXISTS "${OUT_PATH}")
+        message(STATUS "Downloading ${OUT_FILE} from ${URL}...")
+        file(DOWNLOAD "${URL}" "${OUT_PATH}" SHOW_PROGRESS)
+    else()
+        message(STATUS "${OUT_FILE} already exists, skipping download.")
+    endif()
+    install(FILES ${OUT_PATH} DESTINATION bin)
+endfunction()
+
+fetch_resource("https://upload.wikimedia.org/wikipedia/commons/3/3e/Equirectangular-projection-topographic-world.jpg" "world.jpg")
 
 # -----------------------------
 # Create executable for each example
@@ -91,8 +104,9 @@ file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/world.jpg" DESTINATION "${CMAKE_CURRENT_B
 foreach(EXAMPLE_SRC ${EXAMPLE_SOURCES})
     get_filename_component(EXAMPLE_NAME ${EXAMPLE_SRC} NAME_WE)
     add_executable(${EXAMPLE_NAME} ${EXAMPLE_SRC})
+    install(TARGETS ${EXAMPLE_NAME} RUNTIME DESTINATION bin)
     target_link_libraries(${EXAMPLE_NAME} PRIVATE LG)
-    if(CI_BUILD AND (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
-        target_link_options(${EXAMPLE_NAME} PRIVATE -Wl,--rpath=.)
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        target_link_options(${EXAMPLE_NAME} PRIVATE -Wl,--rpath=../lib)
     endif()
 endforeach()
