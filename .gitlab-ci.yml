@@ -27,6 +27,7 @@ build-mingw64:
   artifacts:
     paths:
       - install-mingw64-*/bin/
+      - install-mingw64-*/share/
     expire_in: 1 week
 
 build-mingw32:
@@ -42,4 +43,5 @@ build-mingw32:
   artifacts:
     paths:
       - install-mingw32-*/bin/
+      - install-mingw32-*/share/
     expire_in: 1 week

@@ -1,0 +1,49 @@
+BasedOnStyle: Google
+AccessModifierOffset: -2
+AlignAfterOpenBracket: DontAlign
+AlignOperands: DontAlign
+AlignConsecutiveBitFields:
+  Enabled: true
+AlignConsecutiveMacros:
+  Enabled: true
+AllowShortBlocksOnASingleLine: Always
+AllowShortCaseLabelsOnASingleLine: true
+BracedInitializerIndentWidth: 0
+BreakAdjacentStringLiterals: false
+BreakBeforeBinaryOperators: NonAssignment
+BreakBeforeBraces: WebKit
+ColumnLimit: 120
+CompactNamespaces: true
+ConstructorInitializerIndentWidth: 4
+ContinuationIndentWidth: 4
+Cpp11BracedListStyle: false
+DerivePointerAlignment: false
+IndentCaseLabels: false
+IndentGotoLabels: false
+IndentRequiresClause: false
+IndentWidth: 2
+InsertNewlineAtEOF: true
+PointerAlignment: Right
+SkipMacroDefinitionBody: false
+SpaceAfterTemplateKeyword: false
+SpaceBeforeParens: Custom
+SpaceBeforeParensOptions:
+  AfterControlStatements: false
+  AfterForeachMacros: false
+  AfterFunctionDefinitionName: false
+  AfterFunctionDeclarationName: false
+  AfterIfMacros: false
+  AfterOverloadedOperator: false
+  AfterPlacementOperator: false
+  AfterRequiresInClause: false
+  AfterRequiresInExpression: false
+  BeforeNonEmptyParentheses: false
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceInEmptyBlock: true
+SpacesBeforeTrailingComments: 2
+SpacesInContainerLiterals: false
+SpacesInLineCommentPrefix: {"Minimum": 0, "Maximum": -1}
+---
+Language: Cpp
+---
+Language: JavaScript

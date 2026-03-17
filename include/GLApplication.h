@@ -24,6 +24,7 @@ public:
   GLint GetWindowHeight() const { return height; }
   GLfloat GetAspect() const { return (GLfloat)width / (GLfloat)height; }
   void SetTitle(const std::string &t);
+  std::string GetDefaultTitle() const;
   const std::string &GetTitle() const { return title; }
   void EnableDoubleBuffer();
   void DisableDoubleBuffer();

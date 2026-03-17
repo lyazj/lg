@@ -32,7 +32,7 @@ GLApplication::GLApplication(int &ac, char *av[])
       width(1024),
       height(1024),
 #endif /* _WIN32 */
-      title(programShortName),
+      title(GetDefaultTitle()),
       windowId(-1),
       projection(1.0f),
       view(1.0f),
@@ -74,6 +74,18 @@ void GLApplication::SetTitle(const std::string &t)
 {
   if(windowId >= 0) glutSetWindowTitle(t.c_str());
   title = t;
+}
+
+string GLApplication::GetDefaultTitle() const
+{
+  // Insert a space when: lower -> UPPER.
+  string shortName = GetProgramShortName();
+  string t;
+  for(size_t i = 0; i < shortName.size(); ++i) {
+    if(i > 0 && islower(shortName[i - 1]) && isupper(shortName[i])) t += ' ';
+    t += shortName[i];
+  }
+  return t;
 }
 
 void GLApplication::EnableDoubleBuffer()

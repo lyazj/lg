@@ -5,39 +5,25 @@ project(LG)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Enable warnings
-if(MSVC)
-    add_compile_options(/W4)
-else()
-    add_compile_options(-Wall -Wshadow -Wextra -Wpedantic -Wconversion -Wno-sign-conversion)
-endif()
-
 # -----------------------------
-# Collect all source files
+# libLG
 # -----------------------------
-file(GLOB ALL_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-
-set(LIB_SOURCES "")
-set(EXAMPLE_SOURCES "")
-
-foreach(SRC ${ALL_SOURCES})
-    get_filename_component(FILENAME ${SRC} NAME_WE)
-    if(FILENAME MATCHES ".*Example$")
-        list(APPEND EXAMPLE_SOURCES ${SRC})
-    else()
-        list(APPEND LIB_SOURCES ${SRC})
-    endif()
-endforeach()
-
-# -----------------------------
-# Create library from non-example sources
-# -----------------------------
+file(GLOB LIB_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 if(MSVC)
     add_library(LG STATIC ${LIB_SOURCES})
 else()
     add_library(LG SHARED ${LIB_SOURCES})
+    target_link_options(LG INTERFACE -Wl,--rpath=../lib)
 endif()
-install(TARGETS LG RUNTIME DESTINATION bin)
+target_include_directories(LG PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
+install(TARGETS LG PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+
+# Enable warnings
+if(MSVC)
+    target_compile_options(LG PUBLIC /W4)
+else()
+    target_compile_options(LG PUBLIC -Wall -Wshadow -Wextra -Wpedantic -Wconversion -Wno-sign-conversion)
+endif()
 
 option(USE_MAGICK "Enable GraphicsMagick++ support" ON)
 option(USE_STB "Enable stb_image support" ON)
@@ -48,7 +34,8 @@ find_package(GLEW REQUIRED)
 find_package(GLUT REQUIRED)
 find_package(glm REQUIRED)
 find_package(PkgConfig QUIET)
-target_link_libraries(LG PUBLIC glm::glm GLUT::GLUT GLEW::GLEW OpenGL::GL)
+target_link_libraries(LG PRIVATE GLUT::GLUT)
+target_link_libraries(LG PUBLIC glm::glm GLEW::GLEW OpenGL::GL)
 if(USE_MAGICK)
     if(PkgConfig_FOUND)
         pkg_check_modules(GM QUIET GraphicsMagick++)
@@ -82,31 +69,18 @@ if(USE_STB)
     endif()
 endif()
 
-function(fetch_resource URL OUT_FILE)
-    if(NOT OUT_FILE)
-        get_filename_component(OUT_FILE ${URL} NAME)
-    endif()
-    set(OUT_PATH "${CMAKE_BINARY_DIR}/${OUT_FILE}")
-    if(NOT EXISTS "${OUT_PATH}")
-        message(STATUS "Downloading ${OUT_FILE} from ${URL}...")
-        file(DOWNLOAD "${URL}" "${OUT_PATH}" SHOW_PROGRESS)
-    else()
-        message(STATUS "${OUT_FILE} already exists, skipping download.")
-    endif()
-    install(FILES ${OUT_PATH} DESTINATION bin)
-endfunction()
-
-fetch_resource("https://upload.wikimedia.org/wikipedia/commons/3/3e/Equirectangular-projection-topographic-world.jpg" "world.jpg")
-
 # -----------------------------
-# Create executable for each example
+# Examples
 # -----------------------------
-foreach(EXAMPLE_SRC ${EXAMPLE_SOURCES})
-    get_filename_component(EXAMPLE_NAME ${EXAMPLE_SRC} NAME_WE)
-    add_executable(${EXAMPLE_NAME} ${EXAMPLE_SRC})
-    install(TARGETS ${EXAMPLE_NAME} RUNTIME DESTINATION bin)
+file(GLOB EXAMPLE_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/examples/*.cpp")
+foreach(EXAMPLE_SOURCE ${EXAMPLE_SOURCES})
+    get_filename_component(EXAMPLE_NAME ${EXAMPLE_SOURCE} NAME_WE)
+    add_executable(${EXAMPLE_NAME} ${EXAMPLE_SOURCE})
+    install(TARGETS ${EXAMPLE_NAME})
     target_link_libraries(${EXAMPLE_NAME} PRIVATE LG)
-    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        target_link_options(${EXAMPLE_NAME} PRIVATE -Wl,--rpath=../lib)
-    endif()
 endforeach()
+
+# -----------------------------
+# Resources
+# -----------------------------
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/share" DESTINATION .)

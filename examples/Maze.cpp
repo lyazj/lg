@@ -54,8 +54,6 @@ int main(int argc, char *argv[])
 void GLExampleApplication::PreInit()
 {
   GLApplication::PreInit();
-
-  SetTitle("GLMaze Example");
   EnableDoubleBuffer();
   SetFrameRate(0);
   SetShowFrameRateInterval(0);

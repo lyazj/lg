@@ -29,8 +29,6 @@ int main(int argc, char *argv[])
 void GLExampleApplication::PreInit()
 {
   GL3DApplication::PreInit();
-
-  SetTitle("GLTriangle Example");
   SetFrameRate(0);
   SetShowFrameRateInterval(0);
 }

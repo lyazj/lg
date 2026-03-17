@@ -83,8 +83,6 @@ GLExampleApplication::~GLExampleApplication()
 void GLExampleApplication::PreInit()
 {
   GL3DApplication::PreInit();
-
-  SetTitle("Bouncing Ball Example");
   EnableDoubleBuffer();
 }
 
@@ -130,7 +128,7 @@ void GLExampleApplication::Display()
   Clear();
   scene->Draw(GetModel());
   if(!recordCreated && ts < recordDuration) {
-    SaveScreen("BouncingBallExample_" + to_string(ts) + ".png", GL_BACK);
+    SaveScreen("BouncingBall_" + to_string(ts) + ".png", GL_BACK);
     tss.push_back(ts);
   }
   Flush();
@@ -164,20 +162,20 @@ void GLExampleApplication::UpdateBallTransform()
 
 void GLExampleApplication::CreateRecord()  // Called in a separate thread.
 {
-  ofstream ofs("BouncingBallExample.txt");
+  ofstream ofs("BouncingBall.txt");
   tss.push_back(recordDuration);
   for(size_t i = 0; i + 1 < tss.size(); ++i) {
-    ofs << "file BouncingBallExample_" << tss[i] << ".png\n";
+    ofs << "file BouncingBall_" << tss[i] << ".png\n";
     ofs << "duration " << GLfloat(tss[i + 1] - tss[i]) * 0.001f << "\n";
   }
   ofs.close();
 
   const char *cmd =  // Command line suggested by ChatGPT. Controls quality and file size.
-      "ffmpeg -y -f concat -safe 0 -i BouncingBallExample.txt -c:v libx264 -crf 12 -preset slow -pix_fmt yuv420p "
-      "-movflags +faststart BouncingBallExample.mp4";
+      "ffmpeg -y -f concat -safe 0 -i BouncingBall.txt -c:v libx264 -crf 12 -preset slow -pix_fmt yuv420p "
+      "-movflags +faststart BouncingBall.mp4";
   if(system(cmd)) { }  // We can do nothing on error.
 
-  remove("BouncingBallExample.txt");
-  for(unsigned t : tss) remove(("BouncingBallExample_" + to_string(t) + ".png").c_str());
+  remove("BouncingBall.txt");
+  for(unsigned t : tss) remove(("BouncingBall_" + to_string(t) + ".png").c_str());
   tss.clear();  // tss is never accessed in the main thread after this point.
 }

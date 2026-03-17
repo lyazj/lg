@@ -14,7 +14,6 @@ class GLExampleApplication final : public GL3DApplication {
 public:
   using GL3DApplication::GL3DApplication;
 
-  void PreInit() override;
   void Init() override;
   void Display() override;
 
@@ -32,13 +31,6 @@ int main(int argc, char *argv[])
   return 0;
 }
 
-void GLExampleApplication::PreInit()
-{
-  GL3DApplication::PreInit();
-
-  SetTitle("Globe Example");
-}
-
 void GLExampleApplication::Init()
 {
   GL3DApplication::Init();
@@ -47,7 +39,7 @@ void GLExampleApplication::Init()
 
   GLSimpleRenderablePtr sphere = make_shared<GLSphere>(0.3f, 1024, 512);
   GLImage world;
-  world.Load("world.jpg");
+  world.Load("../share/textures/world.jpg");
   auto texture = make_shared<GLTexture>();
   texture->Texture(world);
   sphere = make_shared<GLTextureDecorator>(sphere, nullptr, texture);

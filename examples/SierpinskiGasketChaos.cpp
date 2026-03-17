@@ -10,7 +10,6 @@ class GLExampleApplication final : public GLApplication {
 public:
   using GLApplication::GLApplication;
 
-  void PreInit() override;
   void Init() override;
   void Display() override;
 
@@ -28,13 +27,6 @@ int main(int argc, char *argv[])
   application = make_shared<GLExampleApplication>(argc, argv);
   application->Run();
   return 0;
-}
-
-void GLExampleApplication::PreInit()
-{
-  GLApplication::PreInit();
-
-  SetTitle("GLSierpinskiGasketChaos Example");
 }
 
 void GLExampleApplication::Init()
@@ -57,7 +49,7 @@ void GLExampleApplication::Init()
   ntrans = 10;
 
   Display();
-  SaveScreen("GLSierpinskiGasketChaosExample.png", GL_FRONT);
+  SaveScreen("SierpinskiGasketChaos.png", GL_FRONT);
 }
 
 void GLExampleApplication::Display()

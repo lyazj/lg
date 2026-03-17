@@ -44,8 +44,6 @@ int main(int argc, char *argv[])
 void GLExampleApplication::PreInit()
 {
   GLApplication::PreInit();
-
-  SetTitle("GLApplication Example");
   SetFrameRate(0);
   SetShowFrameRateInterval(0);
 }

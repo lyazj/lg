@@ -39,8 +39,6 @@ int main(int argc, char *argv[])
 void GLExampleApplication::PreInit()
 {
   GLApplication::PreInit();
-
-  SetTitle("Image Viewer Example");
   SetFrameRate(0);
   SetShowFrameRateInterval(0);
 }

@@ -37,7 +37,6 @@ class GLExampleApplication final : public GL3DApplication {
 public:
   using GL3DApplication::GL3DApplication;
 
-  void PreInit() override;
   void Init() override;
   void Display() override;
 
@@ -53,13 +52,6 @@ int main(int argc, char *argv[])
   application = make_shared<GLExampleApplication>(argc, argv);
   application->Run();
   return 0;
-}
-
-void GLExampleApplication::PreInit()
-{
-  GL3DApplication::PreInit();
-
-  SetTitle("GLSphere Example");
 }
 
 void GLExampleApplication::Init()

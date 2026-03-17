@@ -5,32 +5,16 @@ project(LG)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Enable warnings
-add_compile_options(-Wall -Wshadow -Wextra -Wpedantic -Wconversion -Wno-sign-conversion)
-
 # -----------------------------
-# Collect all source files
+# libLG
 # -----------------------------
-file(GLOB ALL_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../*.cpp")
-
-set(LIB_SOURCES "")
-set(EXAMPLE_SOURCES "")
-
-foreach(SRC ${ALL_SOURCES})
-    get_filename_component(FILENAME ${SRC} NAME_WE)
-    if(FILENAME MATCHES ".*Example$")
-        list(APPEND EXAMPLE_SOURCES ${SRC})
-    else()
-        list(APPEND LIB_SOURCES ${SRC})
-    endif()
-endforeach()
-
-# -----------------------------
-# Create library from non-example sources
-# -----------------------------
+file(GLOB LIB_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../src/*.cpp")
 add_library(LG SHARED ${LIB_SOURCES})
-install(TARGETS LG RUNTIME DESTINATION bin)
+target_include_directories(LG PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+install(TARGETS LG)
 
+# Enable warnings
+target_compile_options(LG PUBLIC -Wall -Wshadow -Wextra -Wpedantic -Wconversion -Wno-sign-conversion)
 option(USE_STB "Enable stb_image support" ON)
 
 include(FetchContent)
@@ -82,29 +66,14 @@ target_link_directories(LG PUBLIC ${CMAKE_INSTALL_PREFIX}/lib)
 target_link_libraries(LG PRIVATE glut)
 target_link_libraries(LG PUBLIC glew32 opengl32)
 
-function(fetch_resource URL OUT_FILE)
-    if(NOT OUT_FILE)
-        get_filename_component(OUT_FILE ${URL} NAME)
-    endif()
-    set(OUT_PATH "${CMAKE_BINARY_DIR}/${OUT_FILE}")
-    if(NOT EXISTS "${OUT_PATH}")
-        message(STATUS "Downloading ${OUT_FILE} from ${URL}...")
-        file(DOWNLOAD "${URL}" "${OUT_PATH}" SHOW_PROGRESS)
-    else()
-        message(STATUS "${OUT_FILE} already exists, skipping download.")
-    endif()
-    install(FILES ${OUT_PATH} DESTINATION bin)
-endfunction()
-
-fetch_resource("https://upload.wikimedia.org/wikipedia/commons/3/3e/Equirectangular-projection-topographic-world.jpg" "world.jpg")
-
 # -----------------------------
-# Create executable for each example
+# Examples
 # -----------------------------
-foreach(EXAMPLE_SRC ${EXAMPLE_SOURCES})
-    get_filename_component(EXAMPLE_NAME ${EXAMPLE_SRC} NAME_WE)
-    add_executable(${EXAMPLE_NAME} ${EXAMPLE_SRC})
-    install(TARGETS ${EXAMPLE_NAME} RUNTIME DESTINATION bin)
+file(GLOB EXAMPLE_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../examples/*.cpp")
+foreach(EXAMPLE_SOURCE ${EXAMPLE_SOURCES})
+    get_filename_component(EXAMPLE_NAME ${EXAMPLE_SOURCE} NAME_WE)
+    add_executable(${EXAMPLE_NAME} ${EXAMPLE_SOURCE})
+    install(TARGETS ${EXAMPLE_NAME})
     target_link_libraries(${EXAMPLE_NAME} PRIVATE LG)
 endforeach()
 
@@ -118,3 +87,8 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
         endforeach()
     ")
 endif()
+
+# -----------------------------
+# Resources
+# -----------------------------
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../share" DESTINATION .)
