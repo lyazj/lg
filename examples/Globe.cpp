@@ -7,6 +7,7 @@
 #include "GLTexture.h"
 #include "GLTextureDecorator.h"
 #include "GLTransformedRenderable.h"
+#include "Utils.h"
 
 using namespace std;
 
@@ -39,7 +40,7 @@ void GLExampleApplication::Init()
 
   GLSimpleRenderablePtr sphere = make_shared<GLSphere>(0.3f, 1024, 512);
   GLImage world;
-  world.Load("../share/textures/world.jpg");
+  world.Load(GetTexturePath() / "world.jpg");
   auto texture = make_shared<GLTexture>();
   texture->Texture(world);
   sphere = make_shared<GLTextureDecorator>(sphere, nullptr, texture);

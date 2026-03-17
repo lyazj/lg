@@ -49,6 +49,10 @@ vec3 RandVec3() { return { RandFloat(), RandFloat(), RandFloat() }; }
 
 vec4 RandVec4() { return { RandFloat(), RandFloat(), RandFloat(), RandFloat() }; }
 
+fs::path GetResourcePath() { return fs::path("..") / "share"; }
+
+fs::path GetTexturePath() { return GetResourcePath() / "textures"; }
+
 void GLCheckError()
 {
   GLenum error = glGetError();
