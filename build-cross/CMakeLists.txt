@@ -36,26 +36,31 @@ option(USE_STB "Enable stb_image support" ON)
 include(FetchContent)
 include(ExternalProject)
 
+set(STRIP_ARGS "")
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    set(STRIP_ARGS --strip)
+endif()
+
 # GLEW
 ExternalProject_Add(glew_ep
     URL https://github.com/nigels-com/glew/releases/download/glew-2.3.1/glew-2.3.1.zip
-    PREFIX ${CMAKE_BINARY_DIR}/glew_ep-prefix
-    BINARY_DIR ${CMAKE_BINARY_DIR}/glew_ep-prefix/src/glew_ep-build
-    CONFIGURE_COMMAND ${CMAKE_COMMAND}
-        -S ${CMAKE_BINARY_DIR}/glew_ep-prefix/src/glew_ep/build/cmake -B ${CMAKE_BINARY_DIR}/glew_ep-prefix/src/glew_ep-build
+    CMAKE_ARGS
         -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
         -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-    BUILD_COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/glew_ep-prefix/src/glew_ep-build
-    INSTALL_COMMAND ${CMAKE_COMMAND} --install ${CMAKE_BINARY_DIR}/glew_ep-prefix/src/glew_ep-build)
+        -DBUILD_UTILS=OFF
+    SOURCE_SUBDIR build/cmake
+    INSTALL_COMMAND ${CMAKE_COMMAND} --install <BINARY_DIR> ${STRIP_ARGS}
+)
 
 # GLUT
-ExternalProject_Add(freeglut_ep URL https://github.com/freeglut/freeglut/releases/download/v3.8.0/freeglut-3.8.0.tar.gz CMAKE_ARGS
-    -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-    -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE})
-ExternalProject_Add_Step(freeglut_ep create_glut_symlink
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_INSTALL_PREFIX}/include/GL/freeglut.h ${CMAKE_INSTALL_PREFIX}/include/GL/glut.h
-    DEPENDEES install
-    COMMENT "Creating glut.h symlink to freeglut.h")
+ExternalProject_Add(freeglut_ep
+    URL https://github.com/freeglut/freeglut/releases/download/v3.8.0/freeglut-3.8.0.tar.gz
+    CMAKE_ARGS
+        -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+        -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+        -DFREEGLUT_REPLACE_GLUT=ON -DFREEGLUT_BUILD_DEMOS=OFF
+    INSTALL_COMMAND ${CMAKE_COMMAND} --install <BINARY_DIR> ${STRIP_ARGS}
+)
 
 # GLM
 FetchContent_Declare(glm URL https://github.com/g-truc/glm/releases/download/1.0.3/glm-1.0.3.zip)
@@ -74,7 +79,7 @@ endif()
 add_dependencies(LG glew_ep freeglut_ep)
 target_include_directories(LG SYSTEM PUBLIC ${CMAKE_INSTALL_PREFIX}/include)
 target_link_directories(LG PUBLIC ${CMAKE_INSTALL_PREFIX}/lib)
-target_link_libraries(LG PRIVATE freeglut)
+target_link_libraries(LG PRIVATE glut)
 target_link_libraries(LG PUBLIC glew32 opengl32)
 
 function(fetch_resource URL OUT_FILE)
@@ -106,4 +111,10 @@ endforeach()
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     install(FILES ${CROSS_RUNTIME_LIBS} DESTINATION bin PERMISSIONS
         OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+    install(CODE "
+        foreach(f ${CROSS_RUNTIME_LIBS})
+            get_filename_component(name \"\${f}\" NAME)
+            execute_process(COMMAND ${CMAKE_STRIP} \"\${CMAKE_INSTALL_PREFIX}/bin/\${name}\")
+        endforeach()
+    ")
 endif()
