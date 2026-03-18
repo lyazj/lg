@@ -10,6 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # -----------------------------
 file(GLOB LIB_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../src/*.cpp")
 add_library(LG SHARED ${LIB_SOURCES})
+target_link_options(LG PUBLIC -Wl,--rpath=$ORIGIN/../lib)
 target_include_directories(LG PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../include")
 install(TARGETS LG)
 
@@ -64,7 +65,12 @@ add_dependencies(LG glew_ep freeglut_ep)
 target_include_directories(LG SYSTEM PUBLIC ${CMAKE_INSTALL_PREFIX}/include)
 target_link_directories(LG PUBLIC ${CMAKE_INSTALL_PREFIX}/lib)
 target_link_libraries(LG PRIVATE glut)
-target_link_libraries(LG PUBLIC glew32 opengl32)
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+    target_link_libraries(LG PUBLIC glew32 opengl32)
+else()
+    find_package(OpenGL REQUIRED)
+    target_link_libraries(LG PUBLIC GLEW OpenGL::GL)
+endif()
 
 # -----------------------------
 # Examples
