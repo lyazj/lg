@@ -1,17 +1,19 @@
 stages:
   - build
 
-build-linux:
+build-native:
   image: ubuntu:latest
   stage: build
   script:
     - apt-get update
     - apt-get install -y build-essential cmake git libgl-dev libglew-dev freeglut3-dev libglm-dev graphicsmagick-libmagick-dev-compat libstb-dev
     - ./build.sh
-    - mv install/ install-linux-$(uname -m)_$(git rev-parse --short HEAD)/
+    - mv install/ install-native-$(uname -m)_$(git rev-parse --short HEAD)/
   artifacts:
     paths:
-      - install-linux-*/
+      - install-mingw32-*/bin/
+      - install-mingw32-*/lib/
+      - install-mingw32-*/share/
     expire_in: 1 week
 
 build-mingw64:
@@ -43,5 +45,23 @@ build-mingw32:
   artifacts:
     paths:
       - install-mingw32-*/bin/
+      - install-mingw32-*/share/
+    expire_in: 1 week
+
+build-linux32:
+  image: ubuntu:latest
+  stage: build
+  script:
+    - dpkg --add-architecture i386
+    - apt-get update
+    - apt-get install -y g++-i686-linux-gnu make cmake git libgl-dev:i386
+    - pushd build-cross
+    - ./build-linux32.sh
+    - popd
+    - mv build-cross/install-linux32/ install-linux32-i686-$(git rev-parse --short HEAD)/
+  artifacts:
+    paths:
+      - install-mingw32-*/bin/
+      - install-mingw32-*/lib/
       - install-mingw32-*/share/
     expire_in: 1 week
