@@ -1,5 +1,8 @@
 #include "Utils.h"
 
+#include <math.h>
+
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
@@ -48,6 +51,24 @@ vec2 RandVec2() { return { RandFloat(), RandFloat() }; }
 vec3 RandVec3() { return { RandFloat(), RandFloat(), RandFloat() }; }
 
 vec4 RandVec4() { return { RandFloat(), RandFloat(), RandFloat(), RandFloat() }; }
+
+vec3 RandDirection()
+{
+  GLfloat z = RandFloat() * 2.0f - 1.0f;
+  GLfloat phi = RandFloat() * 2.0f * pi;
+  GLfloat rho = sqrtf(1.0f - z * z);
+  return { rho * cosf(phi), rho * sinf(phi), z };
+}
+
+mat4 RandomRotation()
+{
+  GLfloat theta = acosf(RandFloat() * 2.0f - 1.0f);
+  GLfloat phi = RandFloat() * 2.0f * pi;
+  glm::mat4 rotation(1.0f);
+  rotation = glm::rotate(rotation, theta, glm::vec3(0.0f, 1.0f, 0.0f));
+  rotation = glm::rotate(rotation, phi, glm::vec3(0.0f, 0.0f, 1.0f));
+  return rotation;
+}
 
 fs::path GetResourcePath() { return fs::path("..") / "share"; }
 

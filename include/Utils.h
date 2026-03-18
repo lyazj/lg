@@ -19,6 +19,8 @@ GLfloat RandFloat();
 vec2 RandVec2();
 vec3 RandVec3();
 vec4 RandVec4();
+vec3 RandDirection();
+mat4 RandomRotation();
 
 fs::path GetResourcePath();
 fs::path GetTexturePath();
