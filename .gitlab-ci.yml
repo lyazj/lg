@@ -11,9 +11,9 @@ build-native:
     - mv install/ install-native-$(uname -m)_$(git rev-parse --short HEAD)/
   artifacts:
     paths:
-      - install-mingw32-*/bin/
-      - install-mingw32-*/lib/
-      - install-mingw32-*/share/
+      - install-native-*/bin/
+      - install-native-*/lib/
+      - install-native-*/share/
     expire_in: 1 week
 
 build-mingw64:
@@ -54,14 +54,14 @@ build-linux32:
   script:
     - dpkg --add-architecture i386
     - apt-get update
-    - apt-get install -y g++-i686-linux-gnu make cmake git libgl-dev:i386
+    - apt-get install -y g++-i686-linux-gnu make cmake git libgl-dev:i386 libglu1-mesa-dev:i386
     - pushd build-cross
     - ./build-linux32.sh
     - popd
     - mv build-cross/install-linux32/ install-linux32-i686-$(git rev-parse --short HEAD)/
   artifacts:
     paths:
-      - install-mingw32-*/bin/
-      - install-mingw32-*/lib/
-      - install-mingw32-*/share/
+      - install-linux32-*/bin/
+      - install-linux32-*/lib/
+      - install-linux32-*/share/
     expire_in: 1 week
