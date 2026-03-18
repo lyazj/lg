@@ -31,7 +31,7 @@ void GL3DApplication::Init()
   vec3 camera(0.0f, 0.0f, 1.0f);
   vec3 target(0.0f, 0.0f, 0.0f);
   vec3 up(0.0f, 1.0f, 0.0f);
-  SetView(glm::lookAt(camera, target, up));
+  SetView(lookAt(camera, target, up));
   SetProjection(glm::perspective(fov, GetAspect(), near, far));
   SetModel(mat4(1.0f));
 }

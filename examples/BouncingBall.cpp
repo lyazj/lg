@@ -93,7 +93,7 @@ void GLExampleApplication::Init()
   vec3 camera(10.0f, 10.0f, 10.0f);  // m
   vec3 target(0.0f, 0.0f, 0.0f);
   vec3 up(0.0f, 1.0f, 0.0f);
-  SetView(glm::lookAt(camera, target, up));
+  SetView(lookAt(camera, target, up));
   SetProjection(45.0f * deg, 0.1f, 100.0f);  // m
 
   UseProgram(GLProgram::GetDefaultProgram());
@@ -106,12 +106,12 @@ void GLExampleApplication::Init()
   // The y = 0 Plane.
   GLSimpleRenderablePtr rect = make_shared<GLRectangle>(10.0f, 10.0f);  // m
   rect = make_shared<GLUniformColorDecorator>(rect, vec4(0.95f, 0.95f, 0.95f, 1.0f));
-  auto r = make_shared<GLTransformedRenderable>(rect, glm::rotate(mat4(1.0f), -90.0f * deg, vec3(1.0f, 0.0f, 0.0f)));
+  auto r = make_shared<GLTransformedRenderable>(rect, rotate(mat4(1.0f), -90.0f * deg, vec3(1.0f, 0.0f, 0.0f)));
   scene->AddGeometry(r);
 
   // The ball.
   auto sphere = make_shared<GLExampleSphere>(ballRadius, 64, 32);
-  ball = make_shared<GLTransformedRenderable>(sphere, glm::translate(mat4(1.0f), vec3(0.0f, ballInitialHeight, 0.0f)));
+  ball = make_shared<GLTransformedRenderable>(sphere, translate(mat4(1.0f), vec3(0.0f, ballInitialHeight, 0.0f)));
   scene->AddGeometry(ball);
 
   scene->SetVertexAttributes();
@@ -157,7 +157,7 @@ void GLExampleApplication::Frame(uint64_t t, uint64_t dt)
 
 void GLExampleApplication::UpdateBallTransform()
 {
-  ball->SetModel(glm::translate(mat4(1.0f), vec3(0.0f, ballHeight, 0.0f)));
+  ball->SetModel(translate(mat4(1.0f), vec3(0.0f, ballHeight, 0.0f)));
 }
 
 void GLExampleApplication::CreateRecord()  // Called in a separate thread.

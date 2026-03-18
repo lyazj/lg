@@ -105,7 +105,7 @@ void GLExampleApplication::InitRenderable()
     if(argc > 2) order = stoi(argv[2]);
     if(argc > 3) noise = stof(argv[3]);
     renderable = make_shared<GLSierpinskiGasket>(order, noise);
-    SetModel(glm::translate(GetModel(), vec3(0.0f, -0.25f, 0.0f)));
+    SetModel(translate(GetModel(), vec3(0.0f, -0.25f, 0.0f)));
     return;
   }
 
@@ -113,7 +113,7 @@ void GLExampleApplication::InitRenderable()
     GLint points = 1e6;
     if(argc > 2) points = stoi(argv[2]);
     renderable = make_shared<GLSierpinskiGasketChaos>(points);
-    SetModel(glm::translate(GetModel(), vec3(0.0f, -0.25f, 0.0f)));
+    SetModel(translate(GetModel(), vec3(0.0f, -0.25f, 0.0f)));
     return;
   }
 

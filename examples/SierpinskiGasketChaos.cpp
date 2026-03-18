@@ -39,13 +39,13 @@ void GLExampleApplication::Init()
   renderable->Buffer();
 
   mat4 m(1.0f);
-  m = glm::scale(m, vec3(0.5f, 0.5f, 1.0f));
-  m = glm::translate(m, vec3(0.0f, -1.0f, 0.0f));
+  m = scale(m, vec3(0.5f, 0.5f, 1.0f));
+  m = translate(m, vec3(0.0f, -1.0f, 0.0f));
   SetModel(m);
 
   trans = mat4(1.0f);
-  trans = glm::translate(trans, vec3(sqrtf(3.0f) / 4.0f, 5.0f / 4.0f, 0.0f));
-  trans = glm::scale(trans, vec3(0.5f, 0.5f, 1.0f));
+  trans = translate(trans, vec3(sqrtf(3.0f) / 4.0f, 5.0f / 4.0f, 0.0f));
+  trans = scale(trans, vec3(0.5f, 0.5f, 1.0f));
   ntrans = 10;
 
   Display();
@@ -66,5 +66,5 @@ void GLExampleApplication::Display()
 
 void GLExampleApplication::Frame(uint64_t t [[maybe_unused]], uint64_t dt)
 {
-  SetModel(glm::rotate(GetModel(), 2.0f * pi * (GLfloat)dt / 1e10f, vec3(0.0f, 0.0f, 1.0f)));
+  SetModel(rotate(GetModel(), 2.0f * pi * (GLfloat)dt / 1e10f, vec3(0.0f, 0.0f, 1.0f)));
 }

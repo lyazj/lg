@@ -58,13 +58,13 @@ void GLExampleApplication::Display()
 
   GLProgram::SetVertexAttribute("a_color", vec4(0.0f, 1.0f, 0.0f, 1.0f));
   m = mat4(1.0f);
-  m = glm::rotate(m, 20.0f * deg, vec3(0.0f, 0.0f, 1.0f));
+  m = rotate(m, 20.0f * deg, vec3(0.0f, 0.0f, 1.0f));
   renderable->Draw(GetModel() * m);
 
   GLProgram::SetVertexAttribute("a_color", vec4(0.0f, 0.0f, 1.0f, 1.0f));
   m = mat4(1.0f);
-  m = glm::rotate(m, 40.0f * deg, vec3(0.0f, 0.0f, 1.0f));
-  m = glm::translate(m, vec3(0.0f, 0.0f, 0.2f));
+  m = rotate(m, 40.0f * deg, vec3(0.0f, 0.0f, 1.0f));
+  m = translate(m, vec3(0.0f, 0.0f, 0.2f));
   renderable->Draw(GetModel() * m);
 
   Flush();

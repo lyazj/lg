@@ -52,7 +52,13 @@ vec3 RandVec3() { return { RandFloat(), RandFloat(), RandFloat() }; }
 
 vec4 RandVec4() { return { RandFloat(), RandFloat(), RandFloat(), RandFloat() }; }
 
-vec3 RandDirection()
+vec2 RandDirection2D()
+{
+  GLfloat phi = RandFloat() * 2.0f * pi;
+  return { cosf(phi), sinf(phi) };
+}
+
+vec3 RandDirection3D()
 {
   GLfloat z = RandFloat() * 2.0f - 1.0f;
   GLfloat phi = RandFloat() * 2.0f * pi;
@@ -60,13 +66,21 @@ vec3 RandDirection()
   return { rho * cosf(phi), rho * sinf(phi), z };
 }
 
-mat4 RandomRotation()
+mat4 RandRotation2D()
+{
+  GLfloat phi = RandFloat() * 2.0f * pi;
+  mat4 rotation(1.0f);
+  rotation = rotate(rotation, phi, vec3(0.0f, 0.0f, 1.0f));
+  return rotation;
+}
+
+mat4 RandRotation3D()
 {
   GLfloat theta = acosf(RandFloat() * 2.0f - 1.0f);
   GLfloat phi = RandFloat() * 2.0f * pi;
-  glm::mat4 rotation(1.0f);
-  rotation = glm::rotate(rotation, theta, glm::vec3(0.0f, 1.0f, 0.0f));
-  rotation = glm::rotate(rotation, phi, glm::vec3(0.0f, 0.0f, 1.0f));
+  mat4 rotation(1.0f);
+  rotation = rotate(rotation, theta, vec3(0.0f, 1.0f, 0.0f));
+  rotation = rotate(rotation, phi, vec3(0.0f, 0.0f, 1.0f));
   return rotation;
 }
 

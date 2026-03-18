@@ -106,8 +106,8 @@ void GLExampleApplication::UpdateRatGeometry()
 {
   GLfloat x, y;
   maze->GetNormalizedPosition((GLfloat)ratX + 0.5f, (GLfloat)ratY + 0.5f, x, y);
-  mat4 m = glm::translate(mat4(1.0f), vec3(x, y, 0.0f));
-  m = glm::rotate(m, (GLfloat)ratDirection * 90.0f * deg, vec3(0.0f, 0.0f, 1.0f));
+  mat4 m = translate(mat4(1.0f), vec3(x, y, 0.0f));
+  m = rotate(m, (GLfloat)ratDirection * 90.0f * deg, vec3(0.0f, 0.0f, 1.0f));
   rat->SetModel(m);
 }
 
