@@ -84,6 +84,64 @@ mat4 RandRotation3D()
   return rotation;
 }
 
+GLint SolveLinear(GLfloat x[1], const GLfloat a_in[2])
+{
+  GLfloat a = a_in[0], b = a_in[1];
+  if(a == 0.0f) return 0;  // no solution or infinite solutions
+  x[0] = -b / a;
+  return 1;  // one solution
+}
+
+GLint SolveQuadratic(GLcomplex x[2], const GLfloat a_in[3], GLfloat *d_in)
+{
+  GLfloat a = a_in[0], b = a_in[1], c = a_in[2];
+  if(a == 0.0f) {
+    GLfloat x1;
+    if(SolveLinear(&x1, &a_in[1]) == 0) return 0;
+    x[0] = x1;
+    return 1;  // one solution
+  }
+  b /= a, c /= a;
+  GLfloat d = (b * 0.5f) * (b * 0.5f) - c;
+  GLcomplex sd = sqrt((GLcomplex)d);
+  x[0] = -b * 0.5f + sd;
+  x[1] = -b * 0.5f - sd;
+  if(d_in) *d_in = d;
+  return 2;  // two solutions; might duplicate
+}
+
+static GLcomplex cbrt(GLcomplex z)
+{
+  GLfloat r = abs(z);
+  GLfloat theta = atan2f(z.imag(), z.real());
+  return { cbrtf(r) * cosf(theta / 3.0f), cbrtf(r) * sinf(theta / 3.0f) };
+}
+
+GLint SolveCubic(GLcomplex x[3], const GLfloat a_in[4], GLfloat *d_in)
+{
+  GLfloat a = a_in[0], b = a_in[1], c = a_in[2], d = a_in[3];
+  if(a == 0.0f) return SolveQuadratic(x, &a_in[1], d_in);
+  b /= a, c /= a, d /= a;
+
+  // x = u - b/3
+  // u^3 + pu + q = 0
+  GLfloat p = c - b * b / 3.0f, q = d + (2.0f * b * b * b - 9.0f * b * c) / 27.0f;
+
+  // u = s + t, st = -p/3, s^3 + t^3 + q = 0
+  // X^2 + qX - p^3/27 = 0, with X <- s^3, t^3
+  GLcomplex st[2];
+  GLfloat a_st[3] = { 1.0f, q, -p * p * p / 27.0f };
+  SolveQuadratic(st, a_st, d_in);
+  GLcomplex s = cbrt(st[0]), t = -p / (3.0f * s);
+
+  GLcomplex w1 = { cosf(2.0f * pi / 3.0f), sinf(2.0f * pi / 3.0f) };
+  GLcomplex w2 = { cosf(4.0f * pi / 3.0f), sinf(4.0f * pi / 3.0f) };
+  x[0] = s + t - b / 3.0f;
+  x[1] = s * w1 + t * w2 - b / 3.0f;
+  x[2] = s * w2 + t * w1 - b / 3.0f;
+  return 3;  // three solutions; might duplicate
+}
+
 fs::path GetResourcePath() { return fs::path("..") / "share"; }
 
 fs::path GetTexturePath() { return GetResourcePath() / "textures"; }

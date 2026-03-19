@@ -24,6 +24,10 @@ vec3 RandDirection3D();
 mat4 RandRotation2D();
 mat4 RandRotation3D();
 
+GLint SolveLinear(GLfloat x[1], const GLfloat a[2]);
+GLint SolveQuadratic(GLcomplex x[2], const GLfloat a[3], GLfloat *d = nullptr);
+GLint SolveCubic(GLcomplex x[3], const GLfloat a[4], GLfloat *d = nullptr);
+
 fs::path GetResourcePath();
 fs::path GetTexturePath();
 

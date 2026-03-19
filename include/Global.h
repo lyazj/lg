@@ -4,8 +4,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <complex>
 #include <glm/fwd.hpp>
 #include <glm/gtc/constants.hpp>
+
+using GLcomplex = std::complex<GLfloat>;
 
 constexpr GLfloat pi = glm::pi<GLfloat>();
 constexpr GLfloat rad = 1.0f;
