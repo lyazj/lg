@@ -234,29 +234,51 @@ static GLfloat SolveTime(GLfloat x, GLfloat v, GLfloat a)
   return (v - sqrtf(delta)) / a;
 }
 
+static GLfloat SolveTime(vec2 x, vec2 v, vec2 a, GLfloat tmax)
+{
+  // Trajectory: x(t) = vt - at^2/2
+  //
+  // (1) Early exit if tmax is too small.
+  // (2) Solve |x(t) - x| = 2r.
+  // (3) Return the smallest positive real solution or INFINITY.
+  return INFINITY;  // [TODO]
+}
+
 GLfloat GLExampleApplication::GetFreeTime(GLfloat dt)
 {
   for(GLint i = 0; i < (GLint)balls.size(); ++i) {
-    vec2 x = ballPositions[i], v = ballVelocities[i];
-    if(length(v) == 0.0f) continue;
+    vec2 xi = ballPositions[i], vi = ballVelocities[i];
+    if(length(vi) == 0.0f) continue;
 
-    GLfloat ft = min(ballRadius / length(v), length(v) / frictionDeceleration);
+    GLfloat ft = min(ballRadius / length(vi), length(vi) / frictionDeceleration);
     if(ft < dt) dt = ft, collisionBall = i, collisionType = 0;  // Step limiter.
 
-    if(v.x < 0.0f) {
-      ft = SolveTime(x.x + ballAreaLength * 0.5f, -v.x, frictionDeceleration);
+    if(vi.x < 0.0f) {
+      ft = SolveTime(xi.x + ballAreaLength * 0.5f, -vi.x, frictionDeceleration);
       if(ft < dt) dt = ft, collisionBall = i, collisionType = 1;  // Left border.
-    } else if(v.x > 0.0f) {
-      ft = SolveTime(ballAreaLength * 0.5f - x.x, v.x, frictionDeceleration);
+    } else if(vi.x > 0.0f) {
+      ft = SolveTime(ballAreaLength * 0.5f - xi.x, vi.x, frictionDeceleration);
       if(ft < dt) dt = ft, collisionBall = i, collisionType = 2;  // Right border.
     }
 
-    if(v.y < 0.0f) {
-      ft = SolveTime(x.y + ballAreaWidth * 0.5f, -v.y, frictionDeceleration);
+    if(vi.y < 0.0f) {
+      ft = SolveTime(xi.y + ballAreaWidth * 0.5f, -vi.y, frictionDeceleration);
       if(ft < dt) dt = ft, collisionBall = i, collisionType = 3;  // Bottom border.
-    } else if(v.y > 0.0f) {
-      ft = SolveTime(ballAreaWidth * 0.5f - x.y, v.y, frictionDeceleration);
+    } else if(vi.y > 0.0f) {
+      ft = SolveTime(ballAreaWidth * 0.5f - xi.y, vi.y, frictionDeceleration);
       if(ft < dt) dt = ft, collisionBall = i, collisionType = 4;  // Top border.
+    }
+  }
+
+  for(GLint i = 0; i < (GLint)balls.size(); ++i) {
+    vec2 xi = ballPositions[i], vi = ballVelocities[i];
+    vec2 ai = length(vi) != 0.0f ? -frictionDeceleration * normalize(vi) : vec2(0.0f);
+    for(GLint j = i + 1; j < (GLint)balls.size(); ++j) {
+      vec2 xj = ballPositions[j], vj = ballVelocities[j];
+      vec2 aj = length(vj) != 0.0f ? -frictionDeceleration * normalize(vj) : vec2(0.0f);
+      vec2 x = xi - xj, v = vi - vj, a = ai - aj;
+      GLfloat ft = SolveTime(x, v, -a, dt);
+      if(ft < dt) dt = ft, collisionBall = i, collisionType = i * 16 + j;  // Ball-ball collision.
     }
   }
 
