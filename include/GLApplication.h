@@ -22,6 +22,7 @@ public:
   void SetWindowSize(int w, int h);
   GLint GetWindowWidth() const { return width; }
   GLint GetWindowHeight() const { return height; }
+  void MaximizeWindow() const;
   GLfloat GetAspect() const { return (GLfloat)width / (GLfloat)height; }
   void SetTitle(const std::string &t);
   std::string GetDefaultTitle() const;

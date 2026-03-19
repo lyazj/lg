@@ -13,6 +13,20 @@
 #include "GLProgram.h"
 #include "Utils.h"
 
+#ifdef _WIN32
+#define USE_WINDOWS_WINDOWING
+#include <windows.h>
+#else /* _WIN32  */
+#ifdef __APPLE__
+#define USE_MAC_WINDOWING
+#else /* __APPLE__ */
+#define USE_X11_WINDOWING
+#include <GL/glx.h>
+#include <X11/Xatom.h>
+#include <X11/Xlib.h>
+#endif /* __APPLE__ */
+#endif /* _WIN32 */
+
 GL_DEFINE_WRAPPER(ReadPixels)
 
 using namespace std;
@@ -68,6 +82,38 @@ void GLApplication::SetWindowSize(int w, int h)
   if(windowId >= 0) glutReshapeWindow(w, h);
   width = w;
   height = h;
+}
+
+void GLApplication::MaximizeWindow() const
+{
+#ifdef USE_WINDOWS_WINDOWING
+  ShowWindow(GetActiveWindow(), SW_MAXIMIZE);
+  return;
+#endif /* USE_WINDOWS_WINDOWING */
+
+#ifdef USE_MAC_WINDOWING
+  cerr << "Warning: GLApplication::MaximizeWindow() is not implemented for Mac." << endl;
+  return;
+#endif
+
+#ifdef USE_X11_WINDOWING
+  auto display = XOpenDisplay(nullptr);
+  if(!display) return;
+  XEvent event = {};
+  event.xclient.type = ClientMessage;
+  event.xclient.window = glXGetCurrentDrawable();
+  event.xclient.message_type = XInternAtom(display, "_NET_WM_STATE", False);
+  event.xclient.format = 32;
+  event.xclient.data.l[0] = 1;  // _NET_WM_STATE_ADD
+  event.xclient.data.l[1] = XInternAtom(display, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
+  event.xclient.data.l[2] = XInternAtom(display, "_NET_WM_STATE_MAXIMIZED_VERT", False);
+  event.xclient.data.l[3] = 0;
+  event.xclient.data.l[4] = 0;
+  XSendEvent(display, DefaultRootWindow(display), False, SubstructureRedirectMask | SubstructureNotifyMask, &event);
+  XFlush(display);
+  XCloseDisplay(display);
+  return;
+#endif /* USE_X11_WINDOWING */
 }
 
 void GLApplication::SetTitle(const std::string &t)

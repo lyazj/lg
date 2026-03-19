@@ -106,6 +106,7 @@ void GLExampleApplication::PreInit()
 void GLExampleApplication::Init()
 {
   GL3DApplication::Init();
+  MaximizeWindow();
 
   vec3 camera(0.0f, 0.0f, 3.0f);  // m
   vec3 target(0.0f, 0.0f, 0.0f);
