@@ -152,6 +152,88 @@ GLint SolveQuadratic(GLcomplex x[2], const GLfloat a_in[3], GLfloat *d_in)
   return 2;  // two solutions; might duplicate
 }
 
+GLint SolveCubic(GLcomplex x[3], const GLfloat a_in[4], GLfloat *d_in)
+{
+  GLfloat a = a_in[0], b = a_in[1], c = a_in[2], d = a_in[3];
+  if(a == 0.0f) return SolveQuadratic(x, &a_in[1], d_in);
+  b /= a, c /= a, d /= a;
+
+  // x = u - b/3
+  // u^3 + pu + q = 0
+  GLfloat p = c - b * b / 3.0f, q = d + (2.0f * b * b * b - 9.0f * b * c) / 27.0f;
+
+  // u = s + t, st = -p/3, s^3 + t^3 + q = 0
+  // X^2 + qX - p^3/27 = 0, with X <- s^3, t^3
+  GLcomplex st3[2], s, t;
+  GLfloat a_st3[3] = { 1.0f, q, -p * p * p / 27.0f };
+  SolveQuadratic(st3, a_st3, d_in);
+  if(st3[0].imag() == 0.0f) {
+    s = cbrt(st3[0].real()), t = cbrt(st3[1].real());
+  } else {
+    GLfloat s_abs = cbrt(abs(st3[0])), s_phi = atan2f(st3[0].imag(), st3[0].real()) / 3.0f;
+    s = { s_abs * cosf(s_phi), s_abs * sinf(s_phi) }, t = conj(s);
+  }
+
+  GLcomplex w1 = { cosf(2.0f * pi / 3.0f), sinf(2.0f * pi / 3.0f) };
+  GLcomplex w2 = { cosf(4.0f * pi / 3.0f), sinf(4.0f * pi / 3.0f) };
+  x[0] = s + t - b / 3.0f;
+  x[1] = s * w1 + t * w2 - b / 3.0f;
+  x[2] = s * w2 + t * w1 - b / 3.0f;
+  return 3;  // three solutions; might duplicate
+}
+
+GLint SolveQuartic(GLcomplex x[4], const GLfloat a_in[5], GLfloat *d_in)
+{
+  GLfloat a = a_in[0], b = a_in[1], c = a_in[2], d = a_in[3], e = a_in[4];
+  if(a == 0.0f) return SolveCubic(x, &a_in[1], d_in);
+  b /= a, c /= a, d /= a, e /= a;
+
+  // x = y - b/4
+  // y^4 + py^2 + qy + r
+  GLfloat p = c - 3.0f * b * b / 8.0f;
+  GLfloat q = d + b * b * b / 8.0f - b * c / 2.0f;
+  GLfloat r = e - 3.0f * b * b * b * b / 256.0f + b * b * c / 16.0f - b * d / 4.0f;
+
+  if(q == 0.0f) {  // y^4 + py^2 + r
+    GLfloat a_y2[3] = { 1.0f, p, r };
+    GLcomplex y2[2];
+    SolveQuadratic(y2, a_y2, d_in);
+    x[0] = sqrt(y2[0]) - b / 4.0f;
+    x[1] = -sqrt(y2[0]) - b / 4.0f;
+    x[2] = sqrt(y2[1]) - b / 4.0f;
+    x[3] = -sqrt(y2[1]) - b / 4.0f;
+    return -4;  // four solutions; biquadratic; might duplicate
+  }
+
+  // y^4 + py^2 + qy + r = (y^2 + sy + t)(y^2 - sy + u)
+  // p = u - s^2 + t, q = s(u - t), r = tu, s != 0
+  // u = (p + s^2 + q/s) / 2, t = (p + s^2 - q/s) / 2 -> r = tu
+  // s^6 + 2ps^4 + (p^2 - 4r)s^2 - q^2 = 0
+  GLfloat a_s2[4] = { 1.0f, 2.0f * p, p * p - 4.0f * r, -q * q };
+  GLcomplex s2[3];
+  SolveCubic(s2, a_s2, d_in);
+
+  // y^2 + sy + t = 0 and y^2 - sy + u = 0
+  GLfloat min_error = INFINITY;
+  for(GLint i = 0; i < 3; ++i) {
+    GLcomplex s = sqrt(s2[i]);
+    if(s == 0.0f) continue;
+    GLcomplex t = (p + s * s - q / s) * 0.5f, u = (p + s * s + q / s) * 0.5f;
+    GLcomplex y[4];
+    y[0] = -s * 0.5f + sqrt((s * 0.5f) * (s * 0.5f) - t) - b / 4.0f;
+    y[1] = -s * 0.5f - sqrt((s * 0.5f) * (s * 0.5f) - t) - b / 4.0f;
+    y[2] = +s * 0.5f + sqrt((s * 0.5f) * (s * 0.5f) - u) - b / 4.0f;
+    y[3] = +s * 0.5f - sqrt((s * 0.5f) * (s * 0.5f) - u) - b / 4.0f;
+    GLfloat error = 0.0f;
+    for(GLint j = 0; j < 4; ++j) error += abs(y[j] * y[j] * y[j] * y[j] + p * y[j] * y[j] + q * y[j] + r);
+    if(error >= min_error) continue;
+    min_error = error;
+    for(GLint j = 0; j < 4; ++j) x[j] = y[j] - b / 4.0f;
+  }
+  if(isinf(min_error)) return -1;  // falied
+  return 4;                        // four solutions; might duplicate
+}
+
 GLint SolveBisection(GLfloat x[1], function<GLfloat(GLfloat)> f, GLfloat l, GLfloat r)
 {
   GLfloat fl = f(l), fr = f(r);
@@ -176,38 +258,6 @@ GLint SolveBisection(GLfloat x[1], function<GLfloat(GLfloat)> f, GLfloat l, GLfl
   } while(l != l0 || r != r0);
   x[0] = m;
   return 1;  // one solution
-}
-
-static GLcomplex cbrt(GLcomplex z)
-{
-  GLfloat r = abs(z);
-  GLfloat theta = atan2f(z.imag(), z.real());
-  return { cbrtf(r) * cosf(theta / 3.0f), cbrtf(r) * sinf(theta / 3.0f) };
-}
-
-GLint SolveCubic(GLcomplex x[3], const GLfloat a_in[4], GLfloat *d_in)
-{
-  GLfloat a = a_in[0], b = a_in[1], c = a_in[2], d = a_in[3];
-  if(a == 0.0f) return SolveQuadratic(x, &a_in[1], d_in);
-  b /= a, c /= a, d /= a;
-
-  // x = u - b/3
-  // u^3 + pu + q = 0
-  GLfloat p = c - b * b / 3.0f, q = d + (2.0f * b * b * b - 9.0f * b * c) / 27.0f;
-
-  // u = s + t, st = -p/3, s^3 + t^3 + q = 0
-  // X^2 + qX - p^3/27 = 0, with X <- s^3, t^3
-  GLcomplex st[2];
-  GLfloat a_st[3] = { 1.0f, q, -p * p * p / 27.0f };
-  SolveQuadratic(st, a_st, d_in);
-  GLcomplex s = cbrt(st[0]), t = -p / (3.0f * s);
-
-  GLcomplex w1 = { cosf(2.0f * pi / 3.0f), sinf(2.0f * pi / 3.0f) };
-  GLcomplex w2 = { cosf(4.0f * pi / 3.0f), sinf(4.0f * pi / 3.0f) };
-  x[0] = s + t - b / 3.0f;
-  x[1] = s * w1 + t * w2 - b / 3.0f;
-  x[2] = s * w2 + t * w1 - b / 3.0f;
-  return 3;  // three solutions; might duplicate
 }
 
 fs::path GetResourcePath() { return fs::path("..") / "share"; }

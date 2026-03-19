@@ -36,6 +36,7 @@ std::ostream &operator<<(std::ostream &os, const mat4 &m);
 GLint SolveLinear(GLfloat x[1], const GLfloat a[2]);
 GLint SolveQuadratic(GLcomplex x[2], const GLfloat a[3], GLfloat *d = nullptr);
 GLint SolveCubic(GLcomplex x[3], const GLfloat a[4], GLfloat *d = nullptr);
+GLint SolveQuartic(GLcomplex x[4], const GLfloat a[5], GLfloat *d = nullptr);
 GLint SolveBisection(GLfloat x[1], std::function<GLfloat(GLfloat)> f, GLfloat l, GLfloat r);
 
 fs::path GetResourcePath();
