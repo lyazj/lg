@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <glm/geometric.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-//#include <iostream>
+#include <iostream>
 
 #include "GL3DApplication.h"
 #include "GLCircle.h"
@@ -70,9 +70,10 @@ private:
   static constexpr GLfloat elasticityBallBorder = 0.8f;
 
   static constexpr GLfloat maxInitialVelocity = 3.0f;  // m/s
-  static constexpr GLfloat minVelocity = 1e-4f;        // m/s
-  static constexpr GLfloat minDistance = 1e-4f;        // m
-  static constexpr GLfloat minRotation = 1e-4f;        // rad
+  static constexpr GLfloat minVelocity = 1e-6f;        // m/s
+  static constexpr GLfloat minDistance = 1e-6f;        // m
+  static constexpr GLfloat minRotation = 1e-6f;        // rad
+  static constexpr GLfloat minTime = 1e-6f;            // s
 
   vector<vec2> ballPositions;
   vector<vec2> ballVelocities;
@@ -86,7 +87,7 @@ private:
 
   GLfloat GetFreeTime(GLfloat dt);
   void Transport(GLfloat dt);
-  void HandleCollisions();
+  void HandleCollision();
 
   void RegularizeVelocity(vec2 &v) const;
   GLfloat RegularizeDistance(GLfloat d) const;
@@ -140,7 +141,7 @@ void GLExampleApplication::Frame(uint64_t t [[maybe_unused]], uint64_t dt_in [[m
   while(dt > 0.0f) {
     GLfloat ft = GetFreeTime(dt);
     Transport(ft);
-    HandleCollisions();
+    HandleCollision();
     dt -= ft;
   }
 }
@@ -217,7 +218,20 @@ void GLExampleApplication::InitBalls()
     auto thisBall = make_shared<GLTextureDecorator>(ball, textureProgram, texture);
 
     // Randomize initial position, velocity, and rotation.
-    ballPositions.emplace_back((RandFloat() - 0.5f) * ballAreaLength, (RandFloat() - 0.5f) * ballAreaWidth);
+    vec2 position;
+    for(;;) {
+      position = { (RandFloat() - 0.5f) * ballAreaLength, (RandFloat() - 0.5f) * ballAreaWidth };
+      bool overlap = false;
+      for(const auto &p : ballPositions) {
+        if(length(position - p) < 2.0f * ballRadius) {
+          overlap = true;
+          break;
+        }
+      }
+      if(overlap) continue;
+      break;
+    }
+    ballPositions.emplace_back(position);
     ballVelocities.emplace_back(maxInitialVelocity * RandFloat() * RandDirection2D());
     auto translation = vec3(ballPositions.back(), ballAreaHeight);
     auto transform = translate(mat4(1.0f), translation) * RandRotation3D();
@@ -229,19 +243,66 @@ void GLExampleApplication::InitBalls()
 static GLfloat SolveTime(GLfloat x, GLfloat v, GLfloat a)
 {
   // at^2/2 - vt + x = 0, a > 0, v > 0, x > 0
-  GLfloat delta = v * v - 2.0f * a * x;
-  if(delta < 0.0f) return INFINITY;
-  return (v - sqrtf(delta)) / a;
+  GLfloat d = v * v - 2.0f * a * x;
+  if(d < 0.0f) return INFINITY;
+  return (v - sqrtf(d)) / a;
 }
 
-static GLfloat SolveTime(vec2 x, vec2 v, vec2 a, GLfloat tmax)
+static GLfloat SolveTime(vec2 x, vec2 v, vec2 a, GLfloat r, GLfloat tmax, GLfloat minTime, GLfloat minDistance)
 {
-  // Trajectory: x(t) = vt - at^2/2
+  // Trajectory: x(t) = x + vt - at^2/2
   //
   // (1) Early exit if tmax is too small.
-  // (2) Solve |x(t) - x| = 2r.
+  // (2) Solve |x(t)| = 2r.
   // (3) Return the smallest positive real solution or INFINITY.
-  return INFINITY;  // [TODO]
+
+  // (1)
+  // [TODO]
+
+  // (2)
+  // Define f(t) = |x(t)|^2 - 4r^2. Solve f'(t) = 0.
+  GLcomplex t_fp3[3];
+  GLfloat t_fp_a[4] = {
+    dot(a, a),
+    -3.0f * dot(a, v),
+    2.0f * (dot(v, v) - dot(a, x)),
+    2.0f * dot(v, x),
+  }, d;
+  SolveCubic(t_fp3, t_fp_a, &d);
+
+  // Collect end points and stable points.
+  vector<GLfloat> keyPoints{ 0.0f, tmax };
+  for(GLint i = 0; i < 3; ++i) {
+    if(i != 0 && d > 0.0f) break;   // No more real solutions.
+    if(i == 2 && d == 0.0f) break;  // The 3rd duplicates the 2nd.
+
+    GLfloat t_fp = t_fp3[i].real();
+    if(t_fp <= 0 || t_fp >= tmax) continue;
+    keyPoints.push_back(t_fp);
+  }
+  sort(keyPoints.begin(), keyPoints.end());
+  keyPoints.erase(unique(keyPoints.begin(), keyPoints.end()), keyPoints.end());
+
+  // (3)
+  // f(t) is continuous and monotonic between adjacent key points.
+  // Use bisection to find the smallest viable solution.
+  auto f = [&x, &v, &a, r](GLfloat t) { return length(x + v * t - a * t * t * 0.5f) - 2.0f * r; };
+  for(GLint i = 1; i < (GLint)keyPoints.size(); ++i) {
+    GLfloat t;
+    GLint nSolution = SolveBisection(&t, f, keyPoints[i - 1], keyPoints[i]);  // [TODO] pass minDistance
+    if(!nSolution) continue;
+    GLfloat ft = f(t);
+    if(ft > minDistance) {
+      cerr << "Error: failed to solve ball-ball collision time with sufficient precision: f(" << t << ") = " << ft
+           << endl;
+      continue;
+    }
+    GLfloat ft_next = f(t + minTime);
+    if(ft_next >= 0) continue;  // No collision.
+    //clog << "Info: f(" << t << ") = " << ft << ", f(" << t + minTime << ") = " << ft_next << endl;
+    return t;
+  }
+  return tmax;
 }
 
 GLfloat GLExampleApplication::GetFreeTime(GLfloat dt)
@@ -277,8 +338,8 @@ GLfloat GLExampleApplication::GetFreeTime(GLfloat dt)
       vec2 xj = ballPositions[j], vj = ballVelocities[j];
       vec2 aj = length(vj) != 0.0f ? -frictionDeceleration * normalize(vj) : vec2(0.0f);
       vec2 x = xi - xj, v = vi - vj, a = ai - aj;
-      GLfloat ft = SolveTime(x, v, -a, dt);
-      if(ft < dt) dt = ft, collisionBall = i, collisionType = i * 16 + j;  // Ball-ball collision.
+      GLfloat ft = SolveTime(x, v, -a, ballRadius, dt, minTime, minDistance);
+      if(ft < dt) dt = ft, collisionBall = i, collisionType = 16 + j;  // Ball-ball collision.
     }
   }
 
@@ -306,39 +367,59 @@ void GLExampleApplication::Transport(GLfloat dt)
   }
 }
 
-static GLfloat GetBorderBouncingVelocity(GLfloat v, GLfloat elasticity)
+static GLfloat GetBouncingVelocity(GLfloat v, GLfloat elasticity)
 {
   return GLfloat(1 - 2 * !!signbit(v)) * sqrtf(v * v * elasticity);
 }
 
-void GLExampleApplication::HandleCollisions()
+static void HandleCollision(const vec2 &x0, vec2 &v0, const vec2 &x1, vec2 &v1, GLfloat elasticity)
+{
+  vec2 x = normalize(x1 - x0), v = v1 - v0, pcom = v0 + v1;  // m1 = m2 = 1
+  GLfloat vn = dot(v, x);
+  vec2 vt_v = v - vn * x;
+  vn = -GetBouncingVelocity(vn, elasticity);
+  v = vt_v + vn * x;
+  v0 = (-v + pcom) * 0.5f;
+  v1 = (+v + pcom) * 0.5f;
+}
+
+void GLExampleApplication::HandleCollision()
 {
   switch(collisionType) {
   case -1:  // No collision.
     return;
   case 0:  // Step limiter.
-    break;
+    return;
   case 1:  // Left border.
-    //clog << "Info: distance to the left border: "
+    //clog << "Info: distance to the left border for ball " << collisionBall << ": "
     //     << RegularizeDistance(ballPositions[collisionBall].x + ballAreaLength * 0.5f) << endl;
-    ballVelocities[collisionBall].x = -GetBorderBouncingVelocity(ballVelocities[collisionBall].x, elasticityBallBorder);
+    ballVelocities[collisionBall].x = -GetBouncingVelocity(ballVelocities[collisionBall].x, elasticityBallBorder);
     break;
   case 2:  // Right border.
-    //clog << "Info: distance to the right border: "
+    //clog << "Info: distance to the right border for ball " << collisionBall << ": "
     //     << RegularizeDistance(ballAreaLength * 0.5f - ballPositions[collisionBall].x) << endl;
-    ballVelocities[collisionBall].x = -GetBorderBouncingVelocity(ballVelocities[collisionBall].x, elasticityBallBorder);
+    ballVelocities[collisionBall].x = -GetBouncingVelocity(ballVelocities[collisionBall].x, elasticityBallBorder);
     break;
   case 3:  // Bottom border.
-    //clog << "Info: distance to the bottom border: "
+    //clog << "Info: distance to the bottom border for ball " << collisionBall << ": "
     //     << RegularizeDistance(ballPositions[collisionBall].y + ballAreaWidth * 0.5f) << endl;
-    ballVelocities[collisionBall].y = -GetBorderBouncingVelocity(ballVelocities[collisionBall].y, elasticityBallBorder);
+    ballVelocities[collisionBall].y = -GetBouncingVelocity(ballVelocities[collisionBall].y, elasticityBallBorder);
     break;
   case 4:  // Top border.
-    //clog << "Info: distance to the top border: "
+    //clog << "Info: distance to the top border for ball " << collisionBall << ": "
     //     << RegularizeDistance(ballAreaWidth * 0.5f - ballPositions[collisionBall].y) << endl;
-    ballVelocities[collisionBall].y = -GetBorderBouncingVelocity(ballVelocities[collisionBall].y, elasticityBallBorder);
+    ballVelocities[collisionBall].y = -GetBouncingVelocity(ballVelocities[collisionBall].y, elasticityBallBorder);
     break;
-  default: abort();
+  default: break;
+  }
+
+  if(collisionType >= 16) {  // Ball-ball collision.
+    GLint i0 = collisionBall, i1 = collisionType - 16;
+    //clog << "Info: ball-ball collision between " << i0 << " and " << i1
+    //     << ", distance: " << RegularizeDistance(length(ballPositions[i1] - ballPositions[i0]) - 2.0f * ballRadius)
+    //     << ", relative velocity: " << ballVelocities[i1] - ballVelocities[i0] << endl;
+    ::HandleCollision(ballPositions[i0], ballVelocities[i0], ballPositions[i1], ballVelocities[i1], elasticityBallBall);
+    RegularizeVelocity(ballVelocities[i1]);
   }
 
   RegularizeVelocity(ballVelocities[collisionBall]);

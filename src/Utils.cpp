@@ -84,6 +84,48 @@ mat4 RandRotation3D()
   return rotation;
 }
 
+std::ostream &operator<<(std::ostream &os, const vec2 &v)
+{
+  os << "(" << v.x << ", " << v.y << ")";
+  return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const vec3 &v)
+{
+  os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
+  return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const vec4 &v)
+{
+  os << "(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")";
+  return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const mat2 &m)
+{
+  os << "[[" << m[0][0] << ", " << m[1][0] << "],\n"
+     << " [" << m[0][1] << ", " << m[1][1] << "]]";
+  return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const mat3 &m)
+{
+  os << "[[" << m[0][0] << ", " << m[1][0] << ", " << m[2][0] << "],\n"
+     << " [" << m[0][1] << ", " << m[1][1] << ", " << m[2][1] << "],\n"
+     << " [" << m[0][2] << ", " << m[1][2] << ", " << m[2][2] << "]]";
+  return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const mat4 &m)
+{
+  os << "[[" << m[0][0] << ", " << m[1][0] << ", " << m[2][0] << ", " << m[3][0] << "],\n"
+     << " [" << m[0][1] << ", " << m[1][1] << ", " << m[2][1] << ", " << m[3][1] << "],\n"
+     << " [" << m[0][2] << ", " << m[1][2] << ", " << m[2][2] << ", " << m[3][2] << "],\n"
+     << " [" << m[0][3] << ", " << m[1][3] << ", " << m[2][3] << ", " << m[3][3] << "]]";
+  return os;
+}
+
 GLint SolveLinear(GLfloat x[1], const GLfloat a_in[2])
 {
   GLfloat a = a_in[0], b = a_in[1];
@@ -108,6 +150,32 @@ GLint SolveQuadratic(GLcomplex x[2], const GLfloat a_in[3], GLfloat *d_in)
   x[1] = -b * 0.5f - sd;
   if(d_in) *d_in = d;
   return 2;  // two solutions; might duplicate
+}
+
+GLint SolveBisection(GLfloat x[1], function<GLfloat(GLfloat)> f, GLfloat l, GLfloat r)
+{
+  GLfloat fl = f(l), fr = f(r);
+  if(fl == 0.0f || fr == 0.0f) {
+    x[0] = (fl == 0.0f) ? l : r;
+    return (fl == 0.0f) + (fr == 0.0f);  // one solution or infinite solutions
+  }
+  if(fl * fr > 0.0f) return 0;  // no solution
+
+  GLfloat l0, r0, m, fm;
+  do {
+    l0 = l, r0 = r, m = (l + r) * 0.5f, fm = f(m);
+    if(fm == 0.0f) {
+      x[0] = m;
+      return 1;  // one solution
+    }
+    if(fm * fl < 0.0f) {
+      r = m, fr = fm;
+    } else {
+      l = m, fl = fm;
+    }
+  } while(l != l0 || r != r0);
+  x[0] = m;
+  return 1;  // one solution
 }
 
 static GLcomplex cbrt(GLcomplex z)
