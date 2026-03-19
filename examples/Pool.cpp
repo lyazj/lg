@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <glm/geometric.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+//#include <iostream>
 
 #include "GL3DApplication.h"
 #include "GLCircle.h"
@@ -70,6 +71,7 @@ private:
 
   static constexpr GLfloat maxInitialVelocity = 3.0f;  // m/s
   static constexpr GLfloat minVelocity = 1e-4f;        // m/s
+  static constexpr GLfloat minDistance = 1e-4f;        // m
   static constexpr GLfloat minRotation = 1e-4f;        // rad
 
   vector<vec2> ballPositions;
@@ -87,6 +89,7 @@ private:
   void HandleCollisions();
 
   void RegularizeVelocity(vec2 &v) const;
+  GLfloat RegularizeDistance(GLfloat d) const;
 };
 
 int main(int argc, char *argv[])
@@ -223,6 +226,14 @@ void GLExampleApplication::InitBalls()
   }
 }
 
+static GLfloat SolveTime(GLfloat x, GLfloat v, GLfloat a)
+{
+  // at^2/2 - vt + x = 0, a > 0, v > 0, x > 0
+  GLfloat delta = v * v - 2.0f * a * x;
+  if(delta < 0.0f) return INFINITY;
+  return (v - sqrtf(delta)) / a;
+}
+
 GLfloat GLExampleApplication::GetFreeTime(GLfloat dt)
 {
   for(GLint i = 0; i < (GLint)balls.size(); ++i) {
@@ -233,18 +244,18 @@ GLfloat GLExampleApplication::GetFreeTime(GLfloat dt)
     if(ft < dt) dt = ft, collisionBall = i, collisionType = 0;  // Step limiter.
 
     if(v.x < 0.0f) {
-      ft = (x.x + ballAreaLength * 0.5f) / -v.x;
+      ft = SolveTime(x.x + ballAreaLength * 0.5f, -v.x, frictionDeceleration);
       if(ft < dt) dt = ft, collisionBall = i, collisionType = 1;  // Left border.
     } else if(v.x > 0.0f) {
-      ft = (ballAreaLength * 0.5f - x.x) / v.x;
+      ft = SolveTime(ballAreaLength * 0.5f - x.x, v.x, frictionDeceleration);
       if(ft < dt) dt = ft, collisionBall = i, collisionType = 2;  // Right border.
     }
 
     if(v.y < 0.0f) {
-      ft = (x.y + ballAreaWidth * 0.5f) / -v.y;
+      ft = SolveTime(x.y + ballAreaWidth * 0.5f, -v.y, frictionDeceleration);
       if(ft < dt) dt = ft, collisionBall = i, collisionType = 3;  // Bottom border.
     } else if(v.y > 0.0f) {
-      ft = (ballAreaWidth * 0.5f - x.y) / v.y;
+      ft = SolveTime(ballAreaWidth * 0.5f - x.y, v.y, frictionDeceleration);
       if(ft < dt) dt = ft, collisionBall = i, collisionType = 4;  // Top border.
     }
   }
@@ -286,11 +297,23 @@ void GLExampleApplication::HandleCollisions()
   case 0:  // Step limiter.
     break;
   case 1:  // Left border.
+    //clog << "Info: distance to the left border: "
+    //     << RegularizeDistance(ballPositions[collisionBall].x + ballAreaLength * 0.5f) << endl;
+    ballVelocities[collisionBall].x = -GetBorderBouncingVelocity(ballVelocities[collisionBall].x, elasticityBallBorder);
+    break;
   case 2:  // Right border.
+    //clog << "Info: distance to the right border: "
+    //     << RegularizeDistance(ballAreaLength * 0.5f - ballPositions[collisionBall].x) << endl;
     ballVelocities[collisionBall].x = -GetBorderBouncingVelocity(ballVelocities[collisionBall].x, elasticityBallBorder);
     break;
   case 3:  // Bottom border.
+    //clog << "Info: distance to the bottom border: "
+    //     << RegularizeDistance(ballPositions[collisionBall].y + ballAreaWidth * 0.5f) << endl;
+    ballVelocities[collisionBall].y = -GetBorderBouncingVelocity(ballVelocities[collisionBall].y, elasticityBallBorder);
+    break;
   case 4:  // Top border.
+    //clog << "Info: distance to the top border: "
+    //     << RegularizeDistance(ballAreaWidth * 0.5f - ballPositions[collisionBall].y) << endl;
     ballVelocities[collisionBall].y = -GetBorderBouncingVelocity(ballVelocities[collisionBall].y, elasticityBallBorder);
     break;
   default: abort();
@@ -306,4 +329,10 @@ void GLExampleApplication::RegularizeVelocity(vec2 &v) const
   for(GLfloat *p : { &v.x, &v.y }) {
     if(fabsf(*p) < minVelocity) *p = 0.0f;
   }
+}
+
+GLfloat GLExampleApplication::RegularizeDistance(GLfloat d) const
+{
+  if(fabsf(d) < minDistance) return 0.0f;
+  return d;
 }
