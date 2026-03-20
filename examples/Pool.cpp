@@ -55,6 +55,7 @@ private:
 
   static constexpr GLfloat tableLengthAvg = (tableInnerLength + tableOuterLength) * 0.5f;
   static constexpr GLfloat tableWidthAvg = (tableInnerWidth + tableOuterWidth) * 0.5f;
+  static constexpr GLfloat holeRadius = borderWidth * 0.5f;
   static constexpr GLfloat holeOffset = borderWidth / 2.8284271247461903f;
   static constexpr vec2 holePositions[6] = {
     { -tableLengthAvg * 0.5f + holeOffset, +tableWidthAvg * 0.5f - holeOffset },
@@ -78,6 +79,8 @@ private:
   vector<vec2> ballPositions;
   vector<vec2> ballVelocities;
   vector<GLTransformedRenderablePtr> balls;
+  vector<GLint> ballApproachingHoles;
+  GLint nGoals = 0;
 
   void InitTable();
   void InitBalls();
@@ -88,6 +91,7 @@ private:
   GLfloat GetFreeTime(GLfloat dt);
   void Transport(GLfloat dt);
   void HandleCollision();
+  void UpdateApproachingHole(GLint i);
 
   void RegularizeVelocity(vec2 &v) const;
   GLfloat RegularizeDistance(GLfloat d) const;
@@ -187,7 +191,7 @@ void GLExampleApplication::InitTable()
   table0->AddGeometry(make_shared<GLTransformedRenderable>(b3, transform));
 
   // Holes.
-  auto h0 = make_shared<GLCircle>(borderWidth * 0.5f, 64);
+  auto h0 = make_shared<GLCircle>(holeRadius, 64);
   auto h1 = make_shared<GLUniformColorDecorator>(h0, holeColor);
   for(GLint i = 0; i < 6; ++i) {
     transform = translate(mat4(1.0f), vec3(holePositions[i], 0.002f));
@@ -236,7 +240,9 @@ void GLExampleApplication::InitBalls()
     auto translation = vec3(ballPositions.back(), ballAreaHeight);
     auto transform = translate(mat4(1.0f), translation) * RandRotation3D();
     balls.push_back(make_shared<GLTransformedRenderable>(thisBall, transform));
+    ballApproachingHoles.push_back(-1);
     scene->AddGeometry(balls.back());
+    UpdateApproachingHole(GLint(balls.size() - 1));
   }
 }
 
@@ -306,8 +312,12 @@ GLfloat GLExampleApplication::GetFreeTime(GLfloat dt)
     vec2 xi = ballPositions[i], vi = ballVelocities[i];
     if(length(vi) == 0.0f) continue;
 
-    GLfloat ft = min(ballRadius / length(vi), length(vi) / frictionDeceleration);
+    GLfloat maxLength = ballRadius;
+    GLint hole = ballApproachingHoles[i];
+    if(hole >= 0) maxLength = min(maxLength, length(holePositions[hole] - xi));
+    GLfloat ft = min(maxLength / length(vi), length(vi) / frictionDeceleration);
     if(ft < dt) dt = ft, collisionBall = i, collisionType = 0;  // Step limiter.
+    if(hole >= 0) continue;  // No border collisions if the ball is approaching a hole.
 
     if(vi.x < 0.0f) {
       ft = SolveTime(xi.x + ballAreaLength * 0.5f, -vi.x, frictionDeceleration);
@@ -327,9 +337,11 @@ GLfloat GLExampleApplication::GetFreeTime(GLfloat dt)
   }
 
   for(GLint i = 0; i < (GLint)balls.size(); ++i) {
+    if(ballApproachingHoles[i] == -2) continue;  // Already in hole.
     vec2 xi = ballPositions[i], vi = ballVelocities[i];
     vec2 ai = length(vi) != 0.0f ? -frictionDeceleration * normalize(vi) : vec2(0.0f);
     for(GLint j = i + 1; j < (GLint)balls.size(); ++j) {
+      if(ballApproachingHoles[j] == -2) continue;  // Already in hole.
       vec2 xj = ballPositions[j], vj = ballVelocities[j];
       vec2 aj = length(vj) != 0.0f ? -frictionDeceleration * normalize(vj) : vec2(0.0f);
       vec2 x = xi - xj, v = vi - vj, a = ai - aj;
@@ -355,6 +367,9 @@ void GLExampleApplication::Transport(GLfloat dt)
     ballPositions[i] += displacement;
     ballVelocities[i] = newVelocity;
     RegularizeVelocity(ballVelocities[i]);
+    UpdateApproachingHole(i);
+
+    // Update model.
     mat4 transform = translate(mat4(1.0f), vec3(ballPositions[i], ballAreaHeight));
     if(length(theta) > minRotation) transform *= rotate(mat4(1.0f), length(theta), normalize(theta));
     transform *= mat4(mat3(balls[i]->GetModel()));
@@ -380,46 +395,105 @@ static void HandleCollision(const vec2 &x0, vec2 &v0, const vec2 &x1, vec2 &v1, 
 
 void GLExampleApplication::HandleCollision()
 {
-  switch(collisionType) {
-  case -1:  // No collision.
+  if(collisionType == -1) return;  // No collision.
+  if(collisionType == 0) {         // Step limiter.
+    collisionType = -1;
     return;
-  case 0:  // Step limiter.
+  }
+  if(ballApproachingHoles[collisionBall] == -2) {  // Already in hole.
+    collisionType = -1;
     return;
-  case 1:  // Left border.
-    //clog << "Info: distance to the left border for ball " << collisionBall << ": "
-    //     << RegularizeDistance(ballPositions[collisionBall].x + ballAreaLength * 0.5f) << endl;
-    ballVelocities[collisionBall].x = -GetBouncingVelocity(ballVelocities[collisionBall].x, elasticityBallBorder);
-    break;
-  case 2:  // Right border.
-    //clog << "Info: distance to the right border for ball " << collisionBall << ": "
-    //     << RegularizeDistance(ballAreaLength * 0.5f - ballPositions[collisionBall].x) << endl;
-    ballVelocities[collisionBall].x = -GetBouncingVelocity(ballVelocities[collisionBall].x, elasticityBallBorder);
-    break;
-  case 3:  // Bottom border.
-    //clog << "Info: distance to the bottom border for ball " << collisionBall << ": "
-    //     << RegularizeDistance(ballPositions[collisionBall].y + ballAreaWidth * 0.5f) << endl;
-    ballVelocities[collisionBall].y = -GetBouncingVelocity(ballVelocities[collisionBall].y, elasticityBallBorder);
-    break;
-  case 4:  // Top border.
-    //clog << "Info: distance to the top border for ball " << collisionBall << ": "
-    //     << RegularizeDistance(ballAreaWidth * 0.5f - ballPositions[collisionBall].y) << endl;
-    ballVelocities[collisionBall].y = -GetBouncingVelocity(ballVelocities[collisionBall].y, elasticityBallBorder);
-    break;
-  default: break;
   }
 
-  if(collisionType >= 16) {  // Ball-ball collision.
+  if(collisionType < 16) {                                // Ball-border collision.
+    if(ballApproachingHoles[collisionBall] >= 0) return;  // No border collision if the ball is approaching a hole.
+    switch(collisionType) {
+    case 1:  // Left border.
+      //clog << "Info: distance to the left border for ball " << collisionBall << ": "
+      //     << RegularizeDistance(ballPositions[collisionBall].x + ballAreaLength * 0.5f) << endl;
+      ballVelocities[collisionBall].x = -GetBouncingVelocity(ballVelocities[collisionBall].x, elasticityBallBorder);
+      break;
+    case 2:  // Right border.
+      //clog << "Info: distance to the right border for ball " << collisionBall << ": "
+      //     << RegularizeDistance(ballAreaLength * 0.5f - ballPositions[collisionBall].x) << endl;
+      ballVelocities[collisionBall].x = -GetBouncingVelocity(ballVelocities[collisionBall].x, elasticityBallBorder);
+      break;
+    case 3:  // Bottom border.
+      //clog << "Info: distance to the bottom border for ball " << collisionBall << ": "
+      //     << RegularizeDistance(ballPositions[collisionBall].y + ballAreaWidth * 0.5f) << endl;
+      ballVelocities[collisionBall].y = -GetBouncingVelocity(ballVelocities[collisionBall].y, elasticityBallBorder);
+      break;
+    case 4:  // Top border.
+      //clog << "Info: distance to the top border for ball " << collisionBall << ": "
+      //     << RegularizeDistance(ballAreaWidth * 0.5f - ballPositions[collisionBall].y) << endl;
+      ballVelocities[collisionBall].y = -GetBouncingVelocity(ballVelocities[collisionBall].y, elasticityBallBorder);
+      break;
+    default: break;
+    }
+  }
+
+  else {  // Ball-ball collision.
     GLint i0 = collisionBall, i1 = collisionType - 16;
+    if(ballApproachingHoles[i1] == -2) {  // Already in hole.
+      collisionType = -1;
+      return;
+    }
     //clog << "Info: ball-ball collision between " << i0 << " and " << i1
     //     << ", distance: " << RegularizeDistance(length(ballPositions[i1] - ballPositions[i0]) - 2.0f * ballRadius)
     //     << ", relative velocity: " << ballVelocities[i1] - ballVelocities[i0] << endl;
     ::HandleCollision(ballPositions[i0], ballVelocities[i0], ballPositions[i1], ballVelocities[i1], elasticityBallBall);
     RegularizeVelocity(ballVelocities[i1]);
+    UpdateApproachingHole(i1);
   }
 
   RegularizeVelocity(ballVelocities[collisionBall]);
+  UpdateApproachingHole(collisionBall);
   collisionBall = -1;
   collisionType = -1;
+}
+
+void GLExampleApplication::UpdateApproachingHole(GLint i)
+{
+  GLint iHole = ballApproachingHoles[i];
+  if(iHole == -2) return;  // Already in hole.
+  if(iHole == -1) {        // Not approaching any hole yet.
+    GLfloat x = ballPositions[i].x, y = ballPositions[i].y, vx = ballVelocities[i].x, vy = ballVelocities[i].y;
+    if(x + ballAreaLength * 0.5f < ballRadius && ballAreaWidth * 0.5f - y < ballRadius && vx < 0.0f && vy > 0.0f) {
+      iHole = 0;  // Top-left hole.
+    }
+    if(fabs(x) < ballRadius && ballAreaWidth * 0.5f - y < ballRadius && vy > 0.0f) {
+      iHole = 1;  // Top-middle hole.
+    }
+    if(ballAreaLength * 0.5f - x < ballRadius && ballAreaWidth * 0.5f - y < ballRadius && vx > 0.0f && vy > 0.0f) {
+      iHole = 2;  // Top-right hole.
+    }
+    if(x + ballAreaLength * 0.5f < ballRadius && y + ballAreaWidth * 0.5f < ballRadius && vx < 0.0f && vy < 0.0f) {
+      iHole = 3;  // Bottom-left hole.
+    }
+    if(fabs(x) < ballRadius && y + ballAreaWidth * 0.5f < ballRadius && vy < 0.0f) {
+      iHole = 4;  // Bottom-middle hole.
+    }
+    if(ballAreaLength * 0.5f - x < ballRadius && y + ballAreaWidth * 0.5f < ballRadius && vx > 0.0f && vy < 0.0f) {
+      iHole = 5;  // Bottom-right hole.
+    }
+    if(iHole < 0) return;
+    ballVelocities[i] = length(ballVelocities[i]) * normalize(holePositions[iHole] - ballPositions[i]);
+  }
+  if(length(holePositions[iHole] - ballPositions[i]) < holeRadius - ballRadius) {  // Entering the hole.
+    iHole = -2;
+    ballPositions[i] = {
+      (GLfloat)(nGoals - 7) * 3.0f * ballRadius,
+      tableOuterWidth * 0.5f + 2.0f * ballRadius,
+    };
+    ballVelocities[i] = { 0.0f, 0.0f };
+    mat4 transform = translate(mat4(1.0f), vec3(ballPositions[i], ballAreaHeight));
+    transform = rotate(transform, -75.0f * deg, vec3(1.0f, 0.0f, 0.0f));
+    transform = rotate(transform, +90.0f * deg, vec3(0.0f, 0.0f, 1.0f));
+    transform = scale(transform, vec3(1.2f, 1.2f, 1.2f));
+    balls[i]->SetModel(transform);
+    ++nGoals;
+  }
+  ballApproachingHoles[i] = iHole;
 }
 
 void GLExampleApplication::RegularizeVelocity(vec2 &v) const
