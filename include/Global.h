@@ -8,7 +8,7 @@
 #include <glm/fwd.hpp>
 #include <glm/gtc/constants.hpp>
 
-using GLcomplex = std::complex<GLfloat>;
+using std::complex;
 
 constexpr GLfloat pi = glm::pi<GLfloat>();
 constexpr GLfloat rad = 1.0f;

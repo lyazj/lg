@@ -10,6 +10,12 @@
 #include <random>
 #include <vector>
 
+#ifdef _WIN32
+#include <windows.h>
+#else /* _WIN32 */
+#include <signal.h>
+#endif /* _WIN32 */
+
 using namespace std;
 
 static uint64_t gStartTime = GetTime();
@@ -126,82 +132,82 @@ std::ostream &operator<<(std::ostream &os, const mat4 &m)
   return os;
 }
 
-GLint SolveLinear(GLfloat x[1], const GLfloat a_in[2])
+GLint SolveLinear(double x[1], const double a_in[2])
 {
-  GLfloat a = a_in[0], b = a_in[1];
-  if(a == 0.0f) return 0;  // no solution or infinite solutions
+  double a = a_in[0], b = a_in[1];
+  if(a == 0.0) return 0;  // no solution or infinite solutions
   x[0] = -b / a;
   return 1;  // one solution
 }
 
-GLint SolveQuadratic(GLcomplex x[2], const GLfloat a_in[3], GLfloat *d_in)
+GLint SolveQuadratic(complex<double> x[2], const double a_in[3], double d_in[1])
 {
-  GLfloat a = a_in[0], b = a_in[1], c = a_in[2];
-  if(a == 0.0f) {
-    GLfloat x1;
+  double a = a_in[0], b = a_in[1], c = a_in[2];
+  if(a == 0.0) {
+    double x1;
     if(SolveLinear(&x1, &a_in[1]) == 0) return 0;
     x[0] = x1;
     return 1;  // one solution
   }
   b /= a, c /= a;
-  GLfloat d = (b * 0.5f) * (b * 0.5f) - c;
-  GLcomplex sd = sqrt((GLcomplex)d);
-  x[0] = -b * 0.5f + sd;
-  x[1] = -b * 0.5f - sd;
-  if(d_in) *d_in = d;
+  double d = (b * 0.5) * (b * 0.5) - c;
+  complex<double> sd = sqrt((complex<double>)d);
+  x[0] = -b * 0.5 + sd;
+  x[1] = -b * 0.5 - sd;
+  if(d_in) d_in[0] = d;
   return 2;  // two solutions; might duplicate
 }
 
-GLint SolveCubic(GLcomplex x[3], const GLfloat a_in[4], GLfloat *d_in)
+GLint SolveCubic(complex<double> x[3], const double a_in[4], double d_in[1])
 {
-  GLfloat a = a_in[0], b = a_in[1], c = a_in[2], d = a_in[3];
-  if(a == 0.0f) return SolveQuadratic(x, &a_in[1], d_in);
+  double a = a_in[0], b = a_in[1], c = a_in[2], d = a_in[3];
+  if(a == 0.0) return SolveQuadratic(x, &a_in[1], d_in);
   b /= a, c /= a, d /= a;
 
   // x = u - b/3
   // u^3 + pu + q = 0
-  GLfloat p = c - b * b / 3.0f, q = d + (2.0f * b * b * b - 9.0f * b * c) / 27.0f;
+  double p = c - b * b / 3.0, q = d + (2.0 * b * b * b - 9.0 * b * c) / 27.0;
 
   // u = s + t, st = -p/3, s^3 + t^3 + q = 0
   // X^2 + qX - p^3/27 = 0, with X <- s^3, t^3
-  GLcomplex st3[2], s, t;
-  GLfloat a_st3[3] = { 1.0f, q, -p * p * p / 27.0f };
+  complex<double> st3[2], s, t;
+  double a_st3[3] = { 1.0, q, -p * p * p / 27.0 };
   SolveQuadratic(st3, a_st3, d_in);
-  if(st3[0].imag() == 0.0f) {
+  if(st3[0].imag() == 0.0) {
     s = cbrt(st3[0].real()), t = cbrt(st3[1].real());
   } else {
-    GLfloat s_abs = cbrt(abs(st3[0])), s_phi = atan2f(st3[0].imag(), st3[0].real()) / 3.0f;
-    s = { s_abs * cosf(s_phi), s_abs * sinf(s_phi) }, t = conj(s);
+    double s_abs = cbrt(abs(st3[0])), s_phi = atan2(st3[0].imag(), st3[0].real()) / 3.0;
+    s = { s_abs * cos(s_phi), s_abs * sin(s_phi) }, t = conj(s);
   }
 
-  GLcomplex w1 = { cosf(2.0f * pi / 3.0f), sinf(2.0f * pi / 3.0f) };
-  GLcomplex w2 = { cosf(4.0f * pi / 3.0f), sinf(4.0f * pi / 3.0f) };
-  x[0] = s + t - b / 3.0f;
-  x[1] = s * w1 + t * w2 - b / 3.0f;
-  x[2] = s * w2 + t * w1 - b / 3.0f;
+  complex<double> w1 = { cos(2.0 * M_PI / 3.0), sin(2.0 * M_PI / 3.0) };
+  complex<double> w2 = { cos(4.0 * M_PI / 3.0), sin(4.0 * M_PI / 3.0) };
+  x[0] = s + t - b / 3.0;
+  x[1] = s * w1 + t * w2 - b / 3.0;
+  x[2] = s * w2 + t * w1 - b / 3.0;
   return 3;  // three solutions; might duplicate
 }
 
-GLint SolveQuartic(GLcomplex x[4], const GLfloat a_in[5], GLfloat *d_in)
+GLint SolveQuartic(complex<double> x[4], const double a_in[5], double d_in[2])
 {
-  GLfloat a = a_in[0], b = a_in[1], c = a_in[2], d = a_in[3], e = a_in[4];
-  if(a == 0.0f) return SolveCubic(x, &a_in[1], d_in);
+  double a = a_in[0], b = a_in[1], c = a_in[2], d = a_in[3], e = a_in[4];
+  if(a == 0.0) return SolveCubic(x, &a_in[1], d_in);
   b /= a, c /= a, d /= a, e /= a;
 
   // x = y - b/4
   // y^4 + py^2 + qy + r
-  GLfloat p = c - 3.0f * b * b / 8.0f;
-  GLfloat q = d + b * b * b / 8.0f - b * c / 2.0f;
-  GLfloat r = e - 3.0f * b * b * b * b / 256.0f + b * b * c / 16.0f - b * d / 4.0f;
+  double p = c - 3.0 * b * b / 8.0;
+  double q = d + b * b * b / 8.0 - b * c / 2.0;
+  double r = e - 3.0 * b * b * b * b / 256.0 + b * b * c / 16.0 - b * d / 4.0;
 
-  if(q == 0.0f) {  // y^4 + py^2 + r
-    GLfloat a_y2[3] = { 1.0f, p, r };
-    GLcomplex y2[2];
+  if(q == 0.0) {  // y^4 + py^2 + r
+    double a_y2[3] = { 1.0, p, r };
+    complex<double> y2[2];
     SolveQuadratic(y2, a_y2, d_in);
-    x[0] = sqrt(y2[0]) - b / 4.0f;
-    x[1] = -sqrt(y2[0]) - b / 4.0f;
-    x[2] = sqrt(y2[1]) - b / 4.0f;
-    x[3] = -sqrt(y2[1]) - b / 4.0f;
+    x[0] = sqrt(y2[0]) - b / 4.0;
+    x[1] = -sqrt(y2[0]) - b / 4.0;
+    x[2] = sqrt(y2[1]) - b / 4.0;
+    x[3] = -sqrt(y2[1]) - b / 4.0;
     return -4;  // four solutions; biquadratic; might duplicate
   }
 
@@ -209,48 +215,52 @@ GLint SolveQuartic(GLcomplex x[4], const GLfloat a_in[5], GLfloat *d_in)
   // p = u - s^2 + t, q = s(u - t), r = tu, s != 0
   // u = (p + s^2 + q/s) / 2, t = (p + s^2 - q/s) / 2 -> r = tu
   // s^6 + 2ps^4 + (p^2 - 4r)s^2 - q^2 = 0
-  GLfloat a_s2[4] = { 1.0f, 2.0f * p, p * p - 4.0f * r, -q * q };
-  GLcomplex s2[3];
-  SolveCubic(s2, a_s2, d_in);
+  double a_s2[4] = { 1.0, 2.0 * p, p * p - 4.0 * r, -q * q };
+  complex<double> s2[3];
+  SolveCubic(s2, a_s2);
 
   // y^2 + sy + t = 0 and y^2 - sy + u = 0
-  GLfloat min_error = INFINITY;
+  double min_error = INFINITY;
   for(GLint i = 0; i < 3; ++i) {
-    GLcomplex s = sqrt(s2[i]);
-    if(s == 0.0f) continue;
-    GLcomplex t = (p + s * s - q / s) * 0.5f, u = (p + s * s + q / s) * 0.5f;
-    GLcomplex y[4];
-    y[0] = -s * 0.5f + sqrt((s * 0.5f) * (s * 0.5f) - t) - b / 4.0f;
-    y[1] = -s * 0.5f - sqrt((s * 0.5f) * (s * 0.5f) - t) - b / 4.0f;
-    y[2] = +s * 0.5f + sqrt((s * 0.5f) * (s * 0.5f) - u) - b / 4.0f;
-    y[3] = +s * 0.5f - sqrt((s * 0.5f) * (s * 0.5f) - u) - b / 4.0f;
-    GLfloat error = 0.0f;
+    complex<double> s = sqrt(s2[i]);
+    if(s == 0.0) continue;
+    complex<double> t = (p + s * s - q / s) * 0.5, u = (p + s * s + q / s) * 0.5;
+    complex<double> y[4];
+    y[0] = -s * 0.5 + sqrt((s * 0.5) * (s * 0.5) - t);
+    y[1] = -s * 0.5 - sqrt((s * 0.5) * (s * 0.5) - t);
+    y[2] = +s * 0.5 + sqrt((s * 0.5) * (s * 0.5) - u);
+    y[3] = +s * 0.5 - sqrt((s * 0.5) * (s * 0.5) - u);
+    double error = 0.0;
     for(GLint j = 0; j < 4; ++j) error += abs(y[j] * y[j] * y[j] * y[j] + p * y[j] * y[j] + q * y[j] + r);
     if(error >= min_error) continue;
     min_error = error;
-    for(GLint j = 0; j < 4; ++j) x[j] = y[j] - b / 4.0f;
+    for(GLint j = 0; j < 4; ++j) x[j] = y[j] - b / 4.0;
+    if(d_in) {
+      d_in[0] = sqrt(abs((s * 0.5) * (s * 0.5) - t));
+      d_in[1] = sqrt(abs((s * 0.5) * (s * 0.5) - u));
+    }
   }
   if(isinf(min_error)) return -1;  // falied
   return 4;                        // four solutions; might duplicate
 }
 
-GLint SolveBisection(GLfloat x[1], function<GLfloat(GLfloat)> f, GLfloat l, GLfloat r)
+GLint SolveBisection(double x[1], function<double(double)> f, double l, double r)
 {
-  GLfloat fl = f(l), fr = f(r);
-  if(fl == 0.0f || fr == 0.0f) {
-    x[0] = (fl == 0.0f) ? l : r;
-    return (fl == 0.0f) + (fr == 0.0f);  // one solution or infinite solutions
+  double fl = f(l), fr = f(r);
+  if(fl == 0.0 || fr == 0.0) {
+    x[0] = (fl == 0.0) ? l : r;
+    return (fl == 0.0) + (fr == 0.0);  // one solution or infinite solutions
   }
-  if(fl * fr > 0.0f) return 0;  // no solution
+  if(fl * fr > 0.0) return 0;  // no solution
 
-  GLfloat l0, r0, m, fm;
+  double l0, r0, m, fm;
   do {
-    l0 = l, r0 = r, m = (l + r) * 0.5f, fm = f(m);
-    if(fm == 0.0f) {
+    l0 = l, r0 = r, m = (l + r) * 0.5, fm = f(m);
+    if(fm == 0.0) {
       x[0] = m;
       return 1;  // one solution
     }
-    if(fm * fl < 0.0f) {
+    if(fm * fl < 0.0) {
       r = m, fr = fm;
     } else {
       l = m, fl = fm;
@@ -302,4 +312,13 @@ void GLLinkProgram(GLuint program)
     cerr << log.data();
     exit(EXIT_FAILURE);
   }
+}
+
+void Debug()
+{
+#ifdef _WIN32
+  DebugBreak();
+#else  /* _WIN32 */
+  raise(SIGTRAP);
+#endif /* _WIN32 */
 }

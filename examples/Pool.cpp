@@ -70,10 +70,10 @@ private:
   static constexpr GLfloat elasticityBallBorder = 0.8f;
 
   static constexpr GLfloat maxInitialVelocity = 3.0f;  // m/s
-  static constexpr GLfloat minVelocity = 1e-6f;        // m/s
-  static constexpr GLfloat minDistance = 1e-6f;        // m
-  static constexpr GLfloat minRotation = 1e-6f;        // rad
-  static constexpr GLfloat minTime = 1e-6f;            // s
+  static constexpr GLfloat minVelocity = 1e-4f;        // m/s
+  static constexpr GLfloat minDistance = 1e-4f;        // m
+  static constexpr GLfloat minRotation = 1e-4f;        // rad
+  static constexpr GLfloat minTime = 1e-4f;            // s
 
   vector<vec2> ballPositions;
   vector<vec2> ballVelocities;
@@ -248,59 +248,54 @@ static GLfloat SolveTime(GLfloat x, GLfloat v, GLfloat a)
   return (v - sqrtf(d)) / a;
 }
 
-static GLfloat SolveTime(vec2 x, vec2 v, vec2 a, GLfloat r, GLfloat tmax, GLfloat minTime, GLfloat minDistance)
+static GLfloat SolveTime(vec2 x, vec2 v, vec2 a, GLfloat r, GLfloat tmax, GLfloat minDistance)
 {
   // Trajectory: x(t) = x + vt - at^2/2
   //
   // (1) Early exit if tmax is too small.
   // (2) Solve |x(t)| = 2r.
-  // (3) Return the smallest positive real solution or INFINITY.
+  // (3) Return the smallest viable solution or INFINITY.
 
   // (1)
   // [TODO]
 
   // (2)
-  // Define f(t) = |x(t)|^2 - 4r^2. Solve f'(t) = 0.
-  GLcomplex t_fp3[3];
-  GLfloat t_fp_a[4] = {
-    dot(a, a),
-    -3.0f * dot(a, v),
-    2.0f * (dot(v, v) - dot(a, x)),
+  // Solve f(t) = |x(t)|^2 - 4r^2 = 0
+  complex<double> t_f[4];
+  double t_f_a[5] = {
+    0.25f * dot(a, a),
+    -dot(a, v),
+    dot(v, v) - dot(a, x),
     2.0f * dot(v, x),
-  }, d;
-  SolveCubic(t_fp3, t_fp_a, &d);
-
-  // Collect end points and stable points.
-  vector<GLfloat> keyPoints{ 0.0f, tmax };
-  for(GLint i = 0; i < 3; ++i) {
-    if(i != 0 && d > 0.0f) break;   // No more real solutions.
-    if(i == 2 && d == 0.0f) break;  // The 3rd duplicates the 2nd.
-
-    GLfloat t_fp = t_fp3[i].real();
-    if(t_fp <= 0 || t_fp >= tmax) continue;
-    keyPoints.push_back(t_fp);
+    dot(x, x) - 4.0f * r * r,
+  };
+  GLint nSolution = SolveQuartic(t_f, t_f_a);
+  if(nSolution == -1) {  // failed
+    cerr << "Error: SolveQuartic failed: a = " << t_f_a[0] << ", b = " << t_f_a[1] << ", c = " << t_f_a[2]
+         << ", d = " << t_f_a[3] << ", e = " << t_f_a[4] << endl;
+    Debug();
   }
-  sort(keyPoints.begin(), keyPoints.end());
-  keyPoints.erase(unique(keyPoints.begin(), keyPoints.end()), keyPoints.end());
+  nSolution = abs(nSolution);  // 0: no solution or infinite solutions; -4: biquadratic
 
   // (3)
-  // f(t) is continuous and monotonic between adjacent key points.
-  // Use bisection to find the smallest viable solution.
-  auto f = [&x, &v, &a, r](GLfloat t) { return length(x + v * t - a * t * t * 0.5f) - 2.0f * r; };
-  for(GLint i = 1; i < (GLint)keyPoints.size(); ++i) {
-    GLfloat t;
-    GLint nSolution = SolveBisection(&t, f, keyPoints[i - 1], keyPoints[i]);  // [TODO] pass minDistance
-    if(!nSolution) continue;
-    GLfloat ft = f(t);
-    if(ft > minDistance) {
-      cerr << "Error: failed to solve ball-ball collision time with sufficient precision: f(" << t << ") = " << ft
-           << endl;
-      continue;
+  // Pick the smallest viable solution.
+  // Use f'(t) to determine approaching/receding.
+  for(GLint i = 0; i < nSolution; ++i) {
+    double residual = abs(t_f_a[0] * t_f[i] * t_f[i] * t_f[i] * t_f[i] + t_f_a[1] * t_f[i] * t_f[i] * t_f[i]
+        + t_f_a[2] * t_f[i] * t_f[i] + t_f_a[3] * t_f[i] + t_f_a[4]);
+    if(!(residual <= minDistance * minDistance)) {       // including nan
+      if(!(abs(t_f[i].real()) <= abs(t_f[i].imag()))) {  // real part dominates; including nan
+        cerr << "Warning: SolveQuartic solution " << i << " has large residual: t = " << t_f[i]
+             << ", residual = " << residual << endl;
+      }
     }
-    GLfloat ft_next = f(t + minTime);
-    if(ft_next >= 0) continue;  // No collision.
-    //clog << "Info: f(" << t << ") = " << ft << ", f(" << t + minTime << ") = " << ft_next << endl;
-    return t;
+    GLfloat t = (GLfloat)t_f[i].real();
+    if(t < 0 || t > tmax) continue;  // Out of bound.
+    GLfloat dist = length(x + v * t - 0.5f * a * t * t) - 2.0f * r;
+    if(dist > minDistance) continue;  // Not real.
+    GLfloat fpt = GLfloat(4.0f * t_f_a[0] * t * t * t + 3.0f * t_f_a[1] * t * t + 2.0f * t_f_a[2] * t + t_f_a[3]);
+    if(fpt >= 0.0f) continue;  // Receding.
+    tmax = min(tmax, t);
   }
   return tmax;
 }
@@ -338,7 +333,7 @@ GLfloat GLExampleApplication::GetFreeTime(GLfloat dt)
       vec2 xj = ballPositions[j], vj = ballVelocities[j];
       vec2 aj = length(vj) != 0.0f ? -frictionDeceleration * normalize(vj) : vec2(0.0f);
       vec2 x = xi - xj, v = vi - vj, a = ai - aj;
-      GLfloat ft = SolveTime(x, v, -a, ballRadius, dt, minTime, minDistance);
+      GLfloat ft = SolveTime(x, v, -a, ballRadius, dt, minDistance);
       if(ft < dt) dt = ft, collisionBall = i, collisionType = 16 + j;  // Ball-ball collision.
     }
   }
