@@ -99,7 +99,7 @@ void GLExampleApplication::UpdateViewer()
   } else {
     viewerWidth = iWidth * viewerHeight / iHeight;
   }
-  renderable->SetGeometry(make_shared<GLRectangle>(viewerWidth, viewerHeight));
+  renderable->SetRenderable(make_shared<GLRectangle>(viewerWidth, viewerHeight));
   renderable->SetVertexAttributes();
   renderable->Buffer();
 }

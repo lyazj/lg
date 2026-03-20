@@ -14,8 +14,8 @@ public:
   const GLProgramPtr &GetProgram() const { return program; }
   void SetProgram(const GLProgramPtr &p) { program = p; }
 
-  const GLSimpleRenderablePtr &GetGeometry() const { return renderable; }
-  void SetGeometry(const GLSimpleRenderablePtr &r) { renderable = r; }
+  const GLSimpleRenderablePtr &GetRenderable() const { return renderable; }
+  void SetRenderable(const GLSimpleRenderablePtr &r) { renderable = r; }
 
   void SetVertexAttributes() const override { renderable->SetVertexAttributes(); }
   void Buffer() const override { renderable->Buffer(); }

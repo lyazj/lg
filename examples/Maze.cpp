@@ -32,7 +32,7 @@ private:
   GLint ratX, ratY, exitX, exitY;
   bool won;
 
-  void UpdateRatGeometry();
+  void UpdateRatRenderable();
   void MouseDown(Mouse button, int x, int y) override;
   void KeyDown(unsigned char key, int x, int y) override;
   void SpecialKeyDown(SpecialKey key, int x, int y) override;
@@ -83,12 +83,12 @@ void GLExampleApplication::Init()
   ratDirection = 0;
   maze->GetEntry(ratX, ratY);
   maze->GetExit(exitX, exitY);
-  UpdateRatGeometry();
+  UpdateRatRenderable();
   won = false;
 
   auto scene = make_shared<GLCompositeRenderable>();
-  scene->AddGeometry(maze);
-  scene->AddGeometry(rat);
+  scene->AddRenderable(maze);
+  scene->AddRenderable(rat);
   renderable = scene;
 
   renderable->SetVertexAttributes();
@@ -102,7 +102,7 @@ void GLExampleApplication::Display()
   Flush();
 }
 
-void GLExampleApplication::UpdateRatGeometry()
+void GLExampleApplication::UpdateRatRenderable()
 {
   GLfloat x, y;
   maze->GetNormalizedPosition((GLfloat)ratX + 0.5f, (GLfloat)ratY + 0.5f, x, y);
@@ -120,7 +120,7 @@ void GLExampleApplication::MouseDown(Mouse button, int, int)
   case Mouse::MiddleButton: MoveForward(); break;
   default: break;
   }
-  UpdateRatGeometry();
+  UpdateRatRenderable();
   CheckWin();
   PostRedisplay();
 }

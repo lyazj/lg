@@ -78,7 +78,7 @@ private:
 
   vector<vec2> ballPositions;
   vector<vec2> ballVelocities;
-  vector<GLTransformedRenderablePtr> balls;
+  GLCompositeRenderablePtr balls;
   vector<GLint> ballApproachingHoles;
   GLint nGoals = 0;
 
@@ -158,7 +158,7 @@ void GLExampleApplication::InitTable()
   // Table surface.
   GLSimpleRenderablePtr t0 = make_shared<GLRectangle>(tableOuterLength, tableOuterWidth);
   auto t1 = make_shared<GLUniformColorDecorator>(t0, tableColor);
-  table0->AddGeometry(t1);
+  table0->AddRenderable(t1);
 
   // Horizontal borders.
   auto b0 = make_shared<GLTriangleStrip>();
@@ -168,14 +168,14 @@ void GLExampleApplication::InitTable()
   b0->AddVertex({ 0.0f, +tableOuterWidth * 0.5f, 0.001f });
   b0->AddVertex({ 0.0f - 2.0f * ballRadius, +tableInnerWidth * 0.5f, 0.001f });
   auto b1 = make_shared<GLUniformColorDecorator>(b0, borderColor);
-  table0->AddGeometry(b1);
+  table0->AddRenderable(b1);
   transform = mat4(1.0f);
   transform[0][0] = -1.0f;
-  table0->AddGeometry(make_shared<GLTransformedRenderable>(b1, transform));
+  table0->AddRenderable(make_shared<GLTransformedRenderable>(b1, transform));
   transform[1][1] = -1.0f;
-  table0->AddGeometry(make_shared<GLTransformedRenderable>(b1, transform));
+  table0->AddRenderable(make_shared<GLTransformedRenderable>(b1, transform));
   transform[0][0] = +1.0f;
-  table0->AddGeometry(make_shared<GLTransformedRenderable>(b1, transform));
+  table0->AddRenderable(make_shared<GLTransformedRenderable>(b1, transform));
 
   // Vertical borders.
   auto b2 = make_shared<GLTriangleStrip>();
@@ -185,31 +185,32 @@ void GLExampleApplication::InitTable()
   b2->AddVertex({ -tableOuterLength * 0.5f, -tableOuterWidth * 0.5f, 0.001f });
   b2->AddVertex({ -tableInnerLength * 0.5f, -tableInnerWidth * 0.5f + 2.0f * ballRadius, 0.001f });
   auto b3 = make_shared<GLUniformColorDecorator>(b2, borderColor);
-  table0->AddGeometry(b3);
+  table0->AddRenderable(b3);
   transform = mat4(1.0f);
   transform[0][0] = -1.0f;
-  table0->AddGeometry(make_shared<GLTransformedRenderable>(b3, transform));
+  table0->AddRenderable(make_shared<GLTransformedRenderable>(b3, transform));
 
   // Holes.
   auto h0 = make_shared<GLCircle>(holeRadius, 64);
   auto h1 = make_shared<GLUniformColorDecorator>(h0, holeColor);
   for(GLint i = 0; i < 6; ++i) {
     transform = translate(mat4(1.0f), vec3(holePositions[i], 0.002f));
-    table0->AddGeometry(make_shared<GLTransformedRenderable>(h1, transform));
+    table0->AddRenderable(make_shared<GLTransformedRenderable>(h1, transform));
   }
 
   // Translate: table surface -> table bottom.
   transform = translate(mat4(1.0f), vec3(0.0f, 0.0f, tableBottomHeight));
   auto table1 = make_shared<GLTransformedRenderable>(table0, transform);
 
-  scene->AddGeometry(table1);
+  scene->AddRenderable(table1);
 }
 
 void GLExampleApplication::InitBalls()
 {
   ballPositions.reserve(16);
   ballVelocities.reserve(16);
-  balls.reserve(16);
+  balls = make_shared<GLCompositeRenderable>();
+  balls->Reserve(16);
 
   auto ball = make_shared<GLSphere>(ballRadius, 64, 32);
   for(GLint i = 0; i < 16; ++i) {
@@ -239,11 +240,12 @@ void GLExampleApplication::InitBalls()
     ballVelocities.emplace_back(maxInitialVelocity * RandFloat() * RandDirection2D());
     auto translation = vec3(ballPositions.back(), ballAreaHeight);
     auto transform = translate(mat4(1.0f), translation) * RandRotation3D();
-    balls.push_back(make_shared<GLTransformedRenderable>(thisBall, transform));
+    balls->AddRenderable(make_shared<GLTransformedRenderable>(thisBall, transform));
     ballApproachingHoles.push_back(-1);
-    scene->AddGeometry(balls.back());
-    UpdateApproachingHole(GLint(balls.size() - 1));
+    UpdateApproachingHole(GLint(balls->GetNRenderable() - 1));
   }
+
+  scene->AddRenderable(balls);
 }
 
 static GLfloat SolveTime(GLfloat x, GLfloat v, GLfloat a)
@@ -289,8 +291,8 @@ static GLfloat SolveTime(vec2 x, vec2 v, vec2 a, GLfloat r, GLfloat tmax, GLfloa
   for(GLint i = 0; i < nSolution; ++i) {
     double residual = abs(t_f_a[0] * t_f[i] * t_f[i] * t_f[i] * t_f[i] + t_f_a[1] * t_f[i] * t_f[i] * t_f[i]
         + t_f_a[2] * t_f[i] * t_f[i] + t_f_a[3] * t_f[i] + t_f_a[4]);
-    if(!(residual <= minDistance * minDistance)) {       // including nan
-      if(!(abs(t_f[i].real()) <= abs(t_f[i].imag()))) {  // real part dominates; including nan
+    if(!(residual <= minDistance * minDistance)) {  // including nan
+      if(!(abs(t_f[i].imag()) >= minDistance)) {    // negligible imagine part; including nan
         cerr << "Warning: SolveQuartic solution " << i << " has large residual: t = " << t_f[i]
              << ", residual = " << residual << endl;
       }
@@ -308,7 +310,7 @@ static GLfloat SolveTime(vec2 x, vec2 v, vec2 a, GLfloat r, GLfloat tmax, GLfloa
 
 GLfloat GLExampleApplication::GetFreeTime(GLfloat dt)
 {
-  for(GLint i = 0; i < (GLint)balls.size(); ++i) {
+  for(GLint i = 0; i < (GLint)balls->GetNRenderable(); ++i) {
     vec2 xi = ballPositions[i], vi = ballVelocities[i];
     if(length(vi) == 0.0f) continue;
 
@@ -336,11 +338,11 @@ GLfloat GLExampleApplication::GetFreeTime(GLfloat dt)
     }
   }
 
-  for(GLint i = 0; i < (GLint)balls.size(); ++i) {
+  for(GLint i = 0; i < (GLint)balls->GetNRenderable(); ++i) {
     if(ballApproachingHoles[i] == -2) continue;  // Already in hole.
     vec2 xi = ballPositions[i], vi = ballVelocities[i];
     vec2 ai = length(vi) != 0.0f ? -frictionDeceleration * normalize(vi) : vec2(0.0f);
-    for(GLint j = i + 1; j < (GLint)balls.size(); ++j) {
+    for(GLint j = i + 1; j < (GLint)balls->GetNRenderable(); ++j) {
       if(ballApproachingHoles[j] == -2) continue;  // Already in hole.
       vec2 xj = ballPositions[j], vj = ballVelocities[j];
       vec2 aj = length(vj) != 0.0f ? -frictionDeceleration * normalize(vj) : vec2(0.0f);
@@ -355,7 +357,7 @@ GLfloat GLExampleApplication::GetFreeTime(GLfloat dt)
 
 void GLExampleApplication::Transport(GLfloat dt)
 {
-  for(GLint i = 0; i < (GLint)balls.size(); ++i) {
+  for(GLint i = 0; i < (GLint)balls->GetNRenderable(); ++i) {
     if(length(ballVelocities[i]) == 0.0f) continue;
 
     // Assume pure rolling.
@@ -372,8 +374,9 @@ void GLExampleApplication::Transport(GLfloat dt)
     // Update model.
     mat4 transform = translate(mat4(1.0f), vec3(ballPositions[i], ballAreaHeight));
     if(length(theta) > minRotation) transform *= rotate(mat4(1.0f), length(theta), normalize(theta));
-    transform *= mat4(mat3(balls[i]->GetModel()));
-    balls[i]->SetModel(transform);
+    GLTransformedRenderable *ball = (GLTransformedRenderable *)balls->GetRenderable(i).get();
+    transform *= mat4(mat3(ball->GetModel()));
+    ball->SetModel(transform);
   }
 }
 
@@ -479,7 +482,7 @@ void GLExampleApplication::UpdateApproachingHole(GLint i)
     if(iHole < 0) return;
     ballVelocities[i] = length(ballVelocities[i]) * normalize(holePositions[iHole] - ballPositions[i]);
   }
-  if(length(holePositions[iHole] - ballPositions[i]) < holeRadius - ballRadius) {  // Entering the hole.
+  if(length(holePositions[iHole] - ballPositions[i]) < holeRadius) {  // Entering the hole.
     iHole = -2;
     ballPositions[i] = {
       (GLfloat)(nGoals - 7) * 3.0f * ballRadius,
@@ -490,7 +493,7 @@ void GLExampleApplication::UpdateApproachingHole(GLint i)
     transform = rotate(transform, -75.0f * deg, vec3(1.0f, 0.0f, 0.0f));
     transform = rotate(transform, +90.0f * deg, vec3(0.0f, 0.0f, 1.0f));
     transform = scale(transform, vec3(1.2f, 1.2f, 1.2f));
-    balls[i]->SetModel(transform);
+    ((GLTransformedRenderable *)balls->GetRenderable(i).get())->SetModel(transform);
     ++nGoals;
   }
   ballApproachingHoles[i] = iHole;

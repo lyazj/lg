@@ -101,18 +101,18 @@ void GLExampleApplication::Init()
   scene = make_shared<GLCompositeRenderable>();
 
   // Axes.
-  scene->AddGeometry(make_shared<GLAxes>(10.0f, 10.0f, 10.0f));  // m
+  scene->AddRenderable(make_shared<GLAxes>(10.0f, 10.0f, 10.0f));  // m
 
   // The y = 0 Plane.
   GLSimpleRenderablePtr rect = make_shared<GLRectangle>(10.0f, 10.0f);  // m
   rect = make_shared<GLUniformColorDecorator>(rect, vec4(0.95f, 0.95f, 0.95f, 1.0f));
   auto r = make_shared<GLTransformedRenderable>(rect, rotate(mat4(1.0f), -90.0f * deg, vec3(1.0f, 0.0f, 0.0f)));
-  scene->AddGeometry(r);
+  scene->AddRenderable(r);
 
   // The ball.
   auto sphere = make_shared<GLExampleSphere>(ballRadius, 64, 32);
   ball = make_shared<GLTransformedRenderable>(sphere, translate(mat4(1.0f), vec3(0.0f, ballInitialHeight, 0.0f)));
-  scene->AddGeometry(ball);
+  scene->AddRenderable(ball);
 
   scene->SetVertexAttributes();
   scene->Buffer();

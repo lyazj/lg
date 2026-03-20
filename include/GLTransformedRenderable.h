@@ -9,8 +9,8 @@ public:
   GLTransformedRenderable(GLRenderablePtr r, const mat4 &m) : renderable(std::move(r)), model(m) { }
   ~GLTransformedRenderable() override = default;
 
-  const GLRenderablePtr &GetGeometry() const { return renderable; }
-  void SetGeometry(const GLRenderablePtr &r) { renderable = r; }
+  const GLRenderablePtr &GetRenderable() const { return renderable; }
+  void SetRenderable(const GLRenderablePtr &r) { renderable = r; }
   const mat4 &GetModel() const { return model; }
   void SetModel(const mat4 &m) { model = m; }
 

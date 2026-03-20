@@ -9,9 +9,10 @@ public:
   GLCompositeRenderable() = default;
   ~GLCompositeRenderable() override = default;
 
-  GLuint GetNGeometry() const { return (GLuint)geometries.size(); }
-  const GLRenderablePtr &GetGeometry(GLuint i) const { return geometries.at(i); }
-  void AddGeometry(const GLRenderablePtr &r) { geometries.push_back(r); }
+  void Reserve(GLuint n) { geometries.reserve(n); }
+  GLuint GetNRenderable() const { return (GLuint)geometries.size(); }
+  const GLRenderablePtr &GetRenderable(GLuint i) const { return geometries.at(i); }
+  void AddRenderable(const GLRenderablePtr &r) { geometries.push_back(r); }
 
   void SetVertexAttributes() const override;
   void Buffer() const override;
