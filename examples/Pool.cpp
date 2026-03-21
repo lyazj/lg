@@ -80,6 +80,7 @@ private:
   vector<vec2> ballVelocities;
   GLCompositeRenderablePtr balls;
   vector<GLint> ballApproachingHoles;
+  vector<pair<GLint, GLint>> ballPairs;
   GLint nGoals = 0;
 
   void InitTable();
@@ -92,8 +93,9 @@ private:
   void Transport(GLfloat dt);
   void HandleCollision();
   void UpdateApproachingHole(GLint i);
+  void UpdateBallPairs();
 
-  void RegularizeVelocity(vec2 &v) const;
+  void RegularizeVelocity(vec2 &v) const;  // Use it after each change.
   GLfloat RegularizeDistance(GLfloat d) const;
 };
 
@@ -242,12 +244,17 @@ void GLExampleApplication::InitBalls()
     auto transform = translate(mat4(1.0f), translation) * RandRotation3D();
     balls->AddRenderable(make_shared<GLTransformedRenderable>(thisBall, transform));
     ballApproachingHoles.push_back(-1);
+    for(GLint j = 0; j < (GLint)balls->GetNRenderable() - 1; ++j) {
+      ballPairs.emplace_back(j, balls->GetNRenderable() - 1);
+    }
     UpdateApproachingHole(GLint(balls->GetNRenderable() - 1));
   }
+  UpdateBallPairs();
 
   scene->AddRenderable(balls);
 }
 
+// Compute the time before a ball-border collision.
 static GLfloat SolveTime(GLfloat x, GLfloat v, GLfloat a)
 {
   // at^2/2 - vt + x = 0, a > 0, v > 0, x > 0
@@ -256,6 +263,11 @@ static GLfloat SolveTime(GLfloat x, GLfloat v, GLfloat a)
   return (v - sqrtf(d)) / a;
 }
 
+// Compute the time until a ball-ball collision.
+// The parameter tmax satisfies invariants (1)–(4) listed below.
+// Since invariant (5) is not established, the computed time may be
+// invalidated by an earlier ball-ball collision. However, that
+// collision will override this result, so this is safe.
 static GLfloat SolveTime(vec2 x, vec2 v, vec2 a, GLfloat r, GLfloat tmax, GLfloat minDistance)
 {
   // Trajectory: x(t) = x + vt - at^2/2
@@ -265,7 +277,9 @@ static GLfloat SolveTime(vec2 x, vec2 v, vec2 a, GLfloat r, GLfloat tmax, GLfloa
   // (3) Return the smallest viable solution or INFINITY.
 
   // (1)
-  // [TODO]
+  // |x(t)| >= |x(0)| - |vt - at^2/2| >= |x(0)| - (|v|t + |a|t^2/2)
+  // So if |x(0)| - (|v|t + |a|t^2/2) > 2r, or equivalently |v|t + |a|t^2/2 < |x(0)| - 2r, no collision can happen.
+  if(length(v) * tmax + length(a) * tmax * tmax * 0.5f < length(x) - 2.0f * r) return INFINITY;
 
   // (2)
   // Solve f(t) = |x(t)|^2 - 4r^2 = 0
@@ -310,6 +324,11 @@ static GLfloat SolveTime(vec2 x, vec2 v, vec2 a, GLfloat r, GLfloat tmax, GLfloa
 
 GLfloat GLExampleApplication::GetFreeTime(GLfloat dt)
 {
+  // Invariants in [0, dt):
+  // (1) No ball-border collision occurs.
+  // (2) No ball enters a hole.
+  // (3) No ball travels a distance greater than its radius.
+  // (4) No moving ball comes to a stop.
   for(GLint i = 0; i < (GLint)balls->GetNRenderable(); ++i) {
     vec2 xi = ballPositions[i], vi = ballVelocities[i];
     if(length(vi) == 0.0f) continue;
@@ -338,20 +357,22 @@ GLfloat GLExampleApplication::GetFreeTime(GLfloat dt)
     }
   }
 
-  for(GLint i = 0; i < (GLint)balls->GetNRenderable(); ++i) {
-    if(ballApproachingHoles[i] == -2) continue;  // Already in hole.
+  // (5) No ball-ball collision happens.
+  // Heuristic: ballPairs is sorted by increasing ball-ball distance.
+  // This allows us to quickly narrow the valid dt range and early-exit
+  // for pairs that are too far apart when solving the equations.
+  for(auto [i, j] : ballPairs) {
     vec2 xi = ballPositions[i], vi = ballVelocities[i];
     vec2 ai = length(vi) != 0.0f ? -frictionDeceleration * normalize(vi) : vec2(0.0f);
-    for(GLint j = i + 1; j < (GLint)balls->GetNRenderable(); ++j) {
-      if(ballApproachingHoles[j] == -2) continue;  // Already in hole.
-      vec2 xj = ballPositions[j], vj = ballVelocities[j];
-      vec2 aj = length(vj) != 0.0f ? -frictionDeceleration * normalize(vj) : vec2(0.0f);
-      vec2 x = xi - xj, v = vi - vj, a = ai - aj;
-      GLfloat ft = SolveTime(x, v, -a, ballRadius, dt, minDistance);
-      if(ft < dt) dt = ft, collisionBall = i, collisionType = 16 + j;  // Ball-ball collision.
-    }
+    vec2 xj = ballPositions[j], vj = ballVelocities[j];
+    vec2 aj = length(vj) != 0.0f ? -frictionDeceleration * normalize(vj) : vec2(0.0f);
+    vec2 x = xi - xj, v = vi - vj, a = ai - aj;
+    GLfloat ft = SolveTime(x, v, -a, ballRadius, dt, minDistance);
+    if(ft < dt) dt = ft, collisionBall = i, collisionType = 16 + j;  // Ball-ball collision.
   }
 
+  // The invariants above ensure that each ball moves in a straight line
+  // and decelerates uniformly due to table friction.
   return dt;
 }
 
@@ -378,6 +399,8 @@ void GLExampleApplication::Transport(GLfloat dt)
     transform *= mat4(mat3(ball->GetModel()));
     ball->SetModel(transform);
   }
+
+  UpdateBallPairs();
 }
 
 static GLfloat GetBouncingVelocity(GLfloat v, GLfloat elasticity)
@@ -385,6 +408,7 @@ static GLfloat GetBouncingVelocity(GLfloat v, GLfloat elasticity)
   return GLfloat(1 - 2 * !!signbit(v)) * sqrtf(v * v * elasticity);
 }
 
+// Compute the velocities after a ball-ball collision. Assume equal mass and no friction.
 static void HandleCollision(const vec2 &x0, vec2 &v0, const vec2 &x1, vec2 &v1, GLfloat elasticity)
 {
   vec2 x = normalize(x1 - x0), v = v1 - v0, pcom = v0 + v1;  // m1 = m2 = 1
@@ -455,6 +479,9 @@ void GLExampleApplication::HandleCollision()
   collisionType = -1;
 }
 
+// State machine (move → approach → enter) for each hole.
+// The border near the hole is approximated as a "magic" capture based on position and velocity.
+// This is visually acceptable and can be refined in the future.
 void GLExampleApplication::UpdateApproachingHole(GLint i)
 {
   GLint iHole = ballApproachingHoles[i];
@@ -480,9 +507,11 @@ void GLExampleApplication::UpdateApproachingHole(GLint i)
       iHole = 5;  // Bottom-right hole.
     }
     if(iHole < 0) return;
+    // move → approach: the "magic" capture
     ballVelocities[i] = length(ballVelocities[i]) * normalize(holePositions[iHole] - ballPositions[i]);
   }
   if(length(holePositions[iHole] - ballPositions[i]) < holeRadius) {  // Entering the hole.
+    // approach -> enter: move the ball out from the table
     iHole = -2;
     ballPositions[i] = {
       (GLfloat)(nGoals - 7) * 3.0f * ballRadius,
@@ -495,6 +524,7 @@ void GLExampleApplication::UpdateApproachingHole(GLint i)
     transform = scale(transform, vec3(1.2f, 1.2f, 1.2f));
     ((GLTransformedRenderable *)balls->GetRenderable(i).get())->SetModel(transform);
     ++nGoals;
+    UpdateBallPairs();
   }
   ballApproachingHoles[i] = iHole;
 }
@@ -510,4 +540,35 @@ GLfloat GLExampleApplication::RegularizeDistance(GLfloat d) const
 {
   if(fabsf(d) < minDistance) return 0.0f;
   return d;
+}
+
+// Sort ball pairs by increasing distance.
+// Remove pairs involving balls that are already in holes.
+void GLExampleApplication::UpdateBallPairs()
+{
+  auto less = [&bp = ballPositions](pair<GLint, GLint> a, pair<GLint, GLint> b) {
+    auto [a0, a1] = a;
+    auto [b0, b1] = b;
+    return length(bp[a0] - bp[a1]) < length(bp[b0] - bp[b1]);
+  };
+
+  // The sequence is nearly sorted. Use insertion sort for better performance.
+  for(GLint i = 0; i < (GLint)ballPairs.size(); ++i) {  // length of sorted prefix
+    // Removal changes the order, but it's very rare and has little impact on performance.
+    while(i < (GLint)ballPairs.size()) {
+      auto [b0, b1] = ballPairs[i];
+      if(ballApproachingHoles[b0] != -2 && ballApproachingHoles[b1] != -2) break;
+      ballPairs[i] = ballPairs.back();
+      ballPairs.pop_back();
+    }
+    if(i == (GLint)ballPairs.size()) break;
+
+    GLint j = i;  // The position to be inserted into.
+    pair<GLint, GLint> cur = ballPairs[i];
+    while(j > 0 && less(cur, ballPairs[j - 1])) {
+      ballPairs[j] = ballPairs[j - 1];
+      --j;
+    }
+    ballPairs[j] = cur;
+  }
 }
