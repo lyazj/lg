@@ -37,7 +37,7 @@ private:
   static constexpr GLfloat tableInnerWidth = 1.270f;   // m
   static constexpr GLfloat tableTopHeight = 0.840f;    // m
 
-  static constexpr GLfloat borderHeight = 0.042f;  // m [XXX] Not implemented.
+  static constexpr GLfloat borderHeight = 0.042f;  // m; not used for top-down perspective
   static constexpr GLfloat borderWidth = 0.085f;   // m
 
   static constexpr GLfloat tableBottomHeight = tableTopHeight - borderHeight;         // m
@@ -78,9 +78,9 @@ private:
 
   vector<vec2> ballPositions;
   vector<vec2> ballVelocities;
-  GLCompositeRenderablePtr balls;
-  vector<GLint> ballApproachingHoles;
-  vector<pair<GLint, GLint>> ballPairs;
+  GLCompositeRenderablePtr balls;        // each component of type GLTransformedRenderable
+  vector<GLint> ballApproachingHoles;    // 0--5: approaching the hole; -1: not; -2: holed
+  vector<pair<GLint, GLint>> ballPairs;  // sorted by increasing ball-ball distance
   GLint nGoals = 0;
 
   void InitTable();
@@ -324,6 +324,11 @@ static GLfloat SolveTime(vec2 x, vec2 v, vec2 a, GLfloat r, GLfloat tmax, GLfloa
 
 GLfloat GLExampleApplication::GetFreeTime(GLfloat dt)
 {
+  // These states are also cleared in HandleCollision(),
+  // but we reset them here for clarity and robustness.
+  collisionBall = -1;
+  collisionType = -1;
+
   // Invariants in [0, dt):
   // (1) No ball-border collision occurs.
   // (2) No ball enters a hole.
@@ -432,8 +437,11 @@ void GLExampleApplication::HandleCollision()
     return;
   }
 
-  if(collisionType < 16) {                                // Ball-border collision.
-    if(ballApproachingHoles[collisionBall] >= 0) return;  // No border collision if the ball is approaching a hole.
+  if(collisionType < 16) {                          // Ball-border collision.
+    if(ballApproachingHoles[collisionBall] >= 0) {  // No border collision if the ball is approaching a hole.
+      collisionType = -1;
+      return;
+    }
     switch(collisionType) {
     case 1:  // Left border.
       //clog << "Info: distance to the left border for ball " << collisionBall << ": "
@@ -529,19 +537,6 @@ void GLExampleApplication::UpdateApproachingHole(GLint i)
   ballApproachingHoles[i] = iHole;
 }
 
-void GLExampleApplication::RegularizeVelocity(vec2 &v) const
-{
-  for(GLfloat *p : { &v.x, &v.y }) {
-    if(fabsf(*p) < minVelocity) *p = 0.0f;
-  }
-}
-
-GLfloat GLExampleApplication::RegularizeDistance(GLfloat d) const
-{
-  if(fabsf(d) < minDistance) return 0.0f;
-  return d;
-}
-
 // Sort ball pairs by increasing distance.
 // Remove pairs involving balls that are already in holes.
 void GLExampleApplication::UpdateBallPairs()
@@ -571,4 +566,17 @@ void GLExampleApplication::UpdateBallPairs()
     }
     ballPairs[j] = cur;
   }
+}
+
+void GLExampleApplication::RegularizeVelocity(vec2 &v) const
+{
+  for(GLfloat *p : { &v.x, &v.y }) {
+    if(fabsf(*p) < minVelocity) *p = 0.0f;
+  }
+}
+
+GLfloat GLExampleApplication::RegularizeDistance(GLfloat d) const
+{
+  if(fabsf(d) < minDistance) return 0.0f;
+  return d;
 }
