@@ -266,6 +266,20 @@ GLint SolveBisection(double x[1], function<double(double)> f, double l, double r
   return 1;  // one solution
 }
 
+GLint SolveNewton(double x_in[1], std::function<double(double)> f, std::function<double(double)> fp, double xerr,
+    double yerr, GLuint nit)
+{
+  double &x = x_in[0];
+  while(nit--) {
+    double fx = f(x), fpx = fp(x);
+    if(fabs(fx) <= yerr) return 1;  // one solution
+    double x0 = x;
+    x = x - fx / fpx;
+    if(fabs(x - x0) <= xerr) return 1;  // one solution
+  }
+  return -1;  // failed
+}
+
 fs::path GetResourcePath() { return fs::path("..") / "share"; }
 
 fs::path GetTexturePath() { return GetResourcePath() / "textures"; }

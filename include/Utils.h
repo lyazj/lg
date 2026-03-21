@@ -38,6 +38,8 @@ GLint SolveQuadratic(complex<double> x[2], const double a[3], double d[1] = null
 GLint SolveCubic(complex<double> x[3], const double a[4], double d[1] = nullptr);
 GLint SolveQuartic(complex<double> x[4], const double a[5], double d[1] = nullptr);
 GLint SolveBisection(double x[1], std::function<double(double)> f, double l, double r);
+GLint SolveNewton(double x[1], std::function<double(double)> f, std::function<double(double)> fp, double xerr,
+    double yerr, GLuint nit);
 
 fs::path GetResourcePath();
 fs::path GetTexturePath();

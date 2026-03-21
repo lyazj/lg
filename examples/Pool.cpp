@@ -74,7 +74,6 @@ private:
   static constexpr GLfloat minVelocity = 1e-4f;        // m/s
   static constexpr GLfloat minDistance = 1e-4f;        // m
   static constexpr GLfloat minRotation = 1e-4f;        // rad
-  static constexpr GLfloat minTime = 1e-4f;            // s
 
   vector<vec2> ballPositions;
   vector<vec2> ballVelocities;
@@ -296,26 +295,45 @@ static GLfloat SolveTime(vec2 x, vec2 v, vec2 a, GLfloat r, GLfloat tmax, GLfloa
     cerr << "Error: SolveQuartic failed: a = " << t_f_a[0] << ", b = " << t_f_a[1] << ", c = " << t_f_a[2]
          << ", d = " << t_f_a[3] << ", e = " << t_f_a[4] << endl;
     Debug();
-  }
+  }  // success: no NAN returned
   nSolution = abs(nSolution);  // 0: no solution or infinite solutions; -4: biquadratic
+
+  // [NOTE] The 'auto' before 't' can promote float to double. Fine but be aware of it.
+  auto f = [t_f_a](auto t) {
+    return t_f_a[0] * (t * t * t * t) + t_f_a[1] * (t * t * t) + t_f_a[2] * (t * t) + t_f_a[3] * t + t_f_a[4];
+  };
+  auto fp = [t_f_a](auto t) {
+    return 4.0f * t_f_a[0] * (t * t * t) + 3.0f * t_f_a[1] * (t * t) + 2.0f * t_f_a[2] * t + t_f_a[3];
+  };
 
   // (3)
   // Pick the smallest viable solution.
   // Use f'(t) to determine approaching/receding.
   for(GLint i = 0; i < nSolution; ++i) {
-    double residual = abs(t_f_a[0] * (t_f[i] * t_f[i] * t_f[i] * t_f[i]) + t_f_a[1] * (t_f[i] * t_f[i] * t_f[i])
-        + t_f_a[2] * (t_f[i] * t_f[i]) + t_f_a[3] * t_f[i] + t_f_a[4]);
-    if(!(residual <= 2 * r * minDistance)) {      // including nan
-      if(!(abs(t_f[i].imag()) >= minDistance)) {  // negligible imagine part; including nan
-        cerr << "Warning: SolveQuartic solution " << i << " has large residual: t = " << t_f[i]
-             << ", residual = " << residual << endl;
-      }
+    if(!(abs(t_f[i].imag()) <= 1e-4)) continue;  // not real
+
+    // Diagnostic: check the residual before Newton refinement.
+    double residual = abs(f(t_f[i]));
+    if(!(residual <= 2 * r * minDistance)) {
+      cerr << "Warning: SolveQuartic solution " << i << " has large residual: t = " << t_f[i]
+           << ", residual = " << residual << endl;
     }
-    GLfloat t = (GLfloat)t_f[i].real();
+
+    // Assume a real solution and refine it with Newton's method to mitigate floating-point errors.
+    double t_new = t_f[i].real();
+    GLfloat t = (GLfloat)t_new;
+    if(SolveNewton(&t_new, f, fp, 0.0, 2 * r * minDistance * 0.01, 5) == 1) {  // 100x desired precision:)
+      t = (GLfloat)t_new;
+    } else {
+      // It's not an error as the initial solution may not be real as we assumed. Very rare in practice.
+      clog << "Info: SolveNewton failed to refine solution " << i << ": t = " << t << ", f(t) = " << f(t) << endl;
+    }
+
+    // Check whether the solution t is viable.
     if(t < 0 || t > tmax) continue;  // Out of bound.
     GLfloat dist = length(x + v * t - 0.5f * a * (t * t)) - 2.0f * r;
-    if(dist > minDistance) continue;  // Not real.
-    GLfloat fpt = GLfloat(4.0f * t_f_a[0] * (t * t * t) + 3.0f * t_f_a[1] * (t * t) + 2.0f * t_f_a[2] * t + t_f_a[3]);
+    if(dist > minDistance) continue;  // Probably not real. (Newton refinement should also have failed.)
+    GLfloat fpt = (GLfloat)fp(t);
     if(fpt >= 0.0f) continue;  // Receding.
     tmax = min(tmax, t);
   }
