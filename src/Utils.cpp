@@ -188,7 +188,7 @@ GLint SolveCubic(complex<double> x[3], const double a_in[4], double d_in[1])
   return 3;  // three solutions; might duplicate
 }
 
-GLint SolveQuartic(complex<double> x[4], const double a_in[5], double d_in[2])
+GLint SolveQuartic(complex<double> x[4], const double a_in[5], double d_in[1])
 {
   double a = a_in[0], b = a_in[1], c = a_in[2], d = a_in[3], e = a_in[4];
   if(a == 0.0) return SolveCubic(x, &a_in[1], d_in);
@@ -235,10 +235,6 @@ GLint SolveQuartic(complex<double> x[4], const double a_in[5], double d_in[2])
     if(error >= min_error) continue;
     min_error = error;
     for(GLint j = 0; j < 4; ++j) x[j] = y[j] - b / 4.0;
-    if(d_in) {
-      d_in[0] = sqrt(abs((s * 0.5) * (s * 0.5) - t));
-      d_in[1] = sqrt(abs((s * 0.5) * (s * 0.5) - u));
-    }
   }
   if(isinf(min_error)) return -1;  // falied
   return 4;                        // four solutions; might duplicate

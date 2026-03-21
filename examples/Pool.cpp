@@ -279,7 +279,7 @@ static GLfloat SolveTime(vec2 x, vec2 v, vec2 a, GLfloat r, GLfloat tmax, GLfloa
   // (1)
   // |x(t)| >= |x(0)| - |vt - at^2/2| >= |x(0)| - (|v|t + |a|t^2/2)
   // So if |x(0)| - (|v|t + |a|t^2/2) > 2r, or equivalently |v|t + |a|t^2/2 < |x(0)| - 2r, no collision can happen.
-  if(length(v) * tmax + length(a) * tmax * tmax * 0.5f < length(x) - 2.0f * r) return INFINITY;
+  if(length(v) * tmax + length(a) * (tmax * tmax) * 0.5f < length(x) - 2.0f * r) return INFINITY;
 
   // (2)
   // Solve f(t) = |x(t)|^2 - 4r^2 = 0
@@ -289,7 +289,7 @@ static GLfloat SolveTime(vec2 x, vec2 v, vec2 a, GLfloat r, GLfloat tmax, GLfloa
     -dot(a, v),
     dot(v, v) - dot(a, x),
     2.0f * dot(v, x),
-    dot(x, x) - 4.0f * r * r,
+    dot(x, x) - 4.0f * (r * r),
   };
   GLint nSolution = SolveQuartic(t_f, t_f_a);
   if(nSolution == -1) {  // failed
@@ -303,19 +303,19 @@ static GLfloat SolveTime(vec2 x, vec2 v, vec2 a, GLfloat r, GLfloat tmax, GLfloa
   // Pick the smallest viable solution.
   // Use f'(t) to determine approaching/receding.
   for(GLint i = 0; i < nSolution; ++i) {
-    double residual = abs(t_f_a[0] * t_f[i] * t_f[i] * t_f[i] * t_f[i] + t_f_a[1] * t_f[i] * t_f[i] * t_f[i]
-        + t_f_a[2] * t_f[i] * t_f[i] + t_f_a[3] * t_f[i] + t_f_a[4]);
-    if(!(residual <= minDistance * minDistance)) {  // including nan
-      if(!(abs(t_f[i].imag()) >= minDistance)) {    // negligible imagine part; including nan
+    double residual = abs(t_f_a[0] * (t_f[i] * t_f[i] * t_f[i] * t_f[i]) + t_f_a[1] * (t_f[i] * t_f[i] * t_f[i])
+        + t_f_a[2] * (t_f[i] * t_f[i]) + t_f_a[3] * t_f[i] + t_f_a[4]);
+    if(!(residual <= 2 * r * minDistance)) {      // including nan
+      if(!(abs(t_f[i].imag()) >= minDistance)) {  // negligible imagine part; including nan
         cerr << "Warning: SolveQuartic solution " << i << " has large residual: t = " << t_f[i]
              << ", residual = " << residual << endl;
       }
     }
     GLfloat t = (GLfloat)t_f[i].real();
     if(t < 0 || t > tmax) continue;  // Out of bound.
-    GLfloat dist = length(x + v * t - 0.5f * a * t * t) - 2.0f * r;
+    GLfloat dist = length(x + v * t - 0.5f * a * (t * t)) - 2.0f * r;
     if(dist > minDistance) continue;  // Not real.
-    GLfloat fpt = GLfloat(4.0f * t_f_a[0] * t * t * t + 3.0f * t_f_a[1] * t * t + 2.0f * t_f_a[2] * t + t_f_a[3]);
+    GLfloat fpt = GLfloat(4.0f * t_f_a[0] * (t * t * t) + 3.0f * t_f_a[1] * (t * t) + 2.0f * t_f_a[2] * t + t_f_a[3]);
     if(fpt >= 0.0f) continue;  // Receding.
     tmax = min(tmax, t);
   }
