@@ -78,11 +78,17 @@ void GLProgram::DisableVertexAttribute(const char *name)
   glDisableVertexAttribArray(location);
 }
 
-void GLProgram::SetDefaultVertexAttributes() { GLProgram::SetDefaultVertexAttribute("a_color"); }
+void GLProgram::SetDefaultVertexAttributes()
+{
+  GLProgram::SetDefaultVertexAttribute("a_normal");
+  GLProgram::SetDefaultVertexAttribute("a_color");
+}
 
 void GLProgram::SetDefaultVertexAttribute(const char *name)
 {
-  if(strcmp(name, "a_color") == 0) {
+  if(strcmp(name, "a_normal") == 0) {
+    GLProgram::SetVertexAttribute("a_normal", vec3(0.0f, 0.0f, 1.0f));
+  } else if(strcmp(name, "a_color") == 0) {
     GLProgram::SetVertexAttribute("a_color", vec4(0.0f, 0.0f, 1.0f, 1.0f));
   } else {
     cerr << "Warning: no default value for vertex attribute '" << name << "'" << endl;

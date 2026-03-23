@@ -28,12 +28,15 @@ uniform mat4 u_view;
 uniform mat4 u_projection;
 
 in vec3 a_position;
+in vec3 a_normal;
 in vec4 a_color;
+out vec3 v_normal;
 out vec4 v_color;
 
 void main()
 {
   gl_Position = u_projection * u_view * u_model * vec4(a_position, 1.0);
+  v_normal = transpose(inverse(mat3(u_model))) * a_normal;
   v_color = a_color;
 }
   )");
@@ -50,12 +53,15 @@ uniform mat4 u_view;
 uniform mat4 u_projection;
 
 in vec3 a_position;
+in vec3 a_normal;
 in vec2 a_texCoord0;
+out vec3 v_normal;
 out vec2 v_texCoord0;
 
 void main()
 {
   gl_Position = u_projection * u_view * u_model * vec4(a_position, 1.0);
+  v_normal = transpose(inverse(mat3(u_model))) * a_normal;
   v_texCoord0 = a_texCoord0;
 }
   )");

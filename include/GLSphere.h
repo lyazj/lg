@@ -13,6 +13,7 @@ public:
 protected:
   GLfloat radius;
   GLint slices, stacks;
+  GLBuffer normalBuffer;
   GLBuffer texCoordBuffer;
   GLBuffer elementBuffer;
   std::vector<vec2> texCoords;

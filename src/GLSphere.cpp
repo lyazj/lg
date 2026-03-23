@@ -19,8 +19,8 @@ GLSphere::GLSphere(GLfloat r, GLint sl, GLint st)
   auto addVertex = [this](GLfloat phi, GLfloat lambda) {
     GLfloat z = radius * sinf(phi), rho = radius * cosf(phi);
     GLfloat x = rho * cosf(lambda), y = rho * sinf(lambda);
-    texCoords.emplace_back(lambda / (2.0f * pi), phi / pi + 0.5f);
     vertices.emplace_back(x, y, z);
+    texCoords.emplace_back(lambda / (2.0f * pi), phi / pi + 0.5f);
   };
 
   // Generate vertices.
@@ -60,6 +60,8 @@ GLSphere::~GLSphere()
 void GLSphere::SetVertexAttributes() const
 {
   GL3DBufferedGeometry::SetVertexAttributes();
+  normalBuffer.Bind();
+  GLProgram::SetVertexAttributePointer("a_normal", 3);
   texCoordBuffer.Bind();
   GLProgram::SetVertexAttributePointer("a_texCoord0", 2);
 }
@@ -67,6 +69,7 @@ void GLSphere::SetVertexAttributes() const
 void GLSphere::IssueBuffer() const
 {
   GL3DBufferedGeometry::IssueBuffer();
+  normalBuffer.Buffer(vertices);
   texCoordBuffer.Buffer(texCoords);
   elementBuffer.Buffer(elements);
 }
