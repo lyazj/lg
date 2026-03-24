@@ -16,6 +16,7 @@ protected:
   GLBuffer normalBuffer;
   GLBuffer texCoordBuffer;
   GLBuffer elementBuffer;
+  std::vector<vec3> normals;
   std::vector<vec2> texCoords;
   std::vector<GLuint> elements;
 
