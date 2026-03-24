@@ -15,6 +15,7 @@ public:
   void SetTarget(GLenum t) { target = t; }
   GLenum GetUsage() const { return usage; }
   void SetUsage(GLenum u) { usage = u; }
+  GLuint GetID() const { return id; }
 
   void Bind() const;
   void Unbind() const;

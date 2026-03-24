@@ -14,7 +14,6 @@ GLSphere::GLSphere(GLfloat r, GLint sl, GLint st)
     : radius(r), slices(max<GLint>(3, sl)), stacks(max<GLint>(2, st)), elementBuffer(GL_ELEMENT_ARRAY_BUFFER)
 {
   vertices.reserve(2 + (slices + 1) * (stacks - 1));
-  normals.reserve(2 + (slices + 1) * (stacks - 1));
   texCoords.reserve(2 + (slices + 1) * (stacks - 1));
   elements.reserve(2 * (slices + 1) + (stacks - 2) * (2 * slices + 2));
 
@@ -22,7 +21,6 @@ GLSphere::GLSphere(GLfloat r, GLint sl, GLint st)
     GLfloat z = radius * sinf(phi), rho = radius * cosf(phi);
     GLfloat x = rho * cosf(lambda), y = rho * sinf(lambda);
     vertices.emplace_back(x, y, z);
-    normals.push_back(normalize(vertices.back()));
     texCoords.emplace_back(lambda / (2.0f * pi), phi / pi + 0.5f);
   };
 
@@ -72,7 +70,7 @@ void GLSphere::SetVertexAttributes() const
 void GLSphere::IssueBuffer() const
 {
   GL3DBufferedGeometry::IssueBuffer();
-  normalBuffer.Buffer(normals);
+  normalBuffer.Buffer(vertices);
   texCoordBuffer.Buffer(texCoords);
   elementBuffer.Buffer(elements);
 }

@@ -6,6 +6,8 @@
 
 #include "Global.h"
 
+GL_DECLARE_CLASS(GLUniformBlock)
+
 class GLProgram {
 public:
   GLProgram();
@@ -19,7 +21,7 @@ public:
   void Link();
   void Use() const;  // Should only be called by GLApplication.
 
-  static GLint GetVertexAttributeLocation(const char *name);  // thread-unsafe
+  static GLint GetVertexAttributeLocation(const char *name);
   static void SetVertexAttributePointer(const char *, GLint, GLenum, GLboolean, GLsizei, const void *);
   static void SetVertexAttributePointer(const char *name, GLint size, const void *pointer = nullptr);
   static void DisableVertexAttribute(const char *name);
@@ -31,7 +33,8 @@ public:
   static void SetVertexAttribute(const char *name, const vec3 &value);
   static void SetVertexAttribute(const char *name, const vec4 &value);
 
-  GLint GetUniformLocation(const char *name) const;
+  GLint GetUniformLocation(const char *name) const;         // thread-unsafe
+  GLUniformBlock *GetUniformBlock(const char *name) const;  // thread-unsafe
   void SetUniform(const char *name, GLfloat value) const;
   void SetUniform(const char *name, GLint value) const;
   void SetUniform(const char *name, const vec2 &value) const;
@@ -39,6 +42,9 @@ public:
   void SetUniform(const char *name, const vec4 &value) const;
   void SetUniform(const char *name, const mat3 &value) const;
   void SetUniform(const char *name, const mat4 &value) const;
+  void SetUniformBlock(const char *name, GLsizeiptr size, const void *value) const;
+  template<class T>
+  void SetUniformBlock(const char *name, const T *value) const;
 
   static GLProgramPtr GetDefaultProgram();
   static GLProgramPtr GetDefaultTextureProgram();
@@ -46,6 +52,13 @@ public:
 private:
   GLuint id;
   std::unordered_set<GLShaderPtr> shaders;
-  static const std::unordered_map<std::string, GLint> vertexAttributeMap;
   mutable std::unordered_map<std::string, GLint> uniformMap;
+  mutable std::unordered_map<std::string, GLUniformBlockUPtr> uniformBlockMap;
+  mutable GLint nBindingPoint;
 };
+
+template<class T>
+inline void GLProgram::SetUniformBlock(const char *name, const T *value) const
+{
+  SetUniformBlock(name, sizeof(T), value);
+}

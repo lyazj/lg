@@ -4,12 +4,16 @@
 #include <iostream>
 #include <unordered_map>
 
+#include "GLApplication.h"
 #include "GLShader.h"
+#include "GLUniformBlock.h"
 #include "Utils.h"
+
+GL_DEFINE_WRAPPER(UniformBlockBinding)
 
 using namespace std;
 
-const std::unordered_map<std::string, GLint> GLProgram::vertexAttributeMap{
+static const std::unordered_map<std::string, GLint> vertexAttributeMap{
   { "a_position", 0 },
   { "a_normal", 1 },
   { "a_tangent", 2 },
@@ -53,9 +57,17 @@ void GLProgram::Link()
   for(const auto &[name, index] : vertexAttributeMap) glBindAttribLocation(id, index, name.c_str());
   GLLinkProgram(id);
   uniformMap.clear();
+  uniformBlockMap.clear();
+  nBindingPoint = 0;
 }
 
-void GLProgram::Use() const { glUseProgram(id); }
+void GLProgram::Use() const
+{
+  glUseProgram(id);
+  for(const auto &[uniform, block] : uniformBlockMap) {
+    if(block) block->Bind();
+  }
+}
 
 GLint GLProgram::GetVertexAttributeLocation(const char *name) { return vertexAttributeMap.at(name); }
 
@@ -135,6 +147,21 @@ GLint GLProgram::GetUniformLocation(const char *name) const
   return it->second;
 }
 
+GLUniformBlock *GLProgram::GetUniformBlock(const char *name) const
+{
+  auto [it, inserted] = uniformBlockMap.emplace(name, nullptr);
+  if(inserted) {
+    GLint index = glGetUniformBlockIndex(id, name);
+    if(index >= 0) {
+      GLint bindingPoint = nBindingPoint++;
+      GLUniformBlockBinding(id, index, bindingPoint);
+      it->second = make_unique<GLUniformBlock>(bindingPoint);
+      if(GLApplication::GetInstance()->GetProgram().get() == this) it->second->Bind();
+    }
+  }
+  return it->second.get();
+}
+
 void GLProgram::SetUniform(const char *name, GLfloat value) const
 {
   GLint uniform = GetUniformLocation(name);
@@ -175,6 +202,12 @@ void GLProgram::SetUniform(const char *name, const mat4 &value) const
 {
   GLint uniform = GetUniformLocation(name);
   if(uniform >= 0) glUniformMatrix4fv(uniform, 1, GL_FALSE, value_ptr(value));
+}
+
+void GLProgram::SetUniformBlock(const char *name, GLsizeiptr size, const void *value) const
+{
+  GLUniformBlock *uniformBlock = GetUniformBlock(name);
+  if(uniformBlock) uniformBlock->Buffer(size, value);
 }
 
 GLProgramPtr GLProgram::GetDefaultProgram()

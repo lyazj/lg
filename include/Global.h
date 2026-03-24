@@ -32,9 +32,11 @@ using mat4 = mat<4>;
 namespace fs = std::filesystem;
 using std::byte;
 
-#define GL_DECLARE_CLASS(name) \
-  class name;                  \
-  using name##Ptr = std::shared_ptr<name>;
+#define GL_DECLARE_CLASS(name)             \
+  class name;                              \
+  using name##Ptr = std::shared_ptr<name>; \
+  using name##WPtr = std::weak_ptr<name>;  \
+  using name##UPtr = std::unique_ptr<name>;
 
 GL_DECLARE_CLASS(GLApplication)
 GL_DECLARE_CLASS(GLProgram)
