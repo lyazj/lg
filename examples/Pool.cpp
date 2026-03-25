@@ -46,8 +46,8 @@ private:
   static constexpr GLfloat tableOuterWidth = tableInnerWidth + 2.0f * borderWidth;    // m
 
   static constexpr vec4 tableColor = vec4(34.0f, 139.0f, 34.0f, 255.0f) / 255.0f;
-  static constexpr vec4 borderColor = vec4(40.0f, 30.0f, 20.0f, 255.0f) / 255.0f;
-  static constexpr vec4 holeColor = vec4(0.8f, 0.8f, 0.8f, 1.0f);
+  static constexpr vec4 borderColor = vec4(64.0f, 32.0f, 16.0f, 255.0f) / 255.0f;
+  static constexpr vec4 holeColor = vec4(0.1f, 0.1f, 0.1f, 1.0f);
 
   static constexpr GLfloat ballRadius = 0.028575f;                                 // m
   static constexpr GLfloat ballAreaLength = tableInnerLength - 2.0f * ballRadius;  // m
@@ -117,6 +117,7 @@ void GLExampleApplication::Init()
 {
   GL3DApplication::Init();
   MaximizeWindow();
+  glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
 
   vec3 camera(0.0f, 0.0f, 3.0f);  // m
   vec3 target(0.0f, 0.0f, 0.0f);
