@@ -23,9 +23,9 @@ public:
   static GLShaderPtr GetDefaultLightingFragmentShader();
 
   struct DefaultLightingBlock {
-    vec4 position;     // xyz = position
-    vec4 color;        // rgb = color, a = intensity
-    vec4 attenuation;  // x = constant, y = linear, z = quadratic
+    vec4 position;
+    vec4 color;
+    GLfloat distance;
 
     void SetNearLight();
     void SetMediumLight();

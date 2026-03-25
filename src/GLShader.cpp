@@ -1,5 +1,7 @@
 #include "GLShader.h"
 
+#include <algorithm>
+
 #include "Utils.h"
 
 using namespace std;
@@ -112,47 +114,50 @@ GLShaderPtr GLShader::GetDefaultLightingFragmentShader()
 #version 150
 
 layout(std140) uniform u_light {
-  vec4 position;      // xyz = position
-  vec4 color;         // rgb = color, a = intensity
-  vec4 attenuation;   // x = constant, y = linear, z = quadratic
+  vec3 position;
+  vec3 color;
+  float distance;
 };
 
 in vec3 v_position;
 in vec3 v_normal;
+in vec4 v_color;
 out vec4 f_color;
 
 void main()
 {
-  vec3 pos = position.xyz - v_position;
+  vec3 pos = position - v_position;
   float dist = length(pos);
   vec3 dir = normalize(pos);
-  float atten = 1.0 / (attenuation.x + attenuation.y * dist + attenuation.z * (dist * dist));
-  vec3 diffuse = color.rgb * color.a * max(dot(normalize(v_normal), dir), 0.0);
-  f_color = vec4(atten * diffuse, 1.0);
+  float atten = clamp(1.0 - log(dist / distance) / log(1.0e3), 0.0, 1.0);
+  vec3 diffuse = color.rgb * max(dot(normalize(v_normal), dir), 0.0);
+  f_color = vec4(v_color.rgb * atten * diffuse, v_color.a);
 }
   )");
 }
 
-// Parameters suggested by ChatGPT.
+static GLfloat GetAttenuation(GLfloat dist, GLfloat distance)
+{
+  return clamp(1.0f - logf(dist / distance) / logf(1.0e3f), 0.0f, 1.0f);
+}
+
 void GLShader::DefaultLightingBlock::SetNearLight()
 {
   position = vec4(0.0f, 2.0f, 2.0f, 1.0f);
-  color = vec4(1.0f, 0.95f, 0.85f, 1.15f);
-  attenuation = vec4(1.0f, 0.60f, 0.45f, 0.0f);
+  distance = 1.0f;
+  color = vec4(1.0f) / GetAttenuation(hypotf(1.0f, 1.0f), distance);
 }
 
-// Parameters suggested by ChatGPT.
 void GLShader::DefaultLightingBlock::SetMediumLight()
 {
   position = vec4(0.0f, 4.0f, 4.0f, 1.0f);
-  color = vec4(1.0f, 1.0f, 0.98f, 1.0f);
-  attenuation = vec4(1.0f, 0.14f, 0.07f, 0.0f);
+  distance = 1.0f;
+  color = vec4(1.0f) / GetAttenuation(hypotf(3.0f, 3.0f), distance);
 }
 
-// Parameters suggested by ChatGPT.
 void GLShader::DefaultLightingBlock::SetFarLight()
 {
   position = vec4(0.0f, 10.0f, 10.0f, 1.0f);
-  color = vec4(0.80f, 0.88f, 1.00f, 0.75f);
-  attenuation = vec4(1.0f, 0.045f, 0.0075f, 0.0f);
+  distance = 1.0f;
+  color = vec4(1.0f) / GetAttenuation(hypotf(9.0f, 9.0f), distance);
 }

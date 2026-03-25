@@ -229,3 +229,18 @@ GLProgramPtr GLProgram::GetDefaultTextureProgram()
   program->DetachShaders();
   return program;
 }
+
+GLProgramPtr GLProgram::GetDefaultLightingProgram()
+{
+  GLProgramPtr program(new GLProgram);
+  program->AttachShader(GLShader::GetDefaultVertexShader());
+  program->AttachShader(GLShader::GetDefaultLightingFragmentShader());
+  program->Link();
+  program->DetachShaders();
+
+  GLShader::DefaultLightingBlock lighting;
+  lighting.SetMediumLight();
+  program->SetUniformBlock("u_light", &lighting);
+
+  return program;
+}
