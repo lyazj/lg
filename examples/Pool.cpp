@@ -10,6 +10,7 @@
 #include "GLImage.h"
 #include "GLProgram.h"
 #include "GLRectangle.h"
+#include "GLShader.h"
 #include "GLSphere.h"
 #include "GLTexture.h"
 #include "GLTextureDecorator.h"
@@ -123,8 +124,16 @@ void GLExampleApplication::Init()
   SetView(lookAt(camera, target, up));
   SetProjection(45.0f * deg, 0.1f, 10.0f);  // m
 
-  UseProgram(GLProgram::GetDefaultProgram());
-  textureProgram = GLProgram::GetDefaultTextureProgram();
+  UseProgram(GLProgram::GetDefaultLightingProgram());
+  textureProgram = GLProgram::GetLightingTextureProgram();
+  GLShader::DefaultLightingBlock lighting;
+  lighting.position = { 0.0f, 0.0f, 4.0f };  // m
+  lighting.color = vec3(1.0f);
+  lighting.distance = 1.0f;
+  lighting.ambient = 0.15f;
+  lighting.SetLightPoint({ 0.0f, 0.0f, tableTopHeight });
+  GetProgram()->SetUniformBlock("u_light", &lighting);
+  textureProgram->SetUniformBlock("u_light", &lighting);
 
   scene = make_shared<GLCompositeRenderable>();
   InitTable();

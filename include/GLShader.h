@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glm/vec4.hpp>
+#include <glm/vec3.hpp>
 
 #include "Global.h"
 
@@ -21,16 +21,23 @@ public:
   static GLShaderPtr GetDefaultFragmentShader();
   static GLShaderPtr GetDefaultTextureFragmentShader();
   static GLShaderPtr GetDefaultLightingFragmentShader();
+  static GLShaderPtr GetLightingTextureFragmentShader();
 
   struct DefaultLightingBlock {
-    vec4 position;
-    vec4 color;
+    vec3 position;
+    GLfloat padding_0 = 1.0f;
+    vec3 color;
+    GLfloat padding_1 = 1.0f;
     GLfloat distance;
+    GLfloat ambient;
+    GLfloat padding_2[2] = { 0.0f, 0.0f };
 
+    void SetLightPoint(const vec3 &p);
     void SetNearLight();
     void SetMediumLight();
     void SetFarLight();
   };
+  static_assert(sizeof(DefaultLightingBlock) == 48);
 
 private:
   GLenum type;

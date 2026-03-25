@@ -1,6 +1,7 @@
 #include "GLShader.h"
 
 #include <algorithm>
+#include <glm/geometric.hpp>
 
 #include "Utils.h"
 
@@ -117,6 +118,7 @@ layout(std140) uniform u_light {
   vec3 position;
   vec3 color;
   float distance;
+  float ambient;
 };
 
 in vec3 v_position;
@@ -131,7 +133,40 @@ void main()
   vec3 dir = normalize(pos);
   float atten = clamp(1.0 - log(dist / distance) / log(1.0e3), 0.0, 1.0);
   vec3 diffuse = color.rgb * max(dot(normalize(v_normal), dir), 0.0);
-  f_color = vec4(v_color.rgb * atten * diffuse, v_color.a);
+  f_color = vec4(v_color.rgb * atten * ((diffuse + ambient) / (1.0 + ambient)), v_color.a);
+}
+  )");
+}
+
+GLShaderPtr GLShader::GetLightingTextureFragmentShader()
+{
+  return make_shared<GLShader>(GL_FRAGMENT_SHADER,
+      R"(
+#version 150
+
+uniform sampler2D u_texture0;
+
+layout(std140) uniform u_light {
+  vec3 position;
+  vec3 color;
+  float distance;
+  float ambient;
+};
+
+in vec3 v_position;
+in vec3 v_normal;
+in vec2 v_texCoord0;
+out vec4 f_color;
+
+void main()
+{
+  vec3 pos = position - v_position;
+  float dist = length(pos);
+  vec3 dir = normalize(pos);
+  float atten = clamp(1.0 - log(dist / distance) / log(1.0e3), 0.0, 1.0);
+  vec3 diffuse = color.rgb * max(dot(normalize(v_normal), dir), 0.0);
+  f_color = texture(u_texture0, v_texCoord0);
+  f_color = vec4(f_color.rgb * atten * ((diffuse + ambient) / (1.0 + ambient)), f_color.a);
 }
   )");
 }
@@ -141,23 +176,35 @@ static GLfloat GetAttenuation(GLfloat dist, GLfloat distance)
   return clamp(1.0f - logf(dist / distance) / logf(1.0e3f), 0.0f, 1.0f);
 }
 
+void GLShader::DefaultLightingBlock::SetLightPoint(const vec3 &p)
+{
+  if(length(color) == 0.0f) return;
+  color *= 1.0f / GetAttenuation(length(position - p), distance);
+}
+
 void GLShader::DefaultLightingBlock::SetNearLight()
 {
-  position = vec4(0.0f, 2.0f, 2.0f, 1.0f);
+  position = vec3(0.0f, 2.0f, 2.0f);
+  color = vec3(1.0f);
   distance = 1.0f;
-  color = vec4(1.0f) / GetAttenuation(hypotf(1.0f, 1.0f), distance);
+  ambient = 0.15f;
+  SetLightPoint({ 0.0f, 1.0f, 1.0f });
 }
 
 void GLShader::DefaultLightingBlock::SetMediumLight()
 {
-  position = vec4(0.0f, 4.0f, 4.0f, 1.0f);
+  position = vec3(0.0f, 4.0f, 4.0f);
+  color = vec3(1.0f);
   distance = 1.0f;
-  color = vec4(1.0f) / GetAttenuation(hypotf(3.0f, 3.0f), distance);
+  ambient = 0.15f;
+  SetLightPoint({ 0.0f, 2.0f, 2.0f });
 }
 
 void GLShader::DefaultLightingBlock::SetFarLight()
 {
-  position = vec4(0.0f, 10.0f, 10.0f, 1.0f);
+  position = vec3(0.0f, 10.0f, 10.0f);
+  color = vec3(1.0f);
   distance = 1.0f;
-  color = vec4(1.0f) / GetAttenuation(hypotf(9.0f, 9.0f), distance);
+  ambient = 0.15f;
+  SetLightPoint({ 0.0f, 5.0f, 5.0f });
 }

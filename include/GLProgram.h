@@ -49,6 +49,7 @@ public:
   static GLProgramPtr GetDefaultProgram();
   static GLProgramPtr GetDefaultTextureProgram();
   static GLProgramPtr GetDefaultLightingProgram();
+  static GLProgramPtr GetLightingTextureProgram();
 
 private:
   GLuint id;
