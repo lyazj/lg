@@ -183,7 +183,7 @@ void GLExampleApplication::CheckWin()
 {
   if(ratX != exitX || ratY != exitY) return;
   won = true;
-  renderable.reset(new GLSmiley(0.8f, 256));
+  renderable = make_shared<GLSmiley>(0.8f, 256);
   renderable->SetVertexAttributes();
   renderable->Buffer();
 }

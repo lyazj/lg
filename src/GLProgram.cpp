@@ -212,7 +212,7 @@ void GLProgram::SetUniformBlock(const char *name, GLsizeiptr size, const void *v
 
 GLProgramPtr GLProgram::GetDefaultProgram()
 {
-  GLProgramPtr program(new GLProgram);
+  auto program = make_shared<GLProgram>();
   program->AttachShader(GLShader::GetDefaultVertexShader());
   program->AttachShader(GLShader::GetDefaultFragmentShader());
   program->Link();
@@ -222,7 +222,7 @@ GLProgramPtr GLProgram::GetDefaultProgram()
 
 GLProgramPtr GLProgram::GetDefaultTextureProgram()
 {
-  GLProgramPtr program(new GLProgram);
+  auto program = make_shared<GLProgram>();
   program->AttachShader(GLShader::GetDefaultTextureVertexShader());
   program->AttachShader(GLShader::GetDefaultTextureFragmentShader());
   program->Link();
@@ -232,7 +232,7 @@ GLProgramPtr GLProgram::GetDefaultTextureProgram()
 
 GLProgramPtr GLProgram::GetDefaultLightingProgram()
 {
-  GLProgramPtr program(new GLProgram);
+  auto program = make_shared<GLProgram>();
   program->AttachShader(GLShader::GetDefaultVertexShader());
   program->AttachShader(GLShader::GetDefaultLightingFragmentShader());
   program->Link();
@@ -247,7 +247,7 @@ GLProgramPtr GLProgram::GetDefaultLightingProgram()
 
 GLProgramPtr GLProgram::GetLightingTextureProgram()
 {
-  GLProgramPtr program(new GLProgram);
+  auto program = make_shared<GLProgram>();
   program->AttachShader(GLShader::GetDefaultTextureVertexShader());
   program->AttachShader(GLShader::GetLightingTextureFragmentShader());
   program->Link();

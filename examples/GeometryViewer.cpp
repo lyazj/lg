@@ -76,12 +76,12 @@ void GLExampleApplication::InitRenderable()
   }
 
   if(strcmp(argv[1], "GLTriangle") == 0) {
-    renderable.reset(new GLTriangle({ 0.0f, 0.5f, 0.0f }, { -0.5f, -0.5f, 0.0f }, { 0.5f, -0.5f, 0.0f }));
+    renderable = make_shared<GLTriangle>(vec3(0.0f, 0.5f, 0.0f), vec3(-0.5f, -0.5f, 0.0f), vec3(0.5f, -0.5f, 0.0f));
     return;
   }
 
   if(strcmp(argv[1], "GLRectangle") == 0) {
-    renderable.reset(new GLRectangle(1.0f, 0.8f));
+    renderable = make_shared<GLRectangle>(1.0f, 0.8f);
     return;
   }
 
@@ -129,7 +129,7 @@ void GLExampleApplication::InitRenderable()
     if(argc > 2) points = stoi(argv[2]);
     auto fern = make_shared<GLBarnsleyFern>(points);
     fern->Normalize();
-    renderable.reset(new GLUniformColorDecorator(fern, { 0.0f, 1.0f, 0.0f, 1.0f }));
+    renderable = make_shared<GLUniformColorDecorator>(fern, vec4(0.0f, 1.0f, 0.0f, 1.0f));
     return;
   }
 
