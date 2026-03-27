@@ -1,9 +1,10 @@
+#include "FileMap.h"
 #include "GLApplication.h"
-#include "GLFont.h"
+#include "GLFontRange.h"
 #include "GLRenderable.h"
 #include "Utils.h"
 
-GL_DECLARE_CLASS(GLFont)
+GL_DECLARE_CLASS(GLFontRange)
 
 using namespace std;
 
@@ -19,7 +20,7 @@ public:
 private:
   GLfloat fontHeight = 64.0f;
   GLint atlasWidth = 1024, atlasHeight = 1024;
-  GLFontUPtr font;
+  GLFontRangeUPtr font;
   GLRenderablePtr renderable;
 
   void InitRenderable();
@@ -44,10 +45,11 @@ void GLExampleApplication::Init()
 {
   GLApplication::Init();
   EnableBlend();
-  GLFont::Init(GetWindowWidth(), GetWindowHeight());
+  GLFontRange::Init(GetWindowWidth(), GetWindowHeight());
 
   fs::path path = GetFontPath() / "times.ttf";
-  font = make_unique<GLFont>(path, fontHeight, atlasWidth, atlasHeight, 32, 95);
+  FileMap fMap(path);
+  font = make_unique<GLFontRange>(fMap, fontHeight, atlasWidth, atlasHeight, (wchar_t)32, (wchar_t)126);
   InitRenderable();
 }
 
@@ -61,14 +63,16 @@ void GLExampleApplication::Display()
 void GLExampleApplication::Reshape(int w, int h)
 {
   GLApplication::Reshape(w, h);
-  GLFont::Reshape(w, h);
+  GLFontRange::Reshape(w, h);
   InitRenderable();
 }
 
 void GLExampleApplication::InitRenderable()
 {
   GLfloat x = 50.0f, y = 100.0f;
-  const char *words = "Hello, World!\n\nPremature optimization is the root of all evil. -- Donald Knuth";
+  wstring words = L"Hello, World!";
+  words += L"\n\nPremature optimization is the root of all evil. -- Donald Knuth";
+  words += L"\n\n∂ₘFᵐⁿ = μ₀Jⁿ";
   renderable = font->GetRenderable(words, x, y, 50.0f, (GLfloat)GetWindowWidth() - 50.0f);
   renderable->SetVertexAttributes();
   renderable->Buffer();

@@ -1,27 +1,28 @@
 #pragma once
 
 #include <string>
-#include <vector>
 
 #include "Global.h"
 
-class GLFont {
+class FileMap;
+
+class GLFontRange {
 public:
-  GLFont(const fs::path &path, GLfloat fontH, GLint atlasW, GLint atlasH, GLint firstC, GLint nC);
-  ~GLFont();
-  GLFont(const GLFont &) = delete;
-  GLFont &operator=(const GLFont &) = delete;
+  GLFontRange(const FileMap &fMap, GLfloat fontH, GLint atlasW, GLint atlasH, wchar_t firstC, wchar_t lastC);
+  ~GLFontRange();
+  GLFontRange(const GLFontRange &) = delete;
+  GLFontRange &operator=(const GLFontRange &) = delete;
 
   GLfloat GetFontHeight() const { return fontHeight; }
   GLint GetAtlasWidth() const { return atlasWidth; }
   GLint GetAtlasHeight() const { return atlasHeight; }
-  GLint GetFirstChar() const { return firstChar; }
-  GLint GetNChar() const { return nChar; }
+  wchar_t GetFirstChar() const { return firstChar; }
+  wchar_t GetLastChar() const { return lastChar; }
   const GLTexturePtr &GetTexture() const { return texture; }
 
-  GLRenderablePtr GetRenderable(GLint c, GLfloat &x, GLfloat &y, GLfloat xmin, GLfloat xmax) const;
+  GLRenderablePtr GetRenderable(wchar_t c, GLfloat &x, GLfloat &y, GLfloat xmin, GLfloat xmax) const;
   GLRenderablePtr GetRenderable(char c, GLfloat &x, GLfloat &y, GLfloat xmin, GLfloat xmax) const;
-  GLRenderablePtr GetRenderable(const std::vector<GLint> &s, GLfloat &x, GLfloat &y, GLfloat xmin, GLfloat xmax) const;
+  GLRenderablePtr GetRenderable(const std::wstring &s, GLfloat &x, GLfloat &y, GLfloat xmin, GLfloat xmax) const;
   GLRenderablePtr GetRenderable(const std::string &s, GLfloat &x, GLfloat &y, GLfloat xmin, GLfloat xmax) const;
 
   static const GLProgramPtr &GetProgram() { return program; }
@@ -32,7 +33,8 @@ public:
 
 private:
   GLfloat fontHeight;
-  GLint atlasWidth, atlasHeight, firstChar, nChar;
+  GLint atlasWidth, atlasHeight;
+  wchar_t firstChar, lastChar;
   GLTexturePtr texture;
   static GLProgramPtr program;
 
