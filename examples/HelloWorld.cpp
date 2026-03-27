@@ -1,10 +1,10 @@
-#include "FileMap.h"
 #include "GLApplication.h"
-#include "GLFontRange.h"
+#include "GLCompositeRenderable.h"
+#include "GLFont.h"
 #include "GLRenderable.h"
 #include "Utils.h"
 
-GL_DECLARE_CLASS(GLFontRange)
+GL_DECLARE_CLASS(GLFont)
 
 using namespace std;
 
@@ -18,9 +18,8 @@ public:
   void Reshape(int w, int h) override;
 
 private:
-  GLfloat fontHeight = 64.0f;
-  GLint atlasWidth = 1024, atlasHeight = 1024;
-  GLFontRangeUPtr font;
+  GLFontUPtr latinFont;
+  GLFontUPtr chineseFont;
   GLRenderablePtr renderable;
 
   void InitRenderable();
@@ -45,11 +44,11 @@ void GLExampleApplication::Init()
 {
   GLApplication::Init();
   EnableBlend();
-  GLFontRange::Init(GetWindowWidth(), GetWindowHeight());
+  GLFont::Init(GetWindowWidth(), GetWindowHeight());
 
-  fs::path path = GetFontPath() / "times.ttf";
-  FileMap fMap(path);
-  font = make_unique<GLFontRange>(fMap, fontHeight, atlasWidth, atlasHeight, (wchar_t)32, (wchar_t)126);
+  latinFont = make_unique<GLFont>(GetFontPath() / "times.ttf", 48.0f);
+  latinFont->AddRange(1024, 1024, 0x20, 0x7E);
+  chineseFont = make_unique<GLFont>(GetFontPath() / "simkai.ttf", 48.0f);
   InitRenderable();
 }
 
@@ -63,17 +62,24 @@ void GLExampleApplication::Display()
 void GLExampleApplication::Reshape(int w, int h)
 {
   GLApplication::Reshape(w, h);
-  GLFontRange::Reshape(w, h);
+  GLFont::Reshape(w, h);
   InitRenderable();
 }
 
 void GLExampleApplication::InitRenderable()
 {
+  GLCompositeRenderablePtr texts = make_shared<GLCompositeRenderable>();
   GLfloat x = 50.0f, y = 100.0f;
+
   wstring words = L"Hello, World!";
-  words += L"\n\nPremature optimization is the root of all evil. -- Donald Knuth";
-  words += L"\n\n∂ₘFᵐⁿ = μ₀Jⁿ";
-  renderable = font->GetRenderable(words, x, y, 50.0f, (GLfloat)GetWindowWidth() - 50.0f);
+  words += L"\n\nPremature optimization is the root of all evil. — Donald Knuth";
+  words += L"\n\n∂ₘFᵐⁿ = μ₀Jⁿ. — Maxwell";
+  texts->AddRenderable(latinFont->GetRenderable(words, x, y, 50.0f, (GLfloat)GetWindowWidth() - 50.0f));
+
+  words = L"\n\n思想自由，兼容并包。——蔡元培";
+  texts->AddRenderable(chineseFont->GetRenderable(words, x, y, 50.0f, (GLfloat)GetWindowWidth() - 50.0f));
+
+  renderable = texts;
   renderable->SetVertexAttributes();
   renderable->Buffer();
 }

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <string>
-
 #include "Global.h"
 
 class FileMap;
@@ -21,22 +19,12 @@ public:
   const GLTexturePtr &GetTexture() const { return texture; }
 
   GLRenderablePtr GetRenderable(wchar_t c, GLfloat &x, GLfloat &y, GLfloat xmin, GLfloat xmax) const;
-  GLRenderablePtr GetRenderable(char c, GLfloat &x, GLfloat &y, GLfloat xmin, GLfloat xmax) const;
-  GLRenderablePtr GetRenderable(const std::wstring &s, GLfloat &x, GLfloat &y, GLfloat xmin, GLfloat xmax) const;
-  GLRenderablePtr GetRenderable(const std::string &s, GLfloat &x, GLfloat &y, GLfloat xmin, GLfloat xmax) const;
-
-  static const GLProgramPtr &GetProgram() { return program; }
-  static void Init(GLint width, GLint height);
-  static void Reshape(GLint width, GLint height);
-  static void SetColor(const vec4 &color);
-  static void SetDepth(GLfloat depth);
 
 private:
   GLfloat fontHeight;
   GLint atlasWidth, atlasHeight;
   wchar_t firstChar, lastChar;
   GLTexturePtr texture;
-  static GLProgramPtr program;
 
   class Inner;
   Inner *inner;

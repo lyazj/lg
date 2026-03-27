@@ -5,9 +5,7 @@
 #include <vector>
 
 #include "FileMap.h"
-#include "GLApplication.h"
-#include "GLCompositeRenderable.h"
-#include "GLProgram.h"
+#include "GLFont.h"
 #include "GLRectangle.h"
 #include "GLTexture.h"
 #include "GLTextureDecorator.h"
@@ -21,8 +19,6 @@
 #endif /* HAS_STB */
 
 using namespace std;
-
-GLProgramPtr GLFontRange::program;
 
 namespace {
 
@@ -91,10 +87,6 @@ GLFontRange::~GLFontRange() { delete inner; }
 
 GLRenderablePtr GLFontRange::GetRenderable(wchar_t c, GLfloat &x, GLfloat &y, GLfloat xmin, GLfloat xmax) const
 {
-  if(c == '\n') {  // new line
-    x = xmin, y += fontHeight;
-    return nullptr;
-  }
 #ifdef HAS_STB
   if(c < firstChar || c > lastChar) {
     cerr << "Warning: GLFontRange: character " << (int)c << " out of range" << endl;
@@ -108,65 +100,11 @@ GLRenderablePtr GLFontRange::GetRenderable(wchar_t c, GLfloat &x, GLfloat &y, GL
     stbtt_GetBakedQuad(inner->CharData(), atlasWidth, atlasHeight, c - firstChar, &x, &y, &q, 1);
   }
   auto rectangle0 = make_shared<GLRectangle>(q.x1 - q.x0, q.y1 - q.y0);
-  auto rectangle1 = make_shared<GLFontRangeTextureDecorator>(rectangle0, program, texture);
+  auto rectangle1 = make_shared<GLFontRangeTextureDecorator>(rectangle0, GLFont::GetProgram(), texture);
   rectangle1->SetTexCoords(q.s0, q.t0, q.s1, q.t1);
   mat4 transform = translate(mat4(1.0f), vec3((q.x0 + q.x1) * 0.5f, (q.y0 + q.y1) * 0.5f, 0.0f));
   return make_shared<GLTransformedRenderable>(rectangle1, transform);
 #else  /* HAS_STB */
   return nullptr;
 #endif /* HAS_STB */
-}
-
-GLRenderablePtr GLFontRange::GetRenderable(char c, GLfloat &x, GLfloat &y, GLfloat xmin, GLfloat xmax) const
-{
-  return GetRenderable((wchar_t)c, x, y, xmin, xmax);
-}
-
-GLRenderablePtr GLFontRange::GetRenderable(const wstring &s, GLfloat &x, GLfloat &y, GLfloat xmin, GLfloat xmax) const
-{
-  GLCompositeRenderablePtr renderable = make_shared<GLCompositeRenderable>();
-  for(wchar_t c : s) {
-    auto r = GetRenderable(c, x, y, xmin, xmax);
-    if(!r) continue;
-    renderable->AddRenderable(r);
-  }
-  return renderable;
-}
-
-GLRenderablePtr GLFontRange::GetRenderable(const string &s, GLfloat &x, GLfloat &y, GLfloat xmin, GLfloat xmax) const
-{
-  GLCompositeRenderablePtr renderable = make_shared<GLCompositeRenderable>();
-  for(char c : s) {
-    auto r = GetRenderable(c, x, y, xmin, xmax);
-    if(!r) continue;
-    renderable->AddRenderable(r);
-  }
-  return renderable;
-}
-
-void GLFontRange::Init(GLint width, GLint height)
-{
-  program = GLProgram::GetFontTextureProgram();
-  Reshape(width, height);
-  SetColor(vec4(1.0f, 0.0f, 0.0f, 1.0f));
-  SetDepth(0.0f);
-}
-
-void GLFontRange::Reshape(GLint width, GLint height)
-{
-  GLProgramGuard guard(program);
-  program->SetUniform("u_winWidth", (GLfloat)width);
-  program->SetUniform("u_winHeight", (GLfloat)height);
-}
-
-void GLFontRange::SetColor(const vec4 &color)
-{
-  GLProgramGuard guard(program);
-  program->SetUniform("u_color", color);
-}
-
-void GLFontRange::SetDepth(GLfloat depth)
-{
-  GLProgramGuard guard(program);
-  program->SetUniform("u_depth", depth);
 }
