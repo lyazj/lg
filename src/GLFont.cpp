@@ -13,7 +13,10 @@
 #include "GLTransformedRenderable.h"
 
 #ifdef HAS_STB
-#include <stb/stb_truetype.h>
+#ifdef NEED_STB_IMPLEMENTATION
+#define STB_TRUETYPE_IMPLEMENTATION
+#endif /* NEED_STB_IMPLEMENTATION */
+#include <stb_truetype.h>
 #endif /* HAS_STB */
 
 using namespace std;
