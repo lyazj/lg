@@ -18,10 +18,12 @@ public:
 
   static GLShaderPtr GetDefaultVertexShader();
   static GLShaderPtr GetDefaultTextureVertexShader();
+  static GLShaderPtr GetFontTextureVertexShader();
   static GLShaderPtr GetDefaultFragmentShader();
   static GLShaderPtr GetDefaultTextureFragmentShader();
   static GLShaderPtr GetDefaultLightingFragmentShader();
   static GLShaderPtr GetLightingTextureFragmentShader();
+  static GLShaderPtr GetFontTextureFragmentShader();
 
   struct DefaultLightingBlock {
     vec3 position;

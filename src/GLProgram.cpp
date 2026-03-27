@@ -259,3 +259,13 @@ GLProgramPtr GLProgram::GetLightingTextureProgram()
 
   return program;
 }
+
+GLProgramPtr GLProgram::GetFontTextureProgram()
+{
+  auto program = make_shared<GLProgram>();
+  program->AttachShader(GLShader::GetFontTextureVertexShader());
+  program->AttachShader(GLShader::GetFontTextureFragmentShader());
+  program->Link();
+  program->DetachShaders();
+  return program;
+}

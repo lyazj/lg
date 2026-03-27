@@ -74,6 +74,27 @@ void main()
   )");
 }
 
+GLShaderPtr GLShader::GetFontTextureVertexShader()
+{
+  return make_shared<GLShader>(GL_VERTEX_SHADER,
+      R"(
+#version 150
+
+uniform float u_winWidth;
+uniform float u_winHeight;
+
+in vec3 a_position;
+in vec2 a_texCoord0;
+out vec2 v_texCoord0;
+
+void main()
+{
+  gl_Position = vec4(a_position.x / u_winWidth * 2.0 - 1.0, 1.0 - a_position.y / u_winHeight * 2.0, a_position.z, 1.0);
+  v_texCoord0 = a_texCoord0;
+}
+  )");
+}
+
 GLShaderPtr GLShader::GetDefaultFragmentShader()
 {
   return make_shared<GLShader>(GL_FRAGMENT_SHADER,
@@ -167,6 +188,26 @@ void main()
   vec3 diffuse = color.rgb * max(dot(normalize(v_normal), dir), 0.0);
   f_color = texture(u_texture0, v_texCoord0);
   f_color = vec4(f_color.rgb * atten * ((diffuse + ambient) / (1.0 + ambient)), f_color.a);
+}
+  )");
+}
+
+GLShaderPtr GLShader::GetFontTextureFragmentShader()
+{
+  return make_shared<GLShader>(GL_FRAGMENT_SHADER,
+      R"(
+#version 150
+
+uniform sampler2D u_texture0;
+uniform vec4 u_color;
+
+in vec2 v_texCoord0;
+out vec4 f_color;
+
+void main()
+{
+  f_color = texture(u_texture0, v_texCoord0);
+  f_color = f_color.r * u_color;
 }
   )");
 }
