@@ -34,3 +34,4 @@ Renderable management hierarchy:
 
 Memo on caveats:
   - Avoid duplicate Geometry::SetVertexAttributes() and Geometry::Buffer() calls for the same object in the scene graph.
+  - Avoid frequent program switching in HelloWorld and Pool
