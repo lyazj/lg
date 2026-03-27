@@ -43,6 +43,7 @@ GLint SolveNewton(double x[1], std::function<double(double)> f, std::function<do
 
 fs::path GetResourcePath();
 fs::path GetTexturePath();
+fs::path GetFontPath();
 
 #ifdef __GNUC__
 #define Expect(e, v) __builtin_expect((e), (v))

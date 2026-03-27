@@ -19,14 +19,14 @@ public:
   GLint GetNChar() const { return nChar; }
   const GLTexturePtr &GetTexture() const { return texture; }
 
-  GLSimpleRenderablePtr GetRenderable(GLint c, GLfloat &x, GLfloat &y) const;
-  GLSimpleRenderablePtr GetRenderable(char c, GLfloat &x, GLfloat &y) const;
-  GLRenderablePtr GetRenderable(const std::vector<GLint> &s, GLfloat &x, GLfloat &y, GLfloat xmax = 0.0f) const;
-  GLRenderablePtr GetRenderable(const std::string &s, GLfloat &x, GLfloat &y, GLfloat xmax = 0.0f) const;
+  GLRenderablePtr GetRenderable(GLint c, GLfloat &x, GLfloat &y, GLfloat xmin, GLfloat xmax) const;
+  GLRenderablePtr GetRenderable(char c, GLfloat &x, GLfloat &y, GLfloat xmin, GLfloat xmax) const;
+  GLRenderablePtr GetRenderable(const std::vector<GLint> &s, GLfloat &x, GLfloat &y, GLfloat xmin, GLfloat xmax) const;
+  GLRenderablePtr GetRenderable(const std::string &s, GLfloat &x, GLfloat &y, GLfloat xmin, GLfloat xmax) const;
 
   static const GLProgramPtr &GetProgram() { return program; }
   static void Init(GLint width, GLint height);
-  static void Resize(GLint width, GLint height);
+  static void Reshape(GLint width, GLint height);
   static void SetColor(const vec4 &color);
   static void SetDepth(GLfloat depth);
 

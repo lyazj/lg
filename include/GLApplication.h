@@ -114,3 +114,12 @@ private:
   uint64_t frameCount;
   uint64_t frameTime;
 };
+
+class GLProgramGuard {
+public:
+  GLProgramGuard(const GLProgramPtr &p);
+  ~GLProgramGuard();
+
+private:
+  GLProgramPtr program;
+};

@@ -35,7 +35,7 @@ public:
 
   GLint GetUniformLocation(const char *name) const;         // thread-unsafe
   GLUniformBlock *GetUniformBlock(const char *name) const;  // thread-unsafe
-  void SetUniform(const char *name, GLfloat value) const;
+  void SetUniform(const char *name, GLfloat value) const;   // The program must be used for SetUniform().
   void SetUniform(const char *name, GLint value) const;
   void SetUniform(const char *name, const vec2 &value) const;
   void SetUniform(const char *name, const vec3 &value) const;

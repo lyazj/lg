@@ -284,6 +284,8 @@ fs::path GetResourcePath() { return fs::path("..") / "share"; }
 
 fs::path GetTexturePath() { return GetResourcePath() / "textures"; }
 
+fs::path GetFontPath() { return GetResourcePath() / "fonts"; }
+
 void GLCheckError()
 {
   GLenum error = glGetError();

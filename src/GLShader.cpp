@@ -80,6 +80,7 @@ GLShaderPtr GLShader::GetFontTextureVertexShader()
       R"(
 #version 150
 
+uniform mat4 u_model;
 uniform float u_winWidth;
 uniform float u_winHeight;
 uniform float u_depth;
@@ -90,7 +91,8 @@ out vec2 v_texCoord0;
 
 void main()
 {
-  gl_Position = vec4(a_position.x / u_winWidth * 2.0 - 1.0, 1.0 - a_position.y / u_winHeight * 2.0, u_depth, 1.0);
+  gl_Position = u_model * vec4(a_position, 0.0, 1.0);
+  gl_Position = vec4(gl_Position.x / u_winWidth * 2.0 - 1.0, 1.0 - gl_Position.y / u_winHeight * 2.0, u_depth, 1.0);
   v_texCoord0 = a_texCoord0;
 }
   )");

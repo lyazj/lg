@@ -469,3 +469,10 @@ void GLApplication::ShowFrameRate() const
     glutTimerFunc(showFrameRateInterval, [](int) { GLApplication::GetInstance()->ShowFrameRate(); }, 0);
   }
 }
+
+GLProgramGuard::GLProgramGuard(const GLProgramPtr &p) : program(GLApplication::GetInstance()->GetProgram())
+{
+  GLApplication::GetInstance()->UseProgram(p);
+}
+
+GLProgramGuard::~GLProgramGuard() { GLApplication::GetInstance()->UseProgram(program); }

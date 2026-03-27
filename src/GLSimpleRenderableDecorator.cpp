@@ -7,9 +7,6 @@ using namespace std;
 void GLSimpleRenderableDecorator::Draw(const mat4 &model) const
 {
   if(!program) return IssueDraw(model);
-  GLApplication *app = GLApplication::GetInstance();
-  GLProgramPtr previousProgram = app->GetProgram();
-  app->UseProgram(program);
+  GLProgramGuard guard(program);
   IssueDraw(model);
-  app->UseProgram(previousProgram);
 }
