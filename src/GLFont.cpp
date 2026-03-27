@@ -139,6 +139,7 @@ void GLFont::Init(GLint width, GLint height)
   program = GLProgram::GetFontTextureProgram();
   Resize(width, height);
   SetColor(vec4(1.0f, 0.0f, 0.0f, 1.0f));
+  SetDepth(0.0f);
 }
 
 void GLFont::Resize(GLint width, GLint height)
@@ -148,3 +149,5 @@ void GLFont::Resize(GLint width, GLint height)
 }
 
 void GLFont::SetColor(const vec4 &color) { program->SetUniform("u_color", color); }
+
+void GLFont::SetDepth(GLfloat depth) { program->SetUniform("u_depth", depth); }

@@ -28,6 +28,7 @@ public:
   static void Init(GLint width, GLint height);
   static void Resize(GLint width, GLint height);
   static void SetColor(const vec4 &color);
+  static void SetDepth(GLfloat depth);
 
 private:
   GLfloat fontHeight;
