@@ -81,8 +81,9 @@ void GLFont::SetDepth(GLfloat depth)
 GLFontRange *GLFont::HandleMissing(wchar_t c)
 {
   // Avoid using wclog here due to its intricate locale compatibility issues with clog.
-  clog << "Info: Building glyph for '" << Narrow(wstring(1, c));
-  clog << "' (U+" << hex << setw(4) << setfill('0') << (unsigned)c << dec << ")" << endl;
+  char f = clog.fill();
+  clog << "Info: Building glyph for '" << Narrow(wstring(1, c)) << "' (U+" << hex << setw(4) << setfill('0')
+       << (unsigned)c << setfill(f) << dec << ")" << endl;
 
   // Bake a block of 256 glyphs including 'c'.
   // Assume glyphs are roughly square (width ≈ height) for layout purposes.
