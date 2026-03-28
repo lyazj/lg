@@ -424,6 +424,7 @@ void GLExampleApplication::Transport(GLfloat dt)
     ballVelocities[i] = newVelocity;
     RegularizeVelocity(ballVelocities[i]);
     UpdateApproachingHole(i);
+    if(ballApproachingHoles[i] == -2) continue;
 
     // Update model.
     mat4 transform = translate(mat4(1.0f), vec3(ballPositions[i], ballAreaHeight));
