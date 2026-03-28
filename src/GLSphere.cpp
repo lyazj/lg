@@ -13,44 +13,32 @@ using namespace std;
 GLSphere::GLSphere(GLfloat r, GLint sl, GLint st)
     : radius(r), slices(max<GLint>(3, sl)), stacks(max<GLint>(2, st)), elementBuffer(GL_ELEMENT_ARRAY_BUFFER)
 {
-  vertices.reserve(2 + (slices + 1) * (stacks - 1));
-  texCoords.reserve(2 + (slices + 1) * (stacks - 1));
-  elements.reserve(2 * (slices + 1) + (stacks - 2) * (2 * slices + 2));
+  vertices.reserve((slices + 1) * (stacks + 1));
+  texCoords.reserve((slices + 1) * (stacks + 1));
+  elements.reserve(2 * (slices + 1) * stacks);
 
-  auto addVertex = [this](GLfloat phi, GLfloat lambda) {
-    GLfloat z = radius * sinf(phi), rho = radius * cosf(phi);
-    GLfloat x = rho * cosf(lambda), y = rho * sinf(lambda);
-    vertices.emplace_back(x, y, z);
-    texCoords.emplace_back(lambda / (2.0f * pi), phi / pi + 0.5f);
-  };
-
-  // Generate vertices.
-  addVertex(90.0f * deg, 0.0f * deg);
-  for(GLint istack = 0; istack + 1 < stacks; ++istack) {
-    GLfloat phi = (90.0f - 180.0f * GLfloat(istack + 1) / GLfloat(stacks)) * deg;
+  // We generate slices + 1 vertices per latitude (including the poles) to ensure
+  // correct UV mapping across the seam (and at the poles).
+  // Sines and cosines are not cached for simplicity.
+  for(GLint istack = 0; istack <= stacks; ++istack) {
+    GLfloat v = 1.0f - GLfloat(istack) / GLfloat(stacks);
+    GLfloat phi = (v - 0.5f) * pi;
     for(GLint islice = 0; islice <= slices; ++islice) {
-      GLfloat lambda = (360.0f * GLfloat(islice) / GLfloat(slices)) * deg;
-      addVertex(phi, lambda);
-    }
-  }
-  addVertex(-90.0f * deg, 0.0f * deg);
-  GLint nVertex = (GLint)vertices.size();
-
-  // Render the north pole as a triangle fan.
-  elements.push_back(0);
-  for(GLint islice = 0; islice <= slices; ++islice) elements.push_back(islice + 1);
-
-  // Render the middle stacks as triangle strips.
-  for(GLint istack = 1, ibase = 1; istack + 1 < stacks; ++istack, ibase += slices + 1) {
-    for(GLint islice = 0; islice <= slices; ++islice) {
-      elements.push_back(ibase + islice);
-      elements.push_back(ibase + islice + slices + 1);
+      GLfloat u = GLfloat(islice) / GLfloat(slices);
+      GLfloat lambda = u * (2.0f * pi);
+      GLfloat z = radius * sinf(phi), rho = radius * cosf(phi);
+      GLfloat x = rho * cosf(lambda), y = rho * sinf(lambda);
+      vertices.emplace_back(x, y, z);
+      texCoords.emplace_back(u, v);
     }
   }
 
-  // Render the south pole as a triangle fan.
-  elements.push_back(nVertex - 1);
-  for(GLint islice = 0; islice <= slices; ++islice) elements.push_back(nVertex - 2 - islice);
+  for(GLint istack = 0; istack < stacks; ++istack) {
+    for(GLint islice = 0; islice <= slices; ++islice) {
+      elements.push_back(istack * (slices + 1) + islice);
+      elements.push_back((istack + 1) * (slices + 1) + islice);
+    }
+  }
 }
 
 GLSphere::~GLSphere()
@@ -61,7 +49,7 @@ GLSphere::~GLSphere()
 void GLSphere::SetVertexAttributes() const
 {
   GL3DBufferedGeometry::SetVertexAttributes();
-  normalBuffer.Bind();
+  vertexBuffer.Bind();  // reused: centered at the origin, normalized by shaders
   GLProgram::SetVertexAttributePointer("a_normal", 3);
   texCoordBuffer.Bind();
   GLProgram::SetVertexAttributePointer("a_texCoord0", 2);
@@ -70,7 +58,6 @@ void GLSphere::SetVertexAttributes() const
 void GLSphere::IssueBuffer() const
 {
   GL3DBufferedGeometry::IssueBuffer();
-  normalBuffer.Buffer(vertices);
   texCoordBuffer.Buffer(texCoords);
   elementBuffer.Buffer(elements);
 }
@@ -78,15 +65,8 @@ void GLSphere::IssueBuffer() const
 void GLSphere::IssueDraw() const
 {
   GLuint *offset = nullptr;
-
-  GLDrawElements(GL_TRIANGLE_FAN, slices + 2, GL_UNSIGNED_INT, offset);
-  offset += slices + 2;
-
-  for(GLint istack = 1; istack + 1 < stacks; ++istack) {
-    GLDrawElements(GL_TRIANGLE_STRIP, 2 * slices + 2, GL_UNSIGNED_INT, offset);
-    offset += 2 * slices + 2;
+  for(GLint istack = 0; istack < stacks; ++istack) {
+    GLDrawElements(GL_TRIANGLE_STRIP, 2 * (slices + 1), GL_UNSIGNED_INT, offset);
+    offset += 2 * (slices + 1);
   }
-
-  GLDrawElements(GL_TRIANGLE_FAN, slices + 2, GL_UNSIGNED_INT, offset);
-  offset += slices + 2;
 }
