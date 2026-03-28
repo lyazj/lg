@@ -47,7 +47,6 @@ void GLExampleApplication::Init()
   GLFont::Init(GetWindowWidth(), GetWindowHeight());
 
   latinFont = make_unique<GLFont>(GetFontPath() / "times.ttf", 48.0f);
-  latinFont->AddRange(1024, 1024, 0x20, 0x7E);
   chineseFont = make_unique<GLFont>(GetFontPath() / "simkai.ttf", 48.0f);
   InitRenderable();
 }

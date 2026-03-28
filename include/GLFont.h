@@ -33,4 +33,6 @@ private:
   std::map<wchar_t, GLFontRangeUPtr> fontRanges;
 
   static GLProgramPtr program;
+
+  GLFontRange *HandleMissing(wchar_t c);
 };

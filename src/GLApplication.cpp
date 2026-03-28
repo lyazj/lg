@@ -7,6 +7,7 @@
 #endif /* FREEGLUT */
 
 #include <iostream>
+#include <locale>
 #include <unordered_map>
 
 #include "GLImage.h"
@@ -252,6 +253,7 @@ void GLApplication::SaveScreen() const
 
 void GLApplication::PreInit()
 {
+  locale::global(locale(""));  // Use system locale.
   RandSeed((unsigned long long)time(0));
   GLImage::Init();
 }
