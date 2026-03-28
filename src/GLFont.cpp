@@ -52,7 +52,7 @@ void GLFont::Init(GLint width, GLint height)
   program = GLProgram::GetFontTextureProgram();
   Reshape(width, height);
   SetColor(vec4(1.0f, 0.0f, 0.0f, 1.0f));
-  SetDepth(0.0f);
+  SetDepth(-0.999f);
 }
 
 void GLFont::Reshape(GLint width, GLint height)

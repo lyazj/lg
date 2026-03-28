@@ -25,7 +25,7 @@ public:
   static void Init(GLint width, GLint height);
   static void Reshape(GLint width, GLint height);
   static void SetColor(const vec4 &color);
-  static void SetDepth(GLfloat depth);
+  static void SetDepth(GLfloat depth);  // NDC: -1 (near) to 1 (far)
 
 private:
   FileMapUPtr fileMap;
