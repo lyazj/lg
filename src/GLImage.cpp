@@ -1,6 +1,7 @@
 #include "GLImage.h"
 
 #include "GLApplication.h"
+#include "Utils.h"
 
 #ifdef HAS_MAGICK
 #include <Magick++.h>
@@ -58,8 +59,7 @@ GLImage::Backend::GLImageMagickBackend::GLImageMagickBackend()
 
 void GLImage::Backend::GLImageMagickBackend::Load(GLImage &image, const fs::path &path) const
 {
-  // We do need .string() on Windows unfortunately...
-  Magick::Image img(path.string());
+  Magick::Image img(Narrow(path.wstring()));
   img.flip();
   image.width = (GLint)img.columns(), image.height = (GLint)img.rows();
   image.type = img.matte() ? GLImageType::RGBA : GLImageType::RGB;
@@ -78,7 +78,7 @@ void GLImage::Backend::GLImageMagickBackend::Save(const GLImage &image, const fs
   }
   Magick::Image img(image.width, image.height, format, Magick::CharPixel, image.data.data());
   img.flip();
-  img.write(path.string());
+  img.write(Narrow(path.wstring()));
 }
 
 #endif /* HAS_MAGICK */
@@ -101,7 +101,7 @@ GLImage::Backend::GLImageSTBBackend::GLImageSTBBackend()
 void GLImage::Backend::GLImageSTBBackend::Load(GLImage &image, const fs::path &path) const
 {
   int n;
-  unsigned char *d = stbi_load(path.string().c_str(), &image.width, &image.height, &n, 4);
+  unsigned char *d = stbi_load(Narrow(path.wstring()).c_str(), &image.width, &image.height, &n, 4);
   if(!d) {
     cerr << "Error loading image: " << path << ": " << stbi_failure_reason() << endl;
     image.width = image.height = 0;
@@ -122,7 +122,7 @@ void GLImage::Backend::GLImageSTBBackend::Save(const GLImage &image, const fs::p
   case GLImageType::RGBA: n = 4; break;
   default: abort();
   }
-  if(stbi_write_png(path.string().c_str(), image.width, image.height, n, image.data.data(), 0) == 0) {
+  if(stbi_write_png(Narrow(path.wstring()).c_str(), image.width, image.height, n, image.data.data(), 0) == 0) {
     cerr << "Error saving image: " << path << endl;
   }
 }

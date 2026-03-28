@@ -8,6 +8,7 @@
 #include "GLCompositeRenderable.h"
 #include "GLFontRange.h"
 #include "GLProgram.h"
+#include "Utils.h"
 
 using namespace std;
 
@@ -79,8 +80,9 @@ void GLFont::SetDepth(GLfloat depth)
 
 GLFontRange *GLFont::HandleMissing(wchar_t c)
 {
-  wclog << "Info: Building glyph for '" << c;
-  wclog << "' (U+" << hex << setw(4) << setfill(L'0') << (unsigned)c << dec << ")" << endl;
+  // Here wclog should be avoided to avoid its locale compatibility with clog.
+  clog << "Info: Building glyph for '" << Narrow(wstring(1, c));
+  clog << "' (U+" << hex << setw(4) << setfill('0') << (unsigned)c << dec << ")" << endl;
 
   // Bake a block of 256 glyphs including 'c'.
   // Assume glyphs are roughly square (width ≈ height) for layout purposes.
