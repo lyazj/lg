@@ -80,7 +80,7 @@ void GLFont::SetDepth(GLfloat depth)
 
 GLFontRange *GLFont::HandleMissing(wchar_t c)
 {
-  // Here wclog should be avoided to avoid its locale compatibility with clog.
+  // Avoid using wclog here due to its intricate locale compatibility issues with clog.
   clog << "Info: Building glyph for '" << Narrow(wstring(1, c));
   clog << "' (U+" << hex << setw(4) << setfill('0') << (unsigned)c << dec << ")" << endl;
 

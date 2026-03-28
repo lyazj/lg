@@ -37,7 +37,7 @@ GLApplication::GLApplication(int &ac, char *av[])
     : argc(ac),
       argv(av),
       programName(argv[0]),
-      programShortName(fs::path(programName).stem().string()),
+      programShortName(fs::path(Widen(programName)).stem().string()),
       displayMode(GLUT_SINGLE | GLUT_RGBA | GLUT_DEPTH),  // negligible overhead
 #ifdef _WIN32
       width(512),
