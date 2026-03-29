@@ -13,7 +13,7 @@ void Shuffle(GLint a[], GLint n)
 {
   for(GLint i = n - 1; i > 0; --i) {
     GLint j = RandInt(i + 1);
-    swap(a[i], a[j]);
+    std::swap(a[i], a[j]);
   }
 }
 
@@ -88,8 +88,8 @@ public:
 private:
   GLint width, height;
   GLint &entry, &exit;
-  std::vector<std::vector<GLMazeCell>> &cells;
-  std::vector<std::vector<bool>> visited;
+  vector<vector<GLMazeCell>> &cells;
+  vector<vector<bool>> visited;
   GLint depth;
   GLint xs, ys, xt, yt;
 

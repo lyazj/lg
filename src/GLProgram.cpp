@@ -13,7 +13,7 @@ GL_DEFINE_WRAPPER(UniformBlockBinding)
 
 using namespace std;
 
-static const std::unordered_map<std::string, GLint> vertexAttributeMap{
+static const unordered_map<string, GLint> vertexAttributeMap{
   { "a_position", 0 },
   { "a_normal", 1 },
   { "a_tangent", 2 },

@@ -7,6 +7,7 @@
 #endif /* FREEGLUT */
 
 #include <iostream>
+#include <locale>
 #include <unordered_map>
 
 #include "GLImage.h"
@@ -121,7 +122,7 @@ void GLApplication::MaximizeWindow() const
 #endif /* USE_X11_WINDOWING */
 }
 
-void GLApplication::SetTitle(const std::string &t)
+void GLApplication::SetTitle(const string &t)
 {
   if(windowId >= 0) glutSetWindowTitle(t.c_str());
   title = t;
@@ -257,6 +258,17 @@ void GLApplication::SaveScreen() const
 
 void GLApplication::PreInit()
 {
+  locale::global(GetDefaultLocale());
+  ios_base::sync_with_stdio(false);
+  cin.imbue(locale("C"));
+  cout.imbue(locale("C"));
+  clog.imbue(locale("C"));
+  cerr.imbue(locale("C"));
+  wcin.imbue(locale());
+  wcout.imbue(locale());
+  wclog.imbue(locale());
+  wcerr.imbue(locale());
+
   RandSeed((unsigned long long)time(0));
   GLImage::Init();
 }

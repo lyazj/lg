@@ -22,19 +22,44 @@ static uint64_t gStartTime = GetTime();
 
 uint64_t GetTime()
 {
-  using namespace std::chrono;
+  using namespace chrono;
   return duration_cast<nanoseconds>(steady_clock::now().time_since_epoch()).count();
 }
 
 uint64_t GetSystemTime()
 {
-  using namespace std::chrono;
+  using namespace chrono;
   return duration_cast<nanoseconds>(system_clock::now().time_since_epoch()).count();
 }
 
 uint64_t GetStartTime() { return gStartTime; }
 
 uint64_t GetElapsedTime() { return GetTime() - GetStartTime(); }
+
+locale GetDefaultLocale()
+{
+#ifdef _WIN32
+  wchar_t localeName[LOCALE_NAME_MAX_LENGTH];
+  if(GetUserDefaultLocaleName(localeName, LOCALE_NAME_MAX_LENGTH) == 0) {
+    cerr << "GetUserDefaultLocaleName failed: " << GetLastError() << endl;
+    exit(EXIT_FAILURE);
+  }
+  string name = Narrow(localeName);
+  clog << "Info: default locale name: " << name << endl;
+  try {
+    return locale(name);
+  } catch(const runtime_error &e0) {
+    cerr << "Error: locale construction failed: " << e0.what() << endl;
+    name = "C";
+    clog << "Info: default locale name: " << name << endl;
+    return locale(name);
+  }
+#else  /* _WIN32 */
+  locale l("");
+  clog << "Info: default locale name: " << l.name() << endl;
+  return l;
+#endif /* _WIN32 */
+}
 
 string Narrow(const wstring &wstr)
 {
@@ -126,32 +151,32 @@ mat4 RandRotation3D()
   return rotation;
 }
 
-std::ostream &operator<<(std::ostream &os, const vec2 &v)
+ostream &operator<<(ostream &os, const vec2 &v)
 {
   os << "(" << v.x << ", " << v.y << ")";
   return os;
 }
 
-std::ostream &operator<<(std::ostream &os, const vec3 &v)
+ostream &operator<<(ostream &os, const vec3 &v)
 {
   os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
   return os;
 }
 
-std::ostream &operator<<(std::ostream &os, const vec4 &v)
+ostream &operator<<(ostream &os, const vec4 &v)
 {
   os << "(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")";
   return os;
 }
 
-std::ostream &operator<<(std::ostream &os, const mat2 &m)
+ostream &operator<<(ostream &os, const mat2 &m)
 {
   os << "[[" << m[0][0] << ", " << m[1][0] << "],\n"
      << " [" << m[0][1] << ", " << m[1][1] << "]]";
   return os;
 }
 
-std::ostream &operator<<(std::ostream &os, const mat3 &m)
+ostream &operator<<(ostream &os, const mat3 &m)
 {
   os << "[[" << m[0][0] << ", " << m[1][0] << ", " << m[2][0] << "],\n"
      << " [" << m[0][1] << ", " << m[1][1] << ", " << m[2][1] << "],\n"
@@ -159,7 +184,7 @@ std::ostream &operator<<(std::ostream &os, const mat3 &m)
   return os;
 }
 
-std::ostream &operator<<(std::ostream &os, const mat4 &m)
+ostream &operator<<(ostream &os, const mat4 &m)
 {
   os << "[[" << m[0][0] << ", " << m[1][0] << ", " << m[2][0] << ", " << m[3][0] << "],\n"
      << " [" << m[0][1] << ", " << m[1][1] << ", " << m[2][1] << ", " << m[3][1] << "],\n"
@@ -302,8 +327,8 @@ GLint SolveBisection(double x[1], function<double(double)> f, double l, double r
   return 1;  // one solution
 }
 
-GLint SolveNewton(double x_in[1], std::function<double(double)> f, std::function<double(double)> fp, double xerr,
-    double yerr, GLuint nit)
+GLint SolveNewton(
+    double x_in[1], function<double(double)> f, function<double(double)> fp, double xerr, double yerr, GLuint nit)
 {
   double &x = x_in[0];
   while(nit--) {

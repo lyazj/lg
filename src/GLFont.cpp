@@ -8,7 +8,6 @@
 #include "GLCompositeRenderable.h"
 #include "GLFontRange.h"
 #include "GLProgram.h"
-#include "Utils.h"
 
 using namespace std;
 
@@ -40,7 +39,7 @@ GLRenderablePtr GLFont::GetRenderable(wchar_t c, GLfloat &x, GLfloat &y, GLfloat
   return fontRange->GetRenderable(c, x, y, xmin, xmax);
 }
 
-GLRenderablePtr GLFont::GetRenderable(const std::wstring &s, GLfloat &x, GLfloat &y, GLfloat xmin, GLfloat xmax)
+GLRenderablePtr GLFont::GetRenderable(const wstring &s, GLfloat &x, GLfloat &y, GLfloat xmin, GLfloat xmax)
 {
   GLCompositeRenderablePtr renderable = make_shared<GLCompositeRenderable>();
   for(wchar_t c : s) {
@@ -80,10 +79,13 @@ void GLFont::SetDepth(GLfloat depth)
 
 GLFontRange *GLFont::HandleMissing(wchar_t c)
 {
-  // Avoid using wclog here due to its intricate locale compatibility issues with clog.
-  char f = clog.fill();
-  clog << "Info: Building glyph for '" << Narrow(wstring(1, c)) << "' (U+" << hex << setw(4) << setfill('0')
-       << (unsigned)c << setfill(f) << dec << ")" << endl;
+  auto flags = clog.flags();
+  char fill = clog.fill();
+  clog << "Info: Building glyph for '" << flush;
+  wclog << c << flush;
+  clog << "' (U+" << hex << setw(4) << setfill('0') << (unsigned)c << ")" << endl;
+  clog.fill(fill);
+  clog.flags(flags);
 
   // Bake a block of 256 glyphs including 'c'.
   // Assume glyphs are roughly square (width ≈ height) for layout purposes.
