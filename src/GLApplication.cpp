@@ -252,7 +252,7 @@ void GLApplication::SaveScreen() const
   fs::path path = GetProgramShortName();
   path += "_" + to_string(GetSystemTime()) + ".png";
   SaveScreen(path, GL_FRONT);
-  clog << "Info: screen saved to: " << ToLocaleString(path) << endl;
+  clog << "Info: screen saved to: " << path << endl;
 }
 
 void GLApplication::PreInit()

@@ -32,6 +32,8 @@ using mat4 = mat<4>;
 namespace fs = std::filesystem;
 using std::byte;
 
+std::ostream &operator<<(std::ostream &, const fs::path &);
+
 #define GL_DECLARE_CLASS(name)             \
   class name;                              \
   using name##Ptr = std::shared_ptr<name>; \
