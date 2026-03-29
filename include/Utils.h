@@ -2,7 +2,6 @@
 
 #include <functional>
 #include <iosfwd>
-#include <string>
 #include <utility>
 
 #include "Global.h"

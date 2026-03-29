@@ -64,7 +64,7 @@ GLApplication::GLApplication(int &ac, char *av[])
 GLApplication::~GLApplication()
 {
   gInstance = nullptr;
-  clog << "Info: GLApplication deleted: " << ToLocaleString(programShortName) << endl;
+  clog << "Info: GLApplication deleted: " << programShortName << endl;
 }
 
 void GLApplication::Run()
@@ -262,7 +262,7 @@ void GLApplication::PreInit()
   programName = FromLocaleString(argv[0]);
   programShortName = fs::path(programName).stem().wstring();
   title = GetDefaultTitle();
-  clog << "Info: GLApplication name: " << ToLocaleString(programShortName) << endl;
+  clog << "Info: GLApplication name: " << programShortName << endl;
 
   RandSeed((unsigned long long)time(0));
   GLImage::Init();

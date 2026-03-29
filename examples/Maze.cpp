@@ -9,7 +9,6 @@
 #include "GLSmiley.h"
 #include "GLTransformedRenderable.h"
 #include "GLTriangle.h"
-#include "Utils.h"
 
 using namespace std;
 
@@ -67,7 +66,7 @@ void GLExampleApplication::Init()
   UseProgram(GLProgram::GetDefaultProgram());
 
   if(argc != 3) {
-    cerr << "Usage: " << ToLocaleString(GetProgramShortName()) << " <width> <height>" << endl;
+    cerr << "Usage: " << GetProgramShortName() << " <width> <height>" << endl;
     exit(EXIT_FAILURE);
   }
   width = stoi(argv[1]);

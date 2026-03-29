@@ -15,7 +15,6 @@
 #include "GLSierpinskiGasketChaos.h"
 #include "GLSmiley.h"
 #include "GLTriangle.h"
-#include "Utils.h"
 
 using namespace std;
 
@@ -72,7 +71,7 @@ void GLExampleApplication::Display()
 void GLExampleApplication::InitRenderable()
 {
   if(argc == 1) {
-    cerr << "Usage: " << ToLocaleString(GetProgramShortName()) << " <renderable> [ <args> ... ]" << endl;
+    cerr << "Usage: " << GetProgramShortName() << " <renderable> [ <args> ... ]" << endl;
     exit(EXIT_FAILURE);
   }
 

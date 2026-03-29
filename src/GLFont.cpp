@@ -2,13 +2,13 @@
 
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 
 #include "FileMap.h"
 #include "GLApplication.h"
 #include "GLCompositeRenderable.h"
 #include "GLFontRange.h"
 #include "GLProgram.h"
-#include "Utils.h"
 
 using namespace std;
 
@@ -80,12 +80,9 @@ void GLFont::SetDepth(GLfloat depth)
 
 GLFontRange *GLFont::HandleMissing(char32_t c)
 {
-  auto flags = clog.flags();
-  char fill = clog.fill();
-  string s = ToLocaleString(ToWString(u32string(1, c)));
-  clog << "Info: building glyph for '" << s << "' (U+" << hex << setw(4) << setfill('0') << (uint32_t)c << ")" << endl;
-  clog.fill(fill);
-  clog.flags(flags);
+  ostringstream oss;
+  oss << "Info: building glyph for '" << c << "' (U+" << hex << setw(4) << setfill('0') << (uint32_t)c << ")" << flush;
+  clog << oss.str() << endl;
 
   // Bake a block of 256 glyphs including 'c'.
   // Assume glyphs are roughly square (width ≈ height) for layout purposes.

@@ -7,6 +7,7 @@
 #include <complex>
 #include <glm/fwd.hpp>
 #include <glm/gtc/constants.hpp>
+#include <string>
 
 using std::complex;
 
@@ -32,7 +33,11 @@ using mat4 = mat<4>;
 namespace fs = std::filesystem;
 using std::byte;
 
+std::ostream &operator<<(std::ostream &, const std::wstring &);
 std::ostream &operator<<(std::ostream &, const fs::path &);
+std::ostream &operator<<(std::ostream &, const std::u32string &);
+inline std::ostream &operator<<(std::ostream &os, wchar_t c) { return os << std::wstring(1, c); }
+inline std::ostream &operator<<(std::ostream &os, char32_t c) { return os << std::u32string(1, c); }
 
 #define GL_DECLARE_CLASS(name)             \
   class name;                              \

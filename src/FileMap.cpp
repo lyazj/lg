@@ -1,7 +1,5 @@
 #include "FileMap.h"
 
-#include "Utils.h"
-
 // The Windows version is written by ChatGPT.
 #ifdef _WIN32
 #include <windows.h>

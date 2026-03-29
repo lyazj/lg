@@ -6,7 +6,6 @@
 #include "GLRectangle.h"
 #include "GLTexture.h"
 #include "GLTextureDecorator.h"
-#include "Utils.h"
 
 using namespace std;
 
@@ -69,7 +68,7 @@ void GLExampleApplication::Reshape(int w, int h)
 void GLExampleApplication::InitRenderable()
 {
   if(argc != 2) {
-    cerr << "Usage: " << ToLocaleString(GetProgramShortName()) << " <image>" << endl;
+    cerr << "Usage: " << GetProgramShortName() << " <image>" << endl;
     exit(EXIT_FAILURE);
   }
 
