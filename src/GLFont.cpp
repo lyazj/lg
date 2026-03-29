@@ -83,7 +83,7 @@ GLFontRange *GLFont::HandleMissing(char32_t c)
   auto flags = clog.flags();
   char fill = clog.fill();
   string s = Narrow(wstring(1, (wchar_t)c));  // Maybe incorrect if sizeof(wchar_t) == 2.
-  clog << "Info: Building glyph for '" << s << "' (U+" << hex << setw(4) << setfill('0') << (uint32_t)c << ")" << endl;
+  clog << "Info: building glyph for '" << s << "' (U+" << hex << setw(4) << setfill('0') << (uint32_t)c << ")" << endl;
   clog.fill(fill);
   clog.flags(flags);
 

@@ -353,7 +353,7 @@ void GLApplication::Init()
   glutMouseFunc([](int b, int s, int x, int y) {
     auto it = buttonMap.find(b);
     if(it == buttonMap.end()) {
-      cerr << "Warning: Unrecognized mouse button: " << b << endl;
+      cerr << "Warning: unrecognized mouse button: " << b << endl;
       return;
     }
     switch(s) {
@@ -370,7 +370,7 @@ void GLApplication::Init()
   glutSpecialFunc([](int k, int x, int y) {
     auto it = specialKeyMap.find(k);
     if(it == specialKeyMap.end()) {
-      cerr << "Warning: Unrecognized special key: " << k << endl;
+      cerr << "Warning: unrecognized special key: " << k << endl;
       return;
     }
     GLApplication::GetInstance()->SpecialKeyDown(it->second, x, y);
@@ -379,7 +379,7 @@ void GLApplication::Init()
   glutSpecialUpFunc([](int k, int x, int y) {
     auto it = specialKeyMap.find(k);
     if(it == specialKeyMap.end()) {
-      cerr << "Warning: Unrecognized special key: " << k << endl;
+      cerr << "Warning: unrecognized special key: " << k << endl;
       return;
     }
     GLApplication::GetInstance()->SpecialKeyUp(it->second, x, y);

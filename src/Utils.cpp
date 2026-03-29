@@ -46,7 +46,7 @@ uint64_t GetStartTime() { return gStartTime; }
 
 uint64_t GetElapsedTime() { return GetTime() - GetStartTime(); }
 
-void SetDefaultLocale() { clog << "Info: apply default locale: " << setlocale(LC_ALL, "") << endl; }
+void SetDefaultLocale() { clog << "Info: applying default locale: " << setlocale(LC_ALL, "") << endl; }
 
 string Narrow(const wstring &wstr)
 {
