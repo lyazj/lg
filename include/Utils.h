@@ -15,8 +15,9 @@ inline uint64_t NsToMs(uint64_t ns) { return (ns + 500'000) / 1'000'000; }
 
 // Locale-dependent functions. Not thread-safe.
 void SetDefaultLocale();
-std::string Narrow(const std::wstring &s);
-std::wstring Widen(const std::string &s);
+std::string ToLocaleString(const std::wstring &s);
+inline std::string ToLocaleString(const fs::path &path) { return ToLocaleString(path.wstring()); }
+std::wstring FromLocaleString(const std::string &s);
 
 // Locale-independent functions.
 std::string ToString(const std::u32string &s);

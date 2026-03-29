@@ -16,7 +16,7 @@
 FileMap::FileMap(const fs::path &path)
 {
 #ifdef _WIN32
-  HANDLE f = CreateFileA(Narrow(path.wstring()).c_str(), GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
+  HANDLE f = CreateFileW(path.c_str(), GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
   if(f == INVALID_HANDLE_VALUE) abort();
 
   LARGE_INTEGER s;
@@ -31,7 +31,7 @@ FileMap::FileMap(const fs::path &path)
   fileHandle = f;
   mappingHandle = m;
 #else
-  int fd = open(Narrow(path.wstring()).c_str(), O_RDONLY);
+  int fd = open(path.c_str(), O_RDONLY);
   if(fd < 0) err(EXIT_FAILURE, "open");
 
   struct stat st;

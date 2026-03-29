@@ -48,7 +48,7 @@ uint64_t GetElapsedTime() { return GetTime() - GetStartTime(); }
 
 void SetDefaultLocale() { clog << "Info: applying default locale: " << setlocale(LC_ALL, "") << endl; }
 
-string Narrow(const wstring &wstr)
+string ToLocaleString(const wstring &wstr)
 {
   string result;
   result.reserve(2 * wstr.size());
@@ -65,7 +65,7 @@ string Narrow(const wstring &wstr)
   return result;
 }
 
-wstring Widen(const string &str)
+wstring FromLocaleString(const string &str)
 {
   wstring result;
   result.reserve(str.size());
