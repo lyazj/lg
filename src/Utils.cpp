@@ -84,34 +84,74 @@ wstring Widen(const string &str)
   return result;
 }
 
-string NarrowUTF8(const u32string &wstr)
-{
 #ifdef HAS_ICU
-  icu::UnicodeString ustr = icu::UnicodeString::fromUTF32((const UChar32 *)wstr.c_str(), (int32_t)wstr.size());
-  string result;
-  result.reserve(wstr.size() * 2);
+namespace {
+
+template<class String>
+icu::UnicodeString FromString8(const String &str)
+{
+  return icu::UnicodeString((const char *)str.c_str(), (int32_t)str.length());
+}
+
+template<class String>
+icu::UnicodeString FromString16(const String &str)
+{
+  return icu::UnicodeString((const UChar *)str.c_str(), (int32_t)str.length());
+}
+
+template<class String>
+icu::UnicodeString FromString32(const String &str)
+{
+  return icu::UnicodeString::fromUTF32((const UChar32 *)str.c_str(), (int32_t)str.length());
+}
+
+template<class String>
+String ToString8(const icu::UnicodeString &ustr)
+{
+  String result;
+  result.reserve(ustr.length() * 2);  // A factor of 2 is a good guess.
   ustr.toUTF8String(result);
   result.shrink_to_fit();
   return result;
+}
+
+template<class String>
+String ToString16(const icu::UnicodeString &ustr)
+{
+  return String((const typename String::value_type *)ustr.getBuffer(), (size_t)ustr.length());
+}
+
+template<class String>
+String ToString32(const icu::UnicodeString &ustr)
+{
+  String result(ustr.length(), 0);  // ustr.length() is a safe upper bound.
+  UErrorCode errorCode = U_ZERO_ERROR;
+  int32_t n = ustr.toUTF32((UChar32 *)result.data(), (int32_t)result.size(), errorCode);
+  if(U_FAILURE(errorCode)) abort();
+  result.resize((size_t)n);
+  result.shrink_to_fit();
+  return result;
+}
+
+}  // namespace
+#endif /* HAS_ICU */
+
+string ToString(const u32string &u32str)
+{
+#ifdef HAS_ICU
+  return ToString8<string>(FromString32(u32str));
 #else /* HAS_ICU */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-  return wstring_convert<codecvt_utf8<char32_t>, char32_t>().to_bytes(wstr);
+  return wstring_convert<codecvt_utf8<char32_t>, char32_t>().to_bytes(u32str);
 #pragma GCC diagnostic pop
 #endif /* HAS_ICU */
 }
 
-u32string WidenUTF8(const string &str)
+u32string FromString(const string &str)
 {
 #ifdef HAS_ICU
-  icu::UnicodeString ustr(str.c_str(), (int32_t)str.length());
-  u32string result(ustr.length(), 0);
-  UErrorCode errorCode = U_ZERO_ERROR;
-  int32_t n = ustr.toUTF32((UChar32 *)result.data(), (int32_t)result.size(), errorCode);
-  if(U_FAILURE(errorCode)) abort();
-  result.resize(n);
-  result.shrink_to_fit();
-  return result;
+  return ToString32<u32string>(FromString8(str));
 #else /* HAS_ICU */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -120,18 +160,46 @@ u32string WidenUTF8(const string &str)
 #endif /* HAS_ICU */
 }
 
-u32string LoadUTF8(const fs::path &path)
+static_assert(sizeof(wchar_t) == sizeof(char16_t) || sizeof(wchar_t) == sizeof(char32_t));
+
+wstring ToWString(const u32string &u32str)
+{
+  if constexpr(sizeof(wchar_t) == sizeof(char32_t)) return wstring((const wchar_t *)u32str.data(), u32str.size());
+#ifdef HAS_ICU
+  return ToString16<wstring>(FromString32(u32str));
+#else /* HAS_ICU */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+  return wstring_convert<codecvt_utf8<wchar_t>, wchar_t>().from_bytes(ToString(u32str));
+#pragma GCC diagnostic pop
+#endif /* HAS_ICU */
+}
+
+u32string FromWString(const wstring &wstr)
+{
+  if constexpr(sizeof(wchar_t) == sizeof(char32_t)) return u32string((const char32_t *)wstr.data(), wstr.size());
+#ifdef HAS_ICU
+  return ToString32<u32string>(FromString16(wstr));
+#else /* HAS_ICU */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+  return FromString(wstring_convert<codecvt_utf8<wchar_t>, wchar_t>().to_bytes(wstr));
+#pragma GCC diagnostic pop
+#endif /* HAS_ICU */
+}
+
+void ToFile(const fs::path &path, const u32string &s)
+{
+  string content = ToString(s);
+  ofstream ofs(path, ios_base::binary);
+  ofs.write(content.data(), content.size());
+}
+
+u32string FromFile(const fs::path &path)
 {
   FileMap fileMap(path);
   string content(fileMap.data(), fileMap.size());
-  return WidenUTF8(content);
-}
-
-void SaveUTF8(const fs::path &path, const u32string &s)
-{
-  string content = NarrowUTF8(s);
-  ofstream ofs(path, ios_base::binary);
-  ofs.write(content.data(), content.size());
+  return FromString(content);
 }
 
 static mt19937 gRandom;

@@ -13,13 +13,18 @@ uint64_t GetStartTime();
 uint64_t GetElapsedTime();
 inline uint64_t NsToMs(uint64_t ns) { return (ns + 500'000) / 1'000'000; }
 
+// Locale-dependent functions. Not thread-safe.
 void SetDefaultLocale();
 std::string Narrow(const std::wstring &s);
 std::wstring Widen(const std::string &s);
-std::string NarrowUTF8(const std::u32string &s);
-std::u32string WidenUTF8(const std::string &s);
-std::u32string LoadUTF8(const fs::path &path);
-void SaveUTF8(const fs::path &path, const std::u32string &s);
+
+// Locale-independent functions.
+std::string ToString(const std::u32string &s);
+std::u32string FromString(const std::string &s);
+std::wstring ToWString(const std::u32string &s);
+std::u32string FromWString(const std::wstring &s);
+void ToFile(const fs::path &path, const std::u32string &s);
+std::u32string FromFile(const fs::path &path);
 
 // Thread-unsafe.
 void RandSeed(unsigned long long);
