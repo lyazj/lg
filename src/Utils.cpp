@@ -90,7 +90,7 @@ namespace {
 template<class String>
 icu::UnicodeString FromString8(const String &str)
 {
-  return icu::UnicodeString((const char *)str.c_str(), (int32_t)str.length());
+  return icu::UnicodeString::fromUTF8(icu::StringPiece((const char *)str.data(), (int32_t)str.length()));
 }
 
 template<class String>
@@ -134,17 +134,17 @@ String ToString32(const icu::UnicodeString &ustr)
 }
 
 }  // namespace
+#else /* HAS_ICU */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif /* HAS_ICU */
 
 string ToString(const u32string &u32str)
 {
 #ifdef HAS_ICU
   return ToString8<string>(FromString32(u32str));
-#else /* HAS_ICU */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#else  /* HAS_ICU */
   return wstring_convert<codecvt_utf8<char32_t>, char32_t>().to_bytes(u32str);
-#pragma GCC diagnostic pop
 #endif /* HAS_ICU */
 }
 
@@ -152,11 +152,8 @@ u32string FromString(const string &str)
 {
 #ifdef HAS_ICU
   return ToString32<u32string>(FromString8(str));
-#else /* HAS_ICU */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#else  /* HAS_ICU */
   return wstring_convert<codecvt_utf8<char32_t>, char32_t>().from_bytes(str);
-#pragma GCC diagnostic pop
 #endif /* HAS_ICU */
 }
 
@@ -167,11 +164,8 @@ wstring ToWString(const u32string &u32str)
   if constexpr(sizeof(wchar_t) == sizeof(char32_t)) return wstring((const wchar_t *)u32str.data(), u32str.size());
 #ifdef HAS_ICU
   return ToString16<wstring>(FromString32(u32str));
-#else /* HAS_ICU */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#else  /* HAS_ICU */
   return wstring_convert<codecvt_utf8<wchar_t>, wchar_t>().from_bytes(ToString(u32str));
-#pragma GCC diagnostic pop
 #endif /* HAS_ICU */
 }
 
@@ -180,13 +174,14 @@ u32string FromWString(const wstring &wstr)
   if constexpr(sizeof(wchar_t) == sizeof(char32_t)) return u32string((const char32_t *)wstr.data(), wstr.size());
 #ifdef HAS_ICU
   return ToString32<u32string>(FromString16(wstr));
-#else /* HAS_ICU */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#else  /* HAS_ICU */
   return FromString(wstring_convert<codecvt_utf8<wchar_t>, wchar_t>().to_bytes(wstr));
-#pragma GCC diagnostic pop
 #endif /* HAS_ICU */
 }
+
+#ifndef HAS_ICU
+#pragma GCC diagnostic pop
+#endif /* HAS_ICU */
 
 void ToFile(const fs::path &path, const u32string &s)
 {
