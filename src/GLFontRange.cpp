@@ -66,7 +66,8 @@ public:
 };
 #endif /* HAS_STB */
 
-GLFontRange::GLFontRange(const FileMap &fMap, GLfloat fontH, GLint atlasW, GLint atlasH, wchar_t firstC, wchar_t lastC)
+GLFontRange::GLFontRange(
+    const FileMap &fMap, GLfloat fontH, GLint atlasW, GLint atlasH, char32_t firstC, char32_t lastC)
     : fontHeight(fontH), atlasWidth(atlasW), atlasHeight(atlasH), firstChar(firstC), lastChar(lastC)
 {
   inner = new Inner(lastChar - firstChar + 1);
@@ -85,7 +86,7 @@ GLFontRange::GLFontRange(const FileMap &fMap, GLfloat fontH, GLint atlasW, GLint
 
 GLFontRange::~GLFontRange() { delete inner; }
 
-GLRenderablePtr GLFontRange::GetRenderable(wchar_t c, GLfloat &x, GLfloat &y, GLfloat xmin, GLfloat xmax) const
+GLRenderablePtr GLFontRange::GetRenderable(char32_t c, GLfloat &x, GLfloat &y, GLfloat xmin, GLfloat xmax) const
 {
 #ifdef HAS_STB
   if(c < firstChar || c > lastChar) {

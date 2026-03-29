@@ -70,17 +70,17 @@ void GLExampleApplication::InitRenderable()
   GLCompositeRenderablePtr texts = make_shared<GLCompositeRenderable>();
   GLfloat x = 50.0f, y = 100.0f;
 
-  wstring words = L"Hello, World!";
-  words += L"\n\nPremature optimization is the root of all evil. — Donald Knuth";
-  words += L"\n\n∂ₘFᵐⁿ = μ₀Jⁿ. — Maxwell";
+  u32string words = U"Hello, World!";
+  words += U"\n\nPremature optimization is the root of all evil. — Donald Knuth";
+  words += U"\n\n∂ₘFᵐⁿ = μ₀Jⁿ. — Maxwell";
   texts->AddRenderable(latinFont->GetRenderable(words, x, y, 50.0f, (GLfloat)GetWindowWidth() - 50.0f));
 
-  words = L"\n\n思想自由，兼容并包。——蔡元培";
+  words = U"\n\n思想自由，兼容并包。——蔡元培";
   texts->AddRenderable(chineseFont->GetRenderable(words, x, y, 50.0f, (GLfloat)GetWindowWidth() - 50.0f));
 
   words = LoadUTF8(GetTextPath() / "world.txt");
-  while(!words.empty() && words.back() == L'\n') words.pop_back();
-  words = L"\n\n" + words;
+  while(!words.empty() && words.back() == U'\n') words.pop_back();
+  words = U"\n\n" + words;
   texts->AddRenderable(chineseFont->GetRenderable(words, x, y, 50.0f, (GLfloat)GetWindowWidth() - 50.0f));
 
   renderable = texts;

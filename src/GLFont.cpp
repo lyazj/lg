@@ -18,15 +18,15 @@ GLFont::GLFont(const fs::path &path, GLfloat fontH) : fileMap(make_unique<FileMa
 
 GLFont::~GLFont() { }
 
-GLFontRange *GLFont::AddRange(GLint atlasW, GLint atlasH, wchar_t firstC, wchar_t lastC)
+GLFontRange *GLFont::AddRange(GLint atlasW, GLint atlasH, char32_t firstC, char32_t lastC)
 {
   auto fontRange = make_unique<GLFontRange>(*fileMap, fontHeight, atlasW, atlasH, firstC, lastC);
   return fontRanges.emplace(firstC, std::move(fontRange)).first->second.get();
 }
 
-GLRenderablePtr GLFont::GetRenderable(wchar_t c, GLfloat &x, GLfloat &y, GLfloat xmin, GLfloat xmax)
+GLRenderablePtr GLFont::GetRenderable(char32_t c, GLfloat &x, GLfloat &y, GLfloat xmin, GLfloat xmax)
 {
-  if(c == L'\n') {  // new line
+  if(c == U'\n') {  // new line
     x = xmin, y += fontHeight;
     return nullptr;
   }
@@ -40,10 +40,10 @@ GLRenderablePtr GLFont::GetRenderable(wchar_t c, GLfloat &x, GLfloat &y, GLfloat
   return fontRange->GetRenderable(c, x, y, xmin, xmax);
 }
 
-GLRenderablePtr GLFont::GetRenderable(const wstring &s, GLfloat &x, GLfloat &y, GLfloat xmin, GLfloat xmax)
+GLRenderablePtr GLFont::GetRenderable(const u32string &s, GLfloat &x, GLfloat &y, GLfloat xmin, GLfloat xmax)
 {
   GLCompositeRenderablePtr renderable = make_shared<GLCompositeRenderable>();
-  for(wchar_t c : s) {
+  for(char32_t c : s) {
     GLRenderablePtr r = GetRenderable(c, x, y, xmin, xmax);
     if(!r) continue;
     renderable->AddRenderable(r);
@@ -78,12 +78,12 @@ void GLFont::SetDepth(GLfloat depth)
   program->SetUniform("u_depth", depth);
 }
 
-GLFontRange *GLFont::HandleMissing(wchar_t c)
+GLFontRange *GLFont::HandleMissing(char32_t c)
 {
   auto flags = clog.flags();
   char fill = clog.fill();
-  string s = Narrow(wstring(1, c));
-  clog << "Info: Building glyph for '" << s << "' (U+" << hex << setw(4) << setfill('0') << (unsigned)c << ")" << endl;
+  string s = Narrow(wstring(1, (wchar_t)c));  // Maybe incorrect if sizeof(wchar_t) == 2.
+  clog << "Info: Building glyph for '" << s << "' (U+" << hex << setw(4) << setfill('0') << (uint32_t)c << ")" << endl;
   clog.fill(fill);
   clog.flags(flags);
 
@@ -92,5 +92,5 @@ GLFontRange *GLFont::HandleMissing(wchar_t c)
   // Add a safe margin by overestimating atlas size: allocate ~2× the estimated area.
   GLint index = GLint(ceilf(2.0f * logf(fontHeight) / logf(2.0f))) + 9;
   GLint hIndex = index / 2, wIndex = index - hIndex;
-  return AddRange(1 << wIndex, 1 << hIndex, wchar_t(c & -256), wchar_t(c | 255));
+  return AddRange(1 << wIndex, 1 << hIndex, char32_t(c & -256), char32_t(c | 255));
 }

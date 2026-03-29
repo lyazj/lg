@@ -22,7 +22,6 @@
 
 #ifdef HAS_ICU
 #include <unicode/unistr.h>
-static_assert(sizeof(wchar_t) == 2 || sizeof(wchar_t) == 4);
 #else /* HAS_ICU */
 #include <codecvt>
 #endif /* HAS_ICU */
@@ -57,7 +56,7 @@ string Narrow(const wstring &wstr)
   for(wchar_t wc : wstr) {
     size_t len = wctomb(buffer.data(), wc);  // thread-unsafe
     if(len == (size_t)-1) {
-      cerr << "Error: error converting wide character: " << (unsigned)wc << endl;
+      cerr << "Error: error converting wide character: " << (uint32_t)wc << endl;
       buffer[0] = '?', len = 1;
     }
     result.append(buffer.data(), len);
@@ -75,7 +74,7 @@ wstring Widen(const string &str)
   while(*ptr) {
     size_t len = mbtowc(&buffer, ptr, MB_CUR_MAX);  // thread-unsafe
     if(len == (size_t)-1) {
-      cerr << "Error: error converting narrow character: " << (unsigned)*ptr << endl;
+      cerr << "Error: error converting narrow character: " << (uint32_t)*ptr << endl;
       buffer = (wchar_t)'?', len = 1;
     }
     result.push_back(buffer);
@@ -85,58 +84,50 @@ wstring Widen(const string &str)
   return result;
 }
 
-string NarrowUTF8(const wstring &wstr)
+string NarrowUTF8(const u32string &wstr)
 {
 #ifdef HAS_ICU
-  icu::UnicodeString ustr;
+  icu::UnicodeString ustr = icu::UnicodeString::fromUTF32((const UChar32 *)wstr.c_str(), (int32_t)wstr.size());
   string result;
-  if constexpr(sizeof(wchar_t) == 2) {
-    ustr = icu::UnicodeString((const UChar *)wstr.c_str(), (int32_t)wstr.size());
-  } else {
-    ustr = icu::UnicodeString::fromUTF32((const UChar32 *)wstr.c_str(), (int32_t)wstr.size());
-  }
   result.reserve(wstr.size() * 2);
   ustr.toUTF8String(result);
+  result.shrink_to_fit();
   return result;
 #else /* HAS_ICU */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-  return wstring_convert<codecvt_utf8<wchar_t> >().to_bytes(wstr);
+  return wstring_convert<codecvt_utf8<char32_t>, char32_t>().to_bytes(wstr);
 #pragma GCC diagnostic pop
 #endif /* HAS_ICU */
 }
 
-wstring WidenUTF8(const string &str)
+u32string WidenUTF8(const string &str)
 {
 #ifdef HAS_ICU
   icu::UnicodeString ustr(str.c_str(), (int32_t)str.length());
-  wstring result;
-  if constexpr(sizeof(wchar_t) == 2) {
-    result.assign((wchar_t *)ustr.getBuffer(), ustr.length());
-  } else {
-    result.resize(ustr.length());
-    UErrorCode errorCode = U_ZERO_ERROR;
-    int32_t n = ustr.toUTF32((UChar32 *)result.data(), (int32_t)result.size(), errorCode);
-    if(U_FAILURE(errorCode)) abort();
-    result.resize(n);
-  }
+  u32string result(ustr.length(), 0);
+  UErrorCode errorCode = U_ZERO_ERROR;
+  int32_t n = ustr.toUTF32((UChar32 *)result.data(), (int32_t)result.size(), errorCode);
+  if(U_FAILURE(errorCode)) abort();
+  result.resize(n);
+  result.shrink_to_fit();
   return result;
 #else /* HAS_ICU */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-  return wstring_convert<codecvt_utf8<wchar_t> >().from_bytes(str);
+  return wstring_convert<codecvt_utf8<char32_t>, char32_t>().from_bytes(str);
 #pragma GCC diagnostic pop
 #endif /* HAS_ICU */
 }
 
-wstring LoadUTF8(const fs::path &path)
+u32string LoadUTF8(const fs::path &path)
 {
   FileMap fileMap(path);
   string content(fileMap.data(), fileMap.size());
   return WidenUTF8(content);
 }
 
-void SaveUTF8(const fs::path &path, const wstring &s)
+void SaveUTF8(const fs::path &path, const u32string &s)
 {
   string content = NarrowUTF8(s);
   ofstream ofs(path, ios_base::binary);

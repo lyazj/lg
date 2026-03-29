@@ -74,7 +74,7 @@ void GLExampleApplication::InitRenderable()
   fs::path fontPath = GetFontPath() / "times.ttf";
   GLfloat fontHeight = 64.0f;
   imageWidth = 1024, imageHeight = 1024;
-  wchar_t firstChar = (wchar_t)32, lastChar = (wchar_t)126;
+  char32_t firstChar = (char32_t)32, lastChar = (char32_t)126;
 
   if(argc > 1) {
     fontPath = argv[1];
@@ -83,8 +83,8 @@ void GLExampleApplication::InitRenderable()
   if(argc > 2) fontHeight = stof(argv[2]);
   if(argc > 3) imageWidth = stoi(argv[3]);
   if(argc > 4) imageHeight = stoi(argv[4]);
-  if(argc > 5) firstChar = (wchar_t)stoi(argv[5], nullptr, 0);
-  if(argc > 6) lastChar = (wchar_t)stoi(argv[6], nullptr, 0);
+  if(argc > 5) firstChar = (char32_t)stoi(argv[5], nullptr, 0);
+  if(argc > 6) lastChar = (char32_t)stoi(argv[6], nullptr, 0);
 
   if(imageWidth == 0) {
     cerr << "Zero width image: " << argv[1] << endl;

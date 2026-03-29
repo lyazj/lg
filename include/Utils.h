@@ -16,10 +16,10 @@ inline uint64_t NsToMs(uint64_t ns) { return (ns + 500'000) / 1'000'000; }
 void SetDefaultLocale();
 std::string Narrow(const std::wstring &s);
 std::wstring Widen(const std::string &s);
-std::string NarrowUTF8(const std::wstring &s);
-std::wstring WidenUTF8(const std::string &s);
-std::wstring LoadUTF8(const fs::path &path);
-void SaveUTF8(const fs::path &path, const std::wstring &s);
+std::string NarrowUTF8(const std::u32string &s);
+std::u32string WidenUTF8(const std::string &s);
+std::u32string LoadUTF8(const fs::path &path);
+void SaveUTF8(const fs::path &path, const std::u32string &s);
 
 // Thread-unsafe.
 void RandSeed(unsigned long long);
