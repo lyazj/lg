@@ -36,8 +36,8 @@ GLApplication *GLApplication::gInstance;
 GLApplication::GLApplication(int &ac, char *av[])
     : argc(ac),
       argv(av),
-      programName(argv[0]),
-      programShortName(programName),                      // reset in PreInit()
+      programName(L"GLApplication"),
+      programShortName(L"GLApplication"),
       displayMode(GLUT_SINGLE | GLUT_RGBA | GLUT_DEPTH),  // negligible overhead
 #ifdef _WIN32
       width(512),
@@ -46,7 +46,7 @@ GLApplication::GLApplication(int &ac, char *av[])
       width(1024),
       height(1024),
 #endif /* _WIN32 */
-      title(GetDefaultTitle()),
+      title(L"GL Application"),
       windowId(-1),
       projection(1.0f),
       view(1.0f),
@@ -64,7 +64,7 @@ GLApplication::GLApplication(int &ac, char *av[])
 GLApplication::~GLApplication()
 {
   gInstance = nullptr;
-  clog << "Info: GLApplication deleted: " << programShortName << endl;
+  clog << "Info: GLApplication deleted: " << ToLocaleString(programShortName) << endl;
 }
 
 void GLApplication::Run()
@@ -120,19 +120,19 @@ void GLApplication::MaximizeWindow() const
 #endif /* USE_X11_WINDOWING */
 }
 
-void GLApplication::SetTitle(const string &t)
+void GLApplication::SetTitle(const wstring &t)
 {
-  if(windowId >= 0) glutSetWindowTitle(t.c_str());
+  if(windowId >= 0) glutSetWindowTitle(ToLocaleString(t).c_str());
   title = t;
 }
 
-string GLApplication::GetDefaultTitle() const
+wstring GLApplication::GetDefaultTitle() const
 {
   // Insert a space when: lower -> UPPER.
-  string shortName = GetProgramShortName();
-  string t;
+  wstring shortName = GetProgramShortName();
+  wstring t;
   for(size_t i = 0; i < shortName.size(); ++i) {
-    if(i > 0 && islower(shortName[i - 1]) && isupper(shortName[i])) t += ' ';
+    if(i > 0 && iswlower(shortName[i - 1]) && iswupper(shortName[i])) t += L' ';
     t += shortName[i];
   }
   return t;
@@ -249,17 +249,20 @@ void GLApplication::SaveScreen(const fs::path &path, GLenum mode) const
 
 void GLApplication::SaveScreen() const
 {
-  fs::path path = GetProgramShortName() + "_" + to_string(GetSystemTime()) + ".png";
+  fs::path path = GetProgramShortName();
+  path += "_" + to_string(GetSystemTime()) + ".png";
   SaveScreen(path, GL_FRONT);
-  clog << "Info: screen saved to: " << path << endl;
+  clog << "Info: screen saved to: " << ToLocaleString(path) << endl;
 }
 
 void GLApplication::PreInit()
 {
   ios_base::sync_with_stdio(false);
   SetDefaultLocale();
-  programShortName = ToLocaleString(fs::path(FromLocaleString(programName)).stem());
-  clog << "Info: GLApplication name: " << programShortName << endl;
+  programName = FromLocaleString(argv[0]);
+  programShortName = fs::path(programName).stem().wstring();
+  title = GetDefaultTitle();
+  clog << "Info: GLApplication name: " << ToLocaleString(programShortName) << endl;
 
   RandSeed((unsigned long long)time(0));
   GLImage::Init();
@@ -270,7 +273,7 @@ void GLApplication::InitGL()
   glutInit(&argc, argv);
   glutInitDisplayMode(displayMode);
   glutInitWindowSize(width, height);
-  windowId = glutCreateWindow(title.c_str());
+  windowId = glutCreateWindow(ToLocaleString(title).c_str());
   if(windowId < 0) abort();
   if(glewInit() != GLEW_OK) abort();
 }

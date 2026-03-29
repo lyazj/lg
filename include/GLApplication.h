@@ -16,17 +16,17 @@ public:
 
   virtual void Run();
 
-  std::string GetProgramName() const { return programName; }
-  std::string GetProgramShortName() const { return programShortName; }
+  std::wstring GetProgramName() const { return programName; }
+  std::wstring GetProgramShortName() const { return programShortName; }
   void SetDisplayMode(unsigned m);
   void SetWindowSize(int w, int h);
   GLint GetWindowWidth() const { return width; }
   GLint GetWindowHeight() const { return height; }
   void MaximizeWindow() const;
   GLfloat GetAspect() const { return (GLfloat)width / (GLfloat)height; }
-  void SetTitle(const std::string &t);
-  std::string GetDefaultTitle() const;
-  const std::string &GetTitle() const { return title; }
+  void SetTitle(const std::wstring &t);
+  std::wstring GetDefaultTitle() const;
+  const std::wstring &GetTitle() const { return title; }
   void EnableDoubleBuffer();
   void DisableDoubleBuffer();
   void Flush() const;
@@ -100,11 +100,11 @@ protected:
   void ShowFrameRate() const;
 
 private:
-  std::string programName;
-  std::string programShortName;
+  std::wstring programName;
+  std::wstring programShortName;
   unsigned displayMode;
   int width, height;
-  std::string title;
+  std::wstring title;
   int windowId;
   mat4 projection, view, model;
   GLProgramPtr program;

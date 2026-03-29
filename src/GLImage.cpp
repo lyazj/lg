@@ -54,7 +54,7 @@ public:
 
 GLImage::Backend::GLImageMagickBackend::GLImageMagickBackend()
 {
-  Magick::InitializeMagick(GLApplication::GetInstance()->GetProgramName().c_str());
+  Magick::InitializeMagick(ToLocaleString(GLApplication::GetInstance()->GetProgramName()).c_str());
 }
 
 void GLImage::Backend::GLImageMagickBackend::Load(GLImage &image, const fs::path &path) const
@@ -103,7 +103,7 @@ void GLImage::Backend::GLImageSTBBackend::Load(GLImage &image, const fs::path &p
   int n;
   unsigned char *d = stbi_load(ToLocaleString(path).c_str(), &image.width, &image.height, &n, 4);
   if(!d) {
-    cerr << "Error loading image: " << path << ": " << stbi_failure_reason() << endl;
+    cerr << "Error loading image: " << ToLocaleString(path) << ": " << stbi_failure_reason() << endl;
     image.width = image.height = 0;
     image.data.clear();
     image.type = GLImageType::UNKNOWN;
@@ -123,7 +123,7 @@ void GLImage::Backend::GLImageSTBBackend::Save(const GLImage &image, const fs::p
   default: abort();
   }
   if(stbi_write_png(ToLocaleString(path).c_str(), image.width, image.height, n, image.data.data(), 0) == 0) {
-    cerr << "Error saving image: " << path << endl;
+    cerr << "Error saving image: " << ToLocaleString(path) << endl;
   }
 }
 
@@ -280,5 +280,5 @@ void GLImage::Backend::Save(const GLImage &image, const fs::path &path) const
       file.write(n == 4 ? (const char *)(p + 3) : "\xff", 1);  // A
     }
   }
-  if(!file) cerr << "Error saving image: " << path << endl;
+  if(!file) cerr << "Error saving image: " << ToLocaleString(path) << endl;
 }
