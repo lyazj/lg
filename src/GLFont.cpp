@@ -26,7 +26,7 @@ GLFontRange *GLFont::AddRange(GLint atlasW, GLint atlasH, wchar_t firstC, wchar_
 
 GLRenderablePtr GLFont::GetRenderable(wchar_t c, GLfloat &x, GLfloat &y, GLfloat xmin, GLfloat xmax)
 {
-  if(c == '\n') {  // new line
+  if(c == L'\n') {  // new line
     x = xmin, y += fontHeight;
     return nullptr;
   }

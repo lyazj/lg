@@ -3,6 +3,7 @@
 #include <locale.h>
 #include <math.h>
 
+#include <fstream>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
@@ -11,11 +12,20 @@
 #include <random>
 #include <vector>
 
+#include "FileMap.h"
+
 #ifdef _WIN32
 #include <windows.h>
 #else /* _WIN32 */
 #include <signal.h>
 #endif /* _WIN32 */
+
+#ifdef HAS_ICU
+#include <unicode/unistr.h>
+static_assert(sizeof(wchar_t) == 2 || sizeof(wchar_t) == 4);
+#else /* HAS_ICU */
+#include <codecvt>
+#endif /* HAS_ICU */
 
 using namespace std;
 
@@ -39,13 +49,13 @@ uint64_t GetElapsedTime() { return GetTime() - GetStartTime(); }
 
 void SetDefaultLocale() { clog << "Info: apply default locale: " << setlocale(LC_ALL, "") << endl; }
 
-std::string Narrow(const std::wstring &wstr)
+string Narrow(const wstring &wstr)
 {
-  std::string result;
+  string result;
   result.reserve(2 * wstr.size());
-  std::string buffer(MB_CUR_MAX, 0);
+  string buffer(MB_CUR_MAX, 0);
   for(wchar_t wc : wstr) {
-    size_t len = wcrtomb(buffer.data(), wc, nullptr);  // thread-unsafe
+    size_t len = wctomb(buffer.data(), wc);  // thread-unsafe
     if(len == (size_t)-1) {
       cerr << "Error: error converting wide character: " << (unsigned)wc << endl;
       buffer[0] = '?', len = 1;
@@ -56,14 +66,14 @@ std::string Narrow(const std::wstring &wstr)
   return result;
 }
 
-std::wstring Widen(const std::string &str)
+wstring Widen(const string &str)
 {
-  std::wstring result;
+  wstring result;
   result.reserve(str.size());
   wchar_t buffer;
   const char *ptr = str.c_str();
   while(*ptr) {
-    size_t len = mbtowc(&buffer, ptr, MB_CUR_MAX);
+    size_t len = mbtowc(&buffer, ptr, MB_CUR_MAX);  // thread-unsafe
     if(len == (size_t)-1) {
       cerr << "Error: error converting narrow character: " << (unsigned)*ptr << endl;
       buffer = (wchar_t)'?', len = 1;
@@ -73,6 +83,64 @@ std::wstring Widen(const std::string &str)
   }
   result.shrink_to_fit();
   return result;
+}
+
+string NarrowUTF8(const wstring &wstr)
+{
+#ifdef HAS_ICU
+  icu::UnicodeString ustr;
+  string result;
+  if constexpr(sizeof(wchar_t) == 2) {
+    ustr = icu::UnicodeString((const UChar *)wstr.c_str(), (int32_t)wstr.size());
+  } else {
+    ustr = icu::UnicodeString::fromUTF32((const UChar32 *)wstr.c_str(), (int32_t)wstr.size());
+  }
+  result.reserve(wstr.size() * 2);
+  ustr.toUTF8String(result);
+  return result;
+#else /* HAS_ICU */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+  return wstring_convert<codecvt_utf8<wchar_t> >().to_bytes(wstr);
+#pragma GCC diagnostic pop
+#endif /* HAS_ICU */
+}
+
+wstring WidenUTF8(const string &str)
+{
+#ifdef HAS_ICU
+  icu::UnicodeString ustr(str.c_str(), (int32_t)str.length());
+  wstring result;
+  if constexpr(sizeof(wchar_t) == 2) {
+    result.assign((wchar_t *)ustr.getBuffer(), ustr.length());
+  } else {
+    result.resize(ustr.length());
+    UErrorCode errorCode = U_ZERO_ERROR;
+    int32_t n = ustr.toUTF32((UChar32 *)result.data(), (int32_t)result.size(), errorCode);
+    if(U_FAILURE(errorCode)) abort();
+    result.resize(n);
+  }
+  return result;
+#else /* HAS_ICU */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+  return wstring_convert<codecvt_utf8<wchar_t> >().from_bytes(str);
+#pragma GCC diagnostic pop
+#endif /* HAS_ICU */
+}
+
+wstring LoadUTF8(const fs::path &path)
+{
+  FileMap fileMap(path);
+  string content(fileMap.data(), fileMap.size());
+  return WidenUTF8(content);
+}
+
+void SaveUTF8(const fs::path &path, const wstring &s)
+{
+  string content = NarrowUTF8(s);
+  ofstream ofs(path, ios_base::binary);
+  ofs.write(content.data(), content.size());
 }
 
 static mt19937 gRandom;
@@ -324,6 +392,8 @@ fs::path GetResourcePath() { return fs::path("..") / "share"; }
 fs::path GetTexturePath() { return GetResourcePath() / "textures"; }
 
 fs::path GetFontPath() { return GetResourcePath() / "fonts"; }
+
+fs::path GetTextPath() { return GetResourcePath() / "texts"; }
 
 void GLCheckError()
 {

@@ -27,8 +27,9 @@ endif()
 
 option(USE_MAGICK "Enable GraphicsMagick++ support" ON)
 option(USE_STB "Enable stb_image support" ON)
+option(USE_ICU "Enable ICU support" ON)
 
-# Link libraries for OpenGL, GLEW, GLUT, GLM, GraphicsMagick++, and stb_image
+# Link libraries for OpenGL, GLEW, GLUT, GLM, GraphicsMagick++, stb_image, and ICU
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(GLUT REQUIRED)
@@ -66,6 +67,16 @@ if(USE_STB)
         message(STATUS "Fetched stb: ${stb_SOURCE_DIR}")
         target_compile_definitions(LG PRIVATE HAS_STB NEED_STB_IMPLEMENTATION)
         target_include_directories(LG SYSTEM PRIVATE ${stb_SOURCE_DIR})
+    endif()
+endif()
+if(USE_ICU)
+    find_package(ICU QUIET COMPONENTS uc i18n)
+    if(ICU_FOUND)
+        message(STATUS "Found ICU: ${ICU_VERSION}")
+        target_compile_definitions(LG PRIVATE HAS_ICU)
+        target_link_libraries(LG PRIVATE ICU::uc ICU::i18n)
+    else()
+        message(STATUS "ICU not found")
     endif()
 endif()
 

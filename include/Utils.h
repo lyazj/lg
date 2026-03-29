@@ -12,9 +12,14 @@ uint64_t GetSystemTime();
 uint64_t GetStartTime();
 uint64_t GetElapsedTime();
 inline uint64_t NsToMs(uint64_t ns) { return (ns + 500'000) / 1'000'000; }
+
 void SetDefaultLocale();
 std::string Narrow(const std::wstring &s);
 std::wstring Widen(const std::string &s);
+std::string NarrowUTF8(const std::wstring &s);
+std::wstring WidenUTF8(const std::string &s);
+std::wstring LoadUTF8(const fs::path &path);
+void SaveUTF8(const fs::path &path, const std::wstring &s);
 
 // Thread-unsafe.
 void RandSeed(unsigned long long);
@@ -48,6 +53,7 @@ GLint SolveNewton(double x[1], std::function<double(double)> f, std::function<do
 fs::path GetResourcePath();
 fs::path GetTexturePath();
 fs::path GetFontPath();
+fs::path GetTextPath();
 
 #ifdef __GNUC__
 #define Expect(e, v) __builtin_expect((e), (v))

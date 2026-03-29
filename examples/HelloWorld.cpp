@@ -78,6 +78,11 @@ void GLExampleApplication::InitRenderable()
   words = L"\n\n思想自由，兼容并包。——蔡元培";
   texts->AddRenderable(chineseFont->GetRenderable(words, x, y, 50.0f, (GLfloat)GetWindowWidth() - 50.0f));
 
+  words = LoadUTF8(GetTextPath() / "world.txt");
+  while(!words.empty() && words.back() == L'\n') words.pop_back();
+  words = L"\n\n" + words;
+  texts->AddRenderable(chineseFont->GetRenderable(words, x, y, 50.0f, (GLfloat)GetWindowWidth() - 50.0f));
+
   renderable = texts;
   renderable->SetVertexAttributes();
   renderable->Buffer();
