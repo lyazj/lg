@@ -37,7 +37,7 @@ GLApplication::GLApplication(int &ac, char *av[])
     : argc(ac),
       argv(av),
       programName(argv[0]),
-      programShortName(ToLocaleString(fs::path(FromLocaleString(programName)).stem())),
+      programShortName(programName),                      // reset in PreInit()
       displayMode(GLUT_SINGLE | GLUT_RGBA | GLUT_DEPTH),  // negligible overhead
 #ifdef _WIN32
       width(512),
@@ -59,7 +59,6 @@ GLApplication::GLApplication(int &ac, char *av[])
 {
   if(gInstance) abort();
   gInstance = this;
-  clog << "Info: GLApplication created: " << programShortName << endl;
 }
 
 GLApplication::~GLApplication()
@@ -257,8 +256,10 @@ void GLApplication::SaveScreen() const
 
 void GLApplication::PreInit()
 {
-  SetDefaultLocale();
   ios_base::sync_with_stdio(false);
+  SetDefaultLocale();
+  programShortName = ToLocaleString(fs::path(FromLocaleString(programName)).stem());
+  clog << "Info: GLApplication name: " << programShortName << endl;
 
   RandSeed((unsigned long long)time(0));
   GLImage::Init();
