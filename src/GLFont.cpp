@@ -8,6 +8,7 @@
 #include "GLCompositeRenderable.h"
 #include "GLFontRange.h"
 #include "GLProgram.h"
+#include "Utils.h"
 
 using namespace std;
 
@@ -81,9 +82,8 @@ GLFontRange *GLFont::HandleMissing(wchar_t c)
 {
   auto flags = clog.flags();
   char fill = clog.fill();
-  clog << "Info: Building glyph for '" << flush;
-  wclog << c << flush;
-  clog << "' (U+" << hex << setw(4) << setfill('0') << (unsigned)c << ")" << endl;
+  string s = Narrow(wstring(1, c));
+  clog << "Info: Building glyph for '" << s << "' (U+" << hex << setw(4) << setfill('0') << (unsigned)c << ")" << endl;
   clog.fill(fill);
   clog.flags(flags);
 

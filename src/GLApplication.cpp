@@ -7,7 +7,6 @@
 #endif /* FREEGLUT */
 
 #include <iostream>
-#include <locale>
 #include <unordered_map>
 
 #include "GLImage.h"
@@ -258,16 +257,8 @@ void GLApplication::SaveScreen() const
 
 void GLApplication::PreInit()
 {
-  locale::global(GetDefaultLocale());
+  SetDefaultLocale();
   ios_base::sync_with_stdio(false);
-  cin.imbue(locale("C"));
-  cout.imbue(locale("C"));
-  clog.imbue(locale("C"));
-  cerr.imbue(locale("C"));
-  wcin.imbue(locale());
-  wcout.imbue(locale());
-  wclog.imbue(locale());
-  wcerr.imbue(locale());
 
   RandSeed((unsigned long long)time(0));
   GLImage::Init();

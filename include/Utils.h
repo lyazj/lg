@@ -2,7 +2,6 @@
 
 #include <functional>
 #include <iosfwd>
-#include <locale>
 #include <string>
 #include <utility>
 
@@ -13,7 +12,7 @@ uint64_t GetSystemTime();
 uint64_t GetStartTime();
 uint64_t GetElapsedTime();
 inline uint64_t NsToMs(uint64_t ns) { return (ns + 500'000) / 1'000'000; }
-std::locale GetDefaultLocale();
+void SetDefaultLocale();
 std::string Narrow(const std::wstring &s);
 std::wstring Widen(const std::string &s);
 
