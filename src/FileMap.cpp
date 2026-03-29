@@ -3,13 +3,13 @@
 // The Windows version is written by ChatGPT.
 #ifdef _WIN32
 #include <windows.h>
-#else
+#else /* _WIN32 */
 #include <err.h>
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#endif
+#endif /* _WIN32 */
 
 FileMap::FileMap(const fs::path &path)
 {
@@ -28,7 +28,7 @@ FileMap::FileMap(const fs::path &path)
 
   fileHandle = f;
   mappingHandle = m;
-#else
+#else  /* _WIN32 */
   int fd = open(path.c_str(), O_RDONLY);
   if(fd < 0) err(EXIT_FAILURE, "open");
 
@@ -40,7 +40,7 @@ FileMap::FileMap(const fs::path &path)
   if(buffer == MAP_FAILED) err(EXIT_FAILURE, "mmap");
 
   close(fd);
-#endif
+#endif /* _WIN32 */
 }
 
 FileMap::~FileMap()
@@ -49,7 +49,7 @@ FileMap::~FileMap()
   if(buffer) UnmapViewOfFile(buffer);
   if(mappingHandle) CloseHandle(mappingHandle);
   if(fileHandle) CloseHandle(fileHandle);
-#else
+#else  /* _WIN32 */
   munmap(buffer, bufferSize);
-#endif
+#endif /* _WIN32 */
 }
