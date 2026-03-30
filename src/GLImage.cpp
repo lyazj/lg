@@ -267,7 +267,7 @@ void GLImage::Backend::Save(const GLImage &image, const fs::path &path) const
   fileHeader.ToLittleEndian();
   infoHeader.ToLittleEndian();
 
-  ofstream file(path, ios::binary);
+  ofstream file(ToLocaleString(path), ios_base::binary);
   file.write((const char *)&fileHeader, sizeof(fileHeader));
   file.write((const char *)&infoHeader, sizeof(infoHeader));
   int n = image.type == GLImageType::RGBA ? 4 : 3;

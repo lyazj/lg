@@ -209,8 +209,8 @@ u32string FromWString(const wstring &wstr)
 void ToFile(const fs::path &path, const u32string &s)
 {
   string content = ToString(s);
-  ofstream ofs(path, ios_base::binary);
-  ofs.write(content.data(), content.size());
+  ofstream file(ToLocaleString(path), ios_base::binary);
+  file.write(content.data(), content.size());
 }
 
 u32string FromFile(const fs::path &path)
