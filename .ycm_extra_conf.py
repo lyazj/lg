@@ -40,3 +40,4 @@ exec(open(filename).read())
 #    if os.path.basename(dirpath) == 'include':
 #        flags.append('-I' + dirpath)
 flags.insert(0, '-Iinclude')
+flags.insert(0, '-Iinstall/include')
