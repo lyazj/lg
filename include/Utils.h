@@ -12,7 +12,7 @@ uint64_t GetStartTime();
 uint64_t GetElapsedTime();
 inline uint64_t NsToMs(uint64_t ns) { return (ns + 500'000) / 1'000'000; }
 
-// Locale-dependent functions. Not thread-safe.
+// Locale-dependent functions.
 void SetDefaultLocale();
 std::string ToLocaleString(const std::wstring &s);
 inline std::string ToLocaleString(const fs::path &path) { return ToLocaleString(path.wstring()); }

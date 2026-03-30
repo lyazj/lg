@@ -2,6 +2,7 @@
 
 #include <locale.h>
 #include <math.h>
+#include <string.h>
 
 #include <fstream>
 #include <glm/gtc/matrix_transform.hpp>
@@ -51,16 +52,29 @@ void SetDefaultLocale() { clog << "Info: applying default locale: " << setlocale
 string ToLocaleString(const wstring &wstr)
 {
   string result;
-  result.reserve(2 * wstr.size());
+  result.reserve(2 * wstr.size());  // Heuristic: many encodings use ~1–2 bytes per wchar_t.
   string buffer(MB_CUR_MAX, 0);
+  mbstate_t mbstate;
+  memset(&mbstate, 0, sizeof(mbstate));
+
+  // Convert each wide character independently (no implicit null terminator).
+  // On conversion error: emit a placeholder ('?') and reset the conversion state.
   for(wchar_t wc : wstr) {
-    size_t len = wctomb(buffer.data(), wc);  // thread-unsafe
+    size_t len = wcrtomb(buffer.data(), wc, &mbstate);
     if(len == (size_t)-1) {
       cerr << "Error: error converting wide character: " << (uint32_t)wc << endl;
       buffer[0] = '?', len = 1;
+      memset(&mbstate, 0, sizeof(mbstate));  // Reset state after invalid sequence.
     }
     result.append(buffer.data(), len);
   }
+
+  // Flush any remaining shift state by converting a null wide character.
+  // This may emit shift bytes followed by '\0'; exclude the terminator.
+  size_t len = wcrtomb(buffer.data(), L'\0', &mbstate);
+  if(len == (size_t)0 || len == (size_t)-1) abort();  // unspecified; should not occur
+  result.append(buffer.data(), len - 1);              // append shift bytes only (exclude '\0')
+
   result.shrink_to_fit();
   return result;
 }
@@ -68,18 +82,27 @@ string ToLocaleString(const wstring &wstr)
 wstring FromLocaleString(const string &str)
 {
   wstring result;
-  result.reserve(str.size());
+  result.reserve(str.size() + 1);  // Upper bound: at most one wchar_t per input byte.
   wchar_t buffer;
+  mbstate_t mbstate;
+  memset(&mbstate, 0, sizeof(mbstate));
+
+  // Process the input including the terminating null byte.
+  // On conversion error or incomplete sequence: emit replacement character and reset state.
   const char *ptr = str.c_str();
-  while(*ptr) {
-    size_t len = mbtowc(&buffer, ptr, MB_CUR_MAX);  // thread-unsafe
-    if(len == (size_t)-1) {
-      cerr << "Error: error converting narrow character: " << (uint32_t)*ptr << endl;
-      buffer = (wchar_t)'?', len = 1;
+  while(ptr <= str.c_str() + str.size()) {
+    size_t len = mbrtowc(&buffer, ptr, str.c_str() + str.size() + 1 - ptr, &mbstate);
+    if(len == (size_t)-1 || len == (size_t)-2) {
+      cerr << "Error: error converting narrow character: " << (uint32_t)(unsigned char)*ptr << endl;
+      buffer = L'\ufffd', len = 1;
+      memset(&mbstate, 0, sizeof(mbstate));  // Reset state after invalid sequence.
     }
+    if(len == (size_t)0) buffer = L'\0', len = 1;
     result.push_back(buffer);
     ptr += len;
   }
+
+  result.pop_back();  // Remove the extra null character.
   result.shrink_to_fit();
   return result;
 }
