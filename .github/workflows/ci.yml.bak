@@ -14,7 +14,6 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest   # Linux amd64
-          - os: windows-latest  # Windows amd64
           - os: macos-latest    # macOS arm64 (Apple M-series)
 
     runs-on: ${{ matrix.os }}
@@ -26,26 +25,17 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgl-dev libglew-dev freeglut3-dev libglm-dev graphicsmagick-libmagick-dev-compat libstb-dev libicu-dev
+          sudo apt-get install -y libgl-dev libglu1-mesa-dev libxi-dev libglm-dev
 
       - name: Install dependencies (macOS)
         if: runner.os == 'macOS'
         run: |
           brew update
-          brew install glew freeglut glm graphicsmagick stb icu4c
-
-      - name: Install dependencies (Windows)
-        if: runner.os == 'Windows'
-        run: |  # Skip graphicsmagick.
-          vcpkg install glew freeglut pkgconf glm stb icu --triplet x64-windows
+          brew install glm graphicsmagick stb icu4c
 
       - name: Configure (Linux / macOS)
         if: runner.os != 'Windows'
         run: cmake -B build -DCMAKE_BUILD_TYPE=Release
-
-      - name: Configure (Windows)
-        if: runner.os == 'Windows'
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
 
       - name: Build
         run: cmake --build build --config Release
