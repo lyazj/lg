@@ -36,7 +36,8 @@ FileMap::FileMap(const fs::path &path)
   if(fstat(fd, &st) < 0) err(EXIT_FAILURE, "fstat");
   bufferSize = st.st_size;
 
-  buffer = (char *)mmap(0, bufferSize, PROT_READ, MAP_SHARED, fd, 0);
+  // NOTE: MAP_PRIVATE doesn't prevent sharing but is much more compatible.
+  buffer = (char *)mmap(0, bufferSize, PROT_READ, MAP_PRIVATE, fd, 0);
   if(buffer == MAP_FAILED) err(EXIT_FAILURE, "mmap");
 
   close(fd);
