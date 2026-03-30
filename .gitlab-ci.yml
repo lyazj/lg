@@ -1,19 +1,39 @@
 stages:
   - build
 
-build-native:
+build-linux64:
   image: ubuntu:latest
   stage: build
   script:
     - apt-get update
-    - apt-get install -y build-essential cmake git libgl-dev libglew-dev freeglut3-dev libglm-dev graphicsmagick-libmagick-dev-compat libstb-dev libicu-dev
-    - ./build.sh
-    - mv install/ install-native-$(uname -m)_$(git rev-parse --short HEAD)/
+    - apt-get install -y build-essential cmake git libgl-dev libglu1-mesa-dev libxi-dev libglm-dev
+    - pushd build-cross
+    - ./build-linux64.sh
+    - popd
+    - mv build-cross/install-linux64/ install-linux64-x86_64-$(git rev-parse --short HEAD)/
   artifacts:
     paths:
-      - install-native-*/bin/
-      - install-native-*/lib/
-      - install-native-*/share/
+      - install-linux64-*/bin/
+      - install-linux64-*/lib/
+      - install-linux64-*/share/
+    expire_in: 1 week
+
+build-linux32:
+  image: ubuntu:latest
+  stage: build
+  script:
+    - dpkg --add-architecture i386
+    - apt-get update
+    - apt-get install -y g++-i686-linux-gnu make cmake git libgl-dev:i386 libglu1-mesa-dev:i386 libxi-dev:i386 libglm-dev
+    - pushd build-cross
+    - ./build-linux32.sh
+    - popd
+    - mv build-cross/install-linux32/ install-linux32-i686-$(git rev-parse --short HEAD)/
+  artifacts:
+    paths:
+      - install-linux32-*/bin/
+      - install-linux32-*/lib/
+      - install-linux32-*/share/
     expire_in: 1 week
 
 build-mingw64:
@@ -46,22 +66,4 @@ build-mingw32:
     paths:
       - install-mingw32-*/bin/
       - install-mingw32-*/share/
-    expire_in: 1 week
-
-build-linux32:
-  image: ubuntu:latest
-  stage: build
-  script:
-    - dpkg --add-architecture i386
-    - apt-get update
-    - apt-get install -y g++-i686-linux-gnu make cmake git libgl-dev:i386 libglu1-mesa-dev:i386
-    - pushd build-cross
-    - ./build-linux32.sh
-    - popd
-    - mv build-cross/install-linux32/ install-linux32-i686-$(git rev-parse --short HEAD)/
-  artifacts:
-    paths:
-      - install-linux32-*/bin/
-      - install-linux32-*/lib/
-      - install-linux32-*/share/
     expire_in: 1 week
