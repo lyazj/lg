@@ -47,7 +47,11 @@ uint64_t GetStartTime() { return gStartTime; }
 
 uint64_t GetElapsedTime() { return GetTime() - GetStartTime(); }
 
-void SetDefaultLocale() { clog << "Info: applying default locale: " << setlocale(LC_ALL, "") << endl; }
+void SetDefaultLocale()
+{
+  // std::locale should not be used for MinGW compatibility.
+  clog << "Info: applying default locale: " << setlocale(LC_ALL, "") << endl;
+}
 
 string ToLocaleString(const wstring &wstr)
 {
