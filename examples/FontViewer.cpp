@@ -80,7 +80,7 @@ void GLExampleApplication::InitRenderable()
     fontPath = argv[1];
     if(!fs::exists(fontPath)) fontPath = GetFontPath() / argv[1];
   }
-  if(argc > 2) fontHeight = stof(argv[2]);
+  if(argc > 2) fontHeight = stof(argv[2]);  // sto*: exception thrown on error -> terminate()
   if(argc > 3) imageWidth = stoi(argv[3]);
   if(argc > 4) imageHeight = stoi(argv[4]);
   if(argc > 5) firstChar = (char32_t)stoi(argv[5], nullptr, 0);

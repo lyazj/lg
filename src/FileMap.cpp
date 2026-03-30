@@ -21,6 +21,13 @@ FileMap::FileMap(const fs::path &path)
   if(!GetFileSizeEx(f, &s)) abort();
   bufferSize = (size_t)s.QuadPart;
 
+  if(bufferSize == 0) {
+    CloseHandle(f);
+    buffer = nullptr;
+    fileHandle = mappingHandle = 0;
+    return;
+  }
+
   HANDLE m = CreateFileMappingA(f, 0, PAGE_READONLY, 0, 0, 0);
   if(!m) abort();
   buffer = (char *)MapViewOfFile(m, FILE_MAP_READ, 0, 0, 0);
@@ -35,6 +42,12 @@ FileMap::FileMap(const fs::path &path)
   struct stat st;
   if(fstat(fd, &st) < 0) err(EXIT_FAILURE, "fstat");
   bufferSize = st.st_size;
+
+  if(bufferSize == 0) {
+    close(fd);
+    buffer = nullptr;
+    return;
+  }
 
   // NOTE: MAP_PRIVATE doesn't prevent sharing but is much more compatible.
   buffer = (char *)mmap(0, bufferSize, PROT_READ, MAP_PRIVATE, fd, 0);
@@ -51,6 +64,6 @@ FileMap::~FileMap()
   if(mappingHandle) CloseHandle(mappingHandle);
   if(fileHandle) CloseHandle(fileHandle);
 #else  /* _WIN32 */
-  munmap(buffer, bufferSize);
+  if(buffer) munmap(buffer, bufferSize);
 #endif /* _WIN32 */
 }

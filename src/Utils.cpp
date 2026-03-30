@@ -461,6 +461,7 @@ GLint SolveNewton(
   while(nit--) {
     double fx = f(x), fpx = fp(x);
     if(fabs(fx) <= yerr) return 1;  // one solution
+    if(fpx == 0.0) return -1;       // failed
     double x0 = x;
     x = x - fx / fpx;
     if(fabs(x - x0) <= xerr) return 1;  // one solution

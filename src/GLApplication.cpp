@@ -83,6 +83,7 @@ void GLApplication::SetDisplayMode(unsigned m)
 
 void GLApplication::SetWindowSize(int w, int h)
 {
+  if(w <= 0 || h <= 0) abort();
   if(windowId >= 0) glutReshapeWindow(w, h);
   width = w;
   height = h;
@@ -118,6 +119,12 @@ void GLApplication::MaximizeWindow() const
   XCloseDisplay(display);
   return;
 #endif /* USE_X11_WINDOWING */
+}
+
+GLfloat GLApplication::GetAspect() const
+{
+  if(height == 0) abort();
+  return (GLfloat)width / (GLfloat)height;
 }
 
 void GLApplication::SetTitle(const wstring &t)

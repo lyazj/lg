@@ -178,6 +178,7 @@ void GLMazeGenerator::GenerateExit()
 // Recursive backtracking algorithm.
 // The exit is selected as the farthest border cell from the entry.
 // This likely generates very difficult mazes.
+// Warning: Stack overflow possible for very large mazes.
 void GLMazeGenerator::GenerateBacktracking(GLint x, GLint y, GLint d)
 {
   visited[x][y] = true;

@@ -69,7 +69,7 @@ void GLExampleApplication::Init()
     cerr << "Usage: " << GetProgramShortName() << " <width> <height>" << endl;
     exit(EXIT_FAILURE);
   }
-  width = stoi(argv[1]);
+  width = stoi(argv[1]);  // sto*: exception thrown on error -> terminate()
   height = stoi(argv[2]);
 
   maze = make_shared<GLMaze>(width, height, GLMazeType::Kruskal);

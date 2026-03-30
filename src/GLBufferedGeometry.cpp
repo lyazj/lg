@@ -40,5 +40,6 @@ void GLBufferedGeometry::Bind() const { vertexArray.Bind(); }
 
 void GLBufferedGeometry::SetUniforms(const mat4 &model) const
 {
+  // Current program MUST NOT be null.
   GLApplication::GetInstance()->GetProgram()->SetUniform("u_model", model);
 }

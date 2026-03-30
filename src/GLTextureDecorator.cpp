@@ -15,7 +15,7 @@ using namespace std;
 void GLTextureDecorator::IssueDraw(const mat4 &model) const
 {
   glActiveTexture(GL_TEXTURE0);
-  texture->Bind();
+  if(texture) texture->Bind();
   GLSimpleRenderableDecorator::IssueDraw(model);
 }
 

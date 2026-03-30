@@ -22,7 +22,7 @@ public:
   GLint GetWindowWidth() const { return width; }
   GLint GetWindowHeight() const { return height; }
   void MaximizeWindow() const;
-  GLfloat GetAspect() const { return (GLfloat)width / (GLfloat)height; }
+  GLfloat GetAspect() const;
   void SetTitle(const std::wstring &t);
   std::wstring GetDefaultTitle() const;
   const std::wstring &GetTitle() const { return title; }
