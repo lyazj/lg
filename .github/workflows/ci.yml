@@ -15,11 +15,16 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
 
+    # Only skip macos on push/PR, never skip ubuntu
+    if: ${{ ! (matrix.os == 'macos-latest' && github.event_name != 'workflow_dispatch') }}
+
     runs-on: ${{ matrix.os }}
-    if: ${{ matrix.os != 'macos-latest' || github.event_name == 'workflow_dispatch' }}
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Show OS and trigger
+        run: echo "OS is ${{ matrix.os }}, event is ${{ github.event_name }}"
 
       - name: Install dependencies (Linux)
         if: runner.os == 'Linux'
@@ -37,7 +42,7 @@ jobs:
         run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/install
 
       - name: Build
-        run: cmake --build build --parallel $(nproc)
+        run: cmake --build build --parallel $(nproc || sysctl -n hw.ncpu)
 
       - name: Install
         run: cmake --install build
