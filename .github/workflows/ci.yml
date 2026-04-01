@@ -31,11 +31,11 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           brew update
-          brew install glm graphicsmagick stb icu4c
+          brew install glm graphicsmagick icu4c
 
       - name: Configure (Linux / macOS)
         if: runner.os != 'Windows'
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${PWD}/install -DFIND_GLM=OFF -DFIND_STB=OFF -DUSE_MAGICK=OFF
 
       - name: Build
-        run: cmake --build build --config Release
+        run: cmake --build build --parallel $(nproc)
