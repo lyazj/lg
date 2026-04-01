@@ -13,14 +13,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: ubuntu-latest
-            enabled: true
-          - os: macos-latest
-            enabled: ${{ github.event_name == 'workflow_dispatch' }}
+        os: [ubuntu-latest, macos-latest]
 
     runs-on: ${{ matrix.os }}
-    if: ${{ matrix.enabled }}
+    if: ${{ matrix.os != 'macos-latest' || github.event_name == 'workflow_dispatch' }}
 
     steps:
       - uses: actions/checkout@v4
