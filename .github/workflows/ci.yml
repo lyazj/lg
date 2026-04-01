@@ -3,6 +3,7 @@ name: CI
 on:
   push:
   pull_request:
+  workflow_dispatch:   # allow manual trigger
 
 permissions:
   contents: read
@@ -14,9 +15,14 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest   # Linux amd64
+            auto: true
           - os: macos-latest    # macOS arm64 (Apple M-series)
+            auto: false
 
     runs-on: ${{ matrix.os }}
+
+    # Skip macOS unless manually triggered
+    if: ${{ matrix.auto == true || github.event_name == 'workflow_dispatch' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -33,9 +39,17 @@ jobs:
           brew update
           brew install glm graphicsmagick icu4c
 
-      - name: Configure (Linux / macOS)
-        if: runner.os != 'Windows'
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${PWD}/install
+      - name: Configure
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/install
 
       - name: Build
         run: cmake --build build --parallel $(nproc)
+
+      - name: Install
+        run: cmake --install build
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ runner.os }}-install
+          path: install/
