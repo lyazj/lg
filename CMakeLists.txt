@@ -50,13 +50,16 @@ ExternalProject_Add(glew_ep
 )
 
 # GLUT (build v3.8.0 from source; ensures unicode support)
+set(FREEGLUT_FLAGS "")
+if(APPLE)
+    set(FREEGLUT_FLAGS "-DFREEGLUT_COCOA=ON")
+endif()
 ExternalProject_Add(freeglut_ep
     URL https://github.com/freeglut/freeglut/releases/download/v3.8.0/freeglut-3.8.0.tar.gz DOWNLOAD_EXTRACT_TIMESTAMP
     CMAKE_ARGS
         -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
         -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-        -DFREEGLUT_REPLACE_GLUT=ON -DFREEGLUT_BUILD_DEMOS=OFF
-        <IF:APPLE> -DFREEGLUT_COCOA=ON </IF>
+        -DFREEGLUT_REPLACE_GLUT=ON -DFREEGLUT_BUILD_DEMOS=OFF ${FREEGLUT_FLAGS}
     INSTALL_COMMAND ${CMAKE_COMMAND} --install <BINARY_DIR> ${STRIP_ARGS}
 )
 

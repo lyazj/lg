@@ -35,7 +35,7 @@ jobs:
 
       - name: Configure (Linux / macOS)
         if: runner.os != 'Windows'
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${PWD}/install -DFIND_GLM=OFF -DFIND_STB=OFF -DUSE_MAGICK=OFF
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${PWD}/install
 
       - name: Build
         run: cmake --build build --parallel $(nproc)
