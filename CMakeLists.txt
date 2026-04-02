@@ -47,6 +47,7 @@ ExternalProject_Add(glew_ep
         -DBUILD_UTILS=OFF
     SOURCE_SUBDIR build/cmake
     INSTALL_COMMAND ${CMAKE_COMMAND} --install <BINARY_DIR> ${STRIP_ARGS}
+    BUILD_ALWAYS 1
 )
 
 # GLUT (build v3.8.0 from source; ensures unicode support)
@@ -61,6 +62,7 @@ ExternalProject_Add(freeglut_ep
         -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         -DFREEGLUT_REPLACE_GLUT=ON -DFREEGLUT_BUILD_DEMOS=OFF ${FREEGLUT_FLAGS}
     INSTALL_COMMAND ${CMAKE_COMMAND} --install <BINARY_DIR> ${STRIP_ARGS}
+    BUILD_ALWAYS 1
 )
 
 # GLM
