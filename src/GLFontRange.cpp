@@ -45,16 +45,16 @@ protected:
 #ifdef HAS_STB
 class GLFontRange::Inner {
 public:
-  Inner(size_t nChar) : charData(new stbtt_bakedchar[nChar]) { }
-  ~Inner() { delete[] charData; }
+  Inner(size_t nChar) : charData(make_unique<stbtt_bakedchar[]>(nChar)) { }
+  ~Inner() = default;
   Inner(const Inner &) = delete;
   Inner &operator=(const Inner &) = delete;
 
-  stbtt_bakedchar *CharData() { return charData; }
-  const stbtt_bakedchar *CharData() const { return charData; }
+  stbtt_bakedchar *CharData() { return charData.get(); }
+  const stbtt_bakedchar *CharData() const { return charData.get(); }
 
 private:
-  stbtt_bakedchar *charData;
+  unique_ptr<stbtt_bakedchar[]> charData;
 };
 #else  /* HAS_STB */
 class GLFontRange::Inner {
@@ -70,7 +70,7 @@ GLFontRange::GLFontRange(
     const FileMap &fMap, GLfloat fontH, GLint atlasW, GLint atlasH, char32_t firstC, char32_t lastC)
     : fontHeight(fontH), atlasWidth(atlasW), atlasHeight(atlasH), firstChar(firstC), lastChar(lastC)
 {
-  inner = new Inner(lastChar - firstChar + 1);
+  inner = make_unique<Inner>(lastChar - firstChar + 1);
   vector<byte> data(atlasW * atlasH);
 
 #ifdef HAS_STB
@@ -84,7 +84,7 @@ GLFontRange::GLFontRange(
   texture->Texture(GL_RED, atlasWidth, atlasHeight, GL_RED, data.data());
 }
 
-GLFontRange::~GLFontRange() { delete inner; }
+GLFontRange::~GLFontRange() = default;
 
 GLRenderablePtr GLFontRange::GetRenderable(char32_t c, GLfloat &x, GLfloat &y, GLfloat xmin, GLfloat xmax) const
 {

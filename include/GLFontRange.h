@@ -27,5 +27,5 @@ private:
   GLTexturePtr texture;
 
   class Inner;
-  Inner *inner;
+  std::unique_ptr<Inner> inner;
 };
