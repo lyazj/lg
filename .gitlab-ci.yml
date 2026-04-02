@@ -4,6 +4,12 @@ stages:
 build-linux64:
   image: ubuntu:latest
   stage: build
+  cache:
+    key:
+      prefix: build-linux64
+      files: ["CMakeLists.txt", "build-cross/build-linux64.sh"]
+    paths:
+      - build-cross/build-linux64
   script:
     - apt-get update
     - apt-get install -y build-essential cmake git libgl-dev libglu1-mesa-dev libxi-dev libglm-dev
@@ -21,6 +27,12 @@ build-linux64:
 build-linux32:
   image: ubuntu:latest
   stage: build
+  cache:
+    key:
+      prefix: build-linux32
+      files: ["CMakeLists.txt", "build-cross/build-linux32.sh"]
+    paths:
+      - build-cross/build-linux32
   script:
     - dpkg --add-architecture i386
     - apt-get update
@@ -39,6 +51,12 @@ build-linux32:
 build-mingw64:
   image: ubuntu:latest
   stage: build
+  cache:
+    key:
+      prefix: build-mingw64
+      files: ["CMakeLists.txt", "build-cross/build-mingw64.sh"]
+    paths:
+      - build-cross/build-mingw64
   script:
     - apt-get update
     - apt-get install -y mingw-w64 make cmake git
@@ -55,6 +73,12 @@ build-mingw64:
 build-mingw32:
   image: ubuntu:latest
   stage: build
+  cache:
+    key:
+      prefix: build-mingw32
+      files: ["CMakeLists.txt", "build-cross/build-mingw32.sh"]
+    paths:
+      - build-cross/build-mingw32
   script:
     - apt-get update
     - apt-get install -y mingw-w64 make cmake git
