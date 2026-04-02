@@ -22,6 +22,7 @@ Renderable management hierarchy:
               ├── GLTriangle                       (D=3)
               ├── GLTriangleStrip                  (D=3)
               ├── GLSphere                         (D=3)
+              ├── GLCuboid                         (D=3)
               ├── GLAxes                           (D=3)
               ├── GLRectangle                      (D=2)
               ├── GLCircle                         (D=2)

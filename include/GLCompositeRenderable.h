@@ -9,9 +9,10 @@ public:
   GLCompositeRenderable() = default;
   ~GLCompositeRenderable() override = default;
 
-  void Reserve(GLuint n) { renderables.reserve(n); }
-  GLuint GetNRenderable() const { return (GLuint)renderables.size(); }
-  const GLRenderablePtr &GetRenderable(GLuint i) const { return renderables.at(i); }
+  void Reserve(GLint n) { renderables.reserve(n); }
+  GLint GetNRenderable() const { return (GLint)renderables.size(); }
+  const GLRenderablePtr &GetRenderable(GLint i) const { return renderables.at(i); }
+  void SetRenderable(GLint i, const GLRenderablePtr &r) { renderables.at(i) = r; }
   void AddRenderable(const GLRenderablePtr &r) { renderables.push_back(r); }
 
   void SetVertexAttributes() const override;

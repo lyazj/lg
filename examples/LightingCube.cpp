@@ -4,9 +4,8 @@
 #include "GLAxes.h"
 #include "GLColorDecorator.h"
 #include "GLCompositeRenderable.h"
+#include "GLCuboid.h"
 #include "GLProgram.h"
-#include "GLSimpleRenderableDecorator.h"
-#include "GLSphere.h"
 
 using namespace std;
 
@@ -31,16 +30,38 @@ int main(int argc, char *argv[])
   return 0;
 }
 
+class CuboidFaceColorDecorator : public GLBufferedColorDecorator {
+public:
+  CuboidFaceColorDecorator(const GLCuboid &cuboid, GLint i);
+
+protected:
+  void SetColors() const override { }
+};
+
+CuboidFaceColorDecorator::CuboidFaceColorDecorator(const GLCuboid &c, GLint i) : GLBufferedColorDecorator(c.GetFace(i))
+{
+  colors.reserve(4);
+  for(GLint j = 0; j < 4; ++j) {
+    vec3 v;
+    c.GetVertex(i, j, v);
+    colors.emplace_back(v.x >= 0.0f, v.y >= 0.0f, v.z >= 0.0f, 1.0f);
+  }
+}
+
 void GLExampleApplication::Init()
 {
   GL3DApplication::Init();
+  vec3 camera(0.0f, 1.0f, 1.0f);
+  vec3 target(0.0f, 0.0f, 0.0f);
+  vec3 up(0.0f, 1.0f, -1.0f);
+  SetView(lookAt(camera, target, up));
 
   UseProgram(GLProgram::GetDefaultLightingProgram());
 
   auto scene = make_shared<GLCompositeRenderable>();
-  GLSimpleRenderablePtr sphere = make_shared<GLSphere>(0.2f, 64, 32);
-  sphere = make_shared<GLUniformColorDecorator>(sphere, vec4(1.0f, 0.0f, 0.0f, 1.0f));
-  scene->AddRenderable(sphere);
+  auto cubic = make_shared<GLCuboid>(0.5f, 0.5f, 0.5f);
+  for(GLint i = 0; i < 6; ++i) cubic->SetFace(i, make_shared<CuboidFaceColorDecorator>(*cubic, i));
+  scene->AddRenderable(cubic);
   scene->AddRenderable(make_shared<GLSimpleRenderableDecorator>(make_shared<GLAxes>(), GLProgram::GetDefaultProgram()));
   renderable = scene;
 
