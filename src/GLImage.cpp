@@ -260,10 +260,18 @@ void GLImage::Backend::Save(const GLImage &image, const fs::path &path) const
 {
   BMPFileHeader fileHeader;
   BMPInfoHeader infoHeader;
-  fileHeader.bfSize = fileHeader.bfOffBits + (size_t)image.width * image.height * 4;
+  size_t pixelDataSize = (size_t)image.width * image.height * 4;
+  size_t totalSize = fileHeader.bfOffBits + pixelDataSize;
+  
+  if(totalSize > UINT32_MAX) {
+    cerr << "Error saving image: file size exceeds BMP limit" << endl;
+    return;
+  }
+  
+  fileHeader.bfSize = (uint32_t)totalSize;
   infoHeader.biWidth = image.width;
   infoHeader.biHeight = image.height;
-  infoHeader.biSizeImage = (size_t)image.width * image.height * 4;
+  infoHeader.biSizeImage = (uint32_t)pixelDataSize;
   fileHeader.ToLittleEndian();
   infoHeader.ToLittleEndian();
 
