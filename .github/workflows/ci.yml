@@ -1,7 +1,7 @@
 name: CI
 
 on:
-  workflow_dispatch:   # manual trigger only
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -21,23 +21,71 @@ jobs:
       - name: Show OS and trigger
         run: echo "OS is ${{ matrix.os }}, event is ${{ github.event_name }}"
 
+      # ------------------------------
+      # Cache build directories
+      # ------------------------------
+      - name: Cache CMake builds
+        uses: actions/cache@v4
+        with:
+          path: |
+            build-minimal
+            build
+          key: ${{ runner.os }}-cmake-${{ hashFiles('**/CMakeLists.txt') }}
+
+      # ------------------------------
+      # Minimal dependencies
+      # ------------------------------
+      - name: Install dependencies (Linux, minimal)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl-dev libglu1-mesa-dev libxi-dev
+
+      - name: Install dependencies (macOS, minimal)
+        if: runner.os == 'macOS'
+        run: echo "Minimal dependencies are expected to be available on macOS by default"
+
+      # ------------------------------
+      # Minimal build
+      # ------------------------------
+      - name: Configure (minimal)
+        run: cmake -B build-minimal -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/install-minimal -DFIND_GLM=OFF -DFIND_STB=OFF -DUSE_MAGICK=OFF -DUSE_STB=ON -DUSE_ICU=OFF
+
+      - name: Build (minimal)
+        run: cmake --build build-minimal --parallel $(sysctl -n hw.ncpu 2>/dev/null || nproc) --verbose
+
+      - name: Install (minimal)
+        run: cmake --install build-minimal
+
+      - name: Upload (minimal)
+        uses: actions/upload-artifact@v4
+        with:
+          name: install-${{ runner.os }}-minimal-${{ github.sha }}
+          path: ${{ github.workspace }}/install-minimal
+          retention-days: 7
+
+      # ------------------------------
+      # Full dependencies
+      # ------------------------------
       - name: Install dependencies (Linux)
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgl-dev libglu1-mesa-dev libxi-dev libglm-dev
+          sudo apt-get install -y libglm-dev libstb-dev graphicsmagick-libmagick-dev-compat libicu-dev
 
       - name: Install dependencies (macOS)
         if: runner.os == 'macOS'
         run: |
-          brew update
           brew install glm graphicsmagick icu4c
 
+      # ------------------------------
+      # Full build
+      # ------------------------------
       - name: Configure
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/install
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/install -DFIND_GLM=ON -DFIND_STB=ON -DUSE_MAGICK=ON -DUSE_STB=ON -DUSE_ICU=ON
 
       - name: Build
-        run: cmake --build build --parallel $(nproc || sysctl -n hw.ncpu)
+        run: cmake --build build --parallel $(sysctl -n hw.ncpu 2>/dev/null || nproc) --verbose
 
       - name: Install
         run: cmake --install build
@@ -45,6 +93,6 @@ jobs:
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ runner.os }}-install
-          path: install/
+          name: install-${{ runner.os }}-${{ github.sha }}
+          path: ${{ github.workspace }}/install
           retention-days: 7
