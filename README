@@ -15,7 +15,7 @@ Renderable management hierarchy:
       │   │       └── GLRandomColorDecorator       [assigns random colors to vertices]
       │   └── GLTextureDecorator                   [binds texture to renderable]
       │       └── GLBufferedTextureDecorator       (abstract: adds a per-vertex texture coordinate buffer)
-      │           └── GLPlanarTextureDecorator     [generates planar UV from x-y coordinates]
+      │           ├── GLPlanarTextureDecorator     [generates planar UV from x-y coordinates]
       │           └── GLSphericalTextureDecorator  [generates spherical UV from θ-φ coordinates]
       └── GLBufferedGeometry  (abstract: owns VAO/VBO; adds Bind, SetUniforms, IssueBuffer, IssueDraw)
           └── GLBufferedGeometryD<D>               [template; D=2 or D=3; owns typed vertex list]
