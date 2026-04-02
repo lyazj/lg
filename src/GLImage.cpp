@@ -260,20 +260,20 @@ void GLImage::Backend::Save(const GLImage &image, const fs::path &path) const
 {
   BMPFileHeader fileHeader;
   BMPInfoHeader infoHeader;
-  fileHeader.bfSize = fileHeader.bfOffBits + image.width * image.height * 4;
+  fileHeader.bfSize = fileHeader.bfOffBits + (size_t)image.width * image.height * 4;
   infoHeader.biWidth = image.width;
   infoHeader.biHeight = image.height;
-  infoHeader.biSizeImage = image.width * image.height * 4;
+  infoHeader.biSizeImage = (size_t)image.width * image.height * 4;
   fileHeader.ToLittleEndian();
   infoHeader.ToLittleEndian();
 
   ofstream file(ToLocaleString(path), ios_base::binary);
   file.write((const char *)&fileHeader, sizeof(fileHeader));
   file.write((const char *)&infoHeader, sizeof(infoHeader));
-  int n = image.type == GLImageType::RGBA ? 4 : 3;
+  size_t n = image.type == GLImageType::RGBA ? 4 : 3;
   for(GLint y = 0; y < image.height; y++) {
     for(GLint x = 0; x < image.width; x++) {
-      const byte *p = &image.data[n * (y * image.width + x)];
+      const byte *p = &image.data[n * ((size_t)y * image.width + x)];
       file.write((const char *)(p + 2), 1);                    // B
       file.write((const char *)(p + 1), 1);                    // G
       file.write((const char *)(p + 0), 1);                    // R
