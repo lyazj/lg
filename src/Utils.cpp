@@ -215,6 +215,7 @@ void ToFile(const fs::path &path, const u32string &s)
   string content = ToString(s);
   ofstream file(ToLocaleString(path), ios_base::binary);
   file.write(content.data(), content.size());
+  if(!file) cerr << "Error: failed to write file: " << path << endl;
 }
 
 u32string FromFile(const fs::path &path)
