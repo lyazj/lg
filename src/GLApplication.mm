@@ -3,13 +3,15 @@
 
 #include "GLApplication.h"
 
-#define pi cocoa_pi  // Avoid the pi conflict.
-#include <Cocoa/Cocoa.h>
-#undef pi
+#include <GL/glut.h>
 
 #ifdef FREEGLUT
 #include <GL/freeglut_ext.h>
-#endif
+#endif /* FREEGLUT */
+
+#define pi cocoa_pi  // Avoid the pi conflict.
+#include <Cocoa/Cocoa.h>
+#undef pi
 
 #include <iostream>
 
