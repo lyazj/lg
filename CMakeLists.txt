@@ -15,6 +15,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # libLG
 # -----------------------------
 file(GLOB LIB_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+if(APPLE)
+    file(GLOB LIB_OBJC_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.mm")
+    list(APPEND LIB_SOURCES ${LIB_OBJC_SOURCES})
+endif()
 add_library(LG SHARED ${LIB_SOURCES})
 if(APPLE)
     target_link_options(LG PUBLIC "-Wl,-rpath,@loader_path/../lib")
@@ -154,6 +158,11 @@ else()
     endif()
     find_package(OpenGL REQUIRED)
     target_link_libraries(LG PUBLIC OpenGL::GLU OpenGL::GL)
+endif()
+
+# On macOS, link against Cocoa for Objective-C++ UI calls
+if(APPLE)
+    target_link_libraries(LG PRIVATE "-framework Cocoa")
 endif()
 
 # -----------------------------

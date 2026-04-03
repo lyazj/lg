@@ -89,17 +89,13 @@ void GLApplication::SetWindowSize(int w, int h)
   height = h;
 }
 
+#ifndef USE_MAC_WINDOWING
 void GLApplication::MaximizeWindow() const
 {
 #ifdef USE_WINDOWS_WINDOWING
   ShowWindow(GetActiveWindow(), SW_MAXIMIZE);
   return;
 #endif /* USE_WINDOWS_WINDOWING */
-
-#ifdef USE_MAC_WINDOWING
-  cerr << "Warning: GLApplication::MaximizeWindow() is not implemented for Mac." << endl;
-  return;
-#endif
 
 #ifdef USE_X11_WINDOWING
   auto display = XOpenDisplay(nullptr);
@@ -120,6 +116,7 @@ void GLApplication::MaximizeWindow() const
   return;
 #endif /* USE_X11_WINDOWING */
 }
+#endif /* USE_MAC_WINDOWING */
 
 GLfloat GLApplication::GetAspect() const
 {
