@@ -10,6 +10,7 @@
 #include "GLImage.h"
 #include "GLProgram.h"
 #include "GLRectangle.h"
+#include "GLRenderableDecorator.h"
 #include "GLShader.h"
 #include "GLSphere.h"
 #include "GLTexture.h"
@@ -231,7 +232,7 @@ void GLExampleApplication::InitBalls()
     ballImage.Load(GetTexturePath() / "pool" / ("ball-" + suffix + ".jpg"));
     auto texture = make_shared<GLTexture>();
     texture->Texture(ballImage);
-    auto thisBall = make_shared<GLTextureDecorator>(ball, textureProgram, texture);
+    auto thisBall = make_shared<GLTextureDecorator>(ball, nullptr, texture);
 
     // Randomize initial position, velocity, and rotation.
     vec2 position;
@@ -260,7 +261,7 @@ void GLExampleApplication::InitBalls()
   }
   UpdateBallPairs();
 
-  scene->AddRenderable(balls);
+  scene->AddRenderable(make_shared<GLRenderableDecorator>(balls, textureProgram));
 }
 
 // Compute the time before a ball-border collision.
