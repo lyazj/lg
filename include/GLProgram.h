@@ -41,6 +41,7 @@ public:
   void SetUniform(const char *name, const vec4 &value) const;
   void SetUniform(const char *name, const mat3 &value) const;
   void SetUniform(const char *name, const mat4 &value) const;
+  void AssignDefaultTextureUnits() const;  // Temporarily binds the program.
   void SetUniformBlock(const char *name, GLsizeiptr size, const void *value) const;
   template<class T>
   void SetUniformBlock(const char *name, const T *value) const;

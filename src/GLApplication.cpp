@@ -173,8 +173,6 @@ void GLApplication::UseProgram(const GLProgramPtr &p)
     p->SetUniform("u_projection", projection);
     p->SetUniform("u_view", view);
     p->SetUniform("u_model", model);
-    p->SetUniform("u_texture0", 0);  // [XXX] This is duplicated.
-    p->SetUniform("u_texture1", 1);  // [XXX] This is duplicated.
   }
   program = p;
 }

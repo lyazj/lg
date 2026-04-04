@@ -204,6 +204,16 @@ void GLProgram::SetUniform(const char *name, const mat4 &value) const
   if(uniform >= 0) glUniformMatrix4fv(uniform, 1, GL_FALSE, value_ptr(value));
 }
 
+void GLProgram::AssignDefaultTextureUnits() const
+{
+  // Assign sampler uniforms u_texture0 and u_texture1 to texture units 0 and 1.
+  // GLProgramGuard ensures the program is active while setting uniforms.
+  GLProgramPtr program((GLProgram *)this, [](GLProgram *) { });  // fake shared_ptr
+  GLProgramGuard guard(program);
+  SetUniform("u_texture0", 0);
+  SetUniform("u_texture1", 1);
+}
+
 void GLProgram::SetUniformBlock(const char *name, GLsizeiptr size, const void *value) const
 {
   GLUniformBlock *uniformBlock = GetUniformBlock(name);
@@ -227,6 +237,7 @@ GLProgramPtr GLProgram::GetDefaultTextureProgram()
   program->AttachShader(GLShader::GetDefaultTextureFragmentShader());
   program->Link();
   program->DetachShaders();
+  program->AssignDefaultTextureUnits();
   return program;
 }
 
@@ -257,6 +268,7 @@ GLProgramPtr GLProgram::GetLightingTextureProgram()
   lighting.SetMediumLight();
   program->SetUniformBlock("u_light", &lighting);
 
+  program->AssignDefaultTextureUnits();
   return program;
 }
 
@@ -267,5 +279,6 @@ GLProgramPtr GLProgram::GetFontTextureProgram()
   program->AttachShader(GLShader::GetFontTextureFragmentShader());
   program->Link();
   program->DetachShaders();
+  program->AssignDefaultTextureUnits();
   return program;
 }
