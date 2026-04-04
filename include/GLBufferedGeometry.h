@@ -25,7 +25,6 @@ protected:
   void IssueSetVertexAttributes(bool force) const override;
   void IssueBuffer(bool force) const override;
 
-  virtual void Bind() const;
   virtual void SetUniforms(const mat4 &model) const;
   virtual void IssueBuffer() const = 0;
   virtual void IssueDraw() const = 0;

@@ -18,7 +18,7 @@ GLBufferedGeometry::~GLBufferedGeometry()
 
 void GLBufferedGeometry::Draw(const mat4 &model) const
 {
-  Bind();
+  vertexArray.Bind();
   SetUniforms(model);
   IssueDraw();
 }
@@ -32,11 +32,9 @@ void GLBufferedGeometry::IssueSetVertexAttributes(bool) const
 
 void GLBufferedGeometry::IssueBuffer(bool) const
 {
-  Bind();
+  vertexArray.Bind();
   IssueBuffer();
 }
-
-void GLBufferedGeometry::Bind() const { vertexArray.Bind(); }
 
 void GLBufferedGeometry::SetUniforms(const mat4 &model) const
 {
