@@ -7,6 +7,7 @@ Renderable management hierarchy:
   GLRenderable  (abstract: SetVertexAttributes, Buffer, Draw)
   ├── GLCompositeRenderable                        [contains a list of child GLRenderable objects]
   ├── GLTransformedRenderable                      [wraps any GLRenderable with a model matrix]
+  ├── GLRenderableDecorator                        [identity decorator wrapping a GLRenderable]
   └── GLSimpleRenderable  (abstract: adds GetVertexArray/Buffer, GetDimension/NVertex/Vertex)
       ├── GLSimpleRenderableDecorator              [identity decorator wrapping a GLSimpleRenderable]
       │   ├── GLColorDecorator                     (abstract: color-related decorators)
