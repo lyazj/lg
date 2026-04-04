@@ -34,4 +34,3 @@ Renderable management hierarchy:
               └── GLMaze                           (D=2)
 
 Memo on caveats:
-  - Avoid frequent program switching in HelloWorld

@@ -9,6 +9,7 @@
 #include "GLCompositeRenderable.h"
 #include "GLFontRange.h"
 #include "GLProgram.h"
+#include "GLRenderableDecorator.h"
 
 using namespace std;
 
@@ -48,12 +49,13 @@ GLRenderablePtr GLFont::GetRenderable(const u32string &s, GLfloat &x, GLfloat &y
     if(!r) continue;
     renderable->AddRenderable(r);
   }
-  return renderable;
+  return make_shared<GLRenderableDecorator>(renderable, GetProgram());
 }
 
 void GLFont::Init(GLint width, GLint height)
 {
   program = GLProgram::GetFontTextureProgram();
+  GLProgramGuard guard(program);
   Reshape(width, height);
   SetColor(vec4(1.0f, 0.0f, 0.0f, 1.0f));
   SetDepth(-0.999f);

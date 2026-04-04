@@ -167,6 +167,7 @@ void GLApplication::Flush() const
 
 void GLApplication::UseProgram(const GLProgramPtr &p)
 {
+  if(program == p) return;
   if(p) {
     p->Use();
     p->SetUniform("u_projection", projection);
