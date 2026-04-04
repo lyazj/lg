@@ -14,8 +14,8 @@ public:
   const mat4 &GetModel() const { return model; }
   void SetModel(const mat4 &m) { model = m; }
 
-  void SetVertexAttributes() const override { return renderable->SetVertexAttributes(); }
-  void Buffer() const override { return renderable->Buffer(); }
+  void IssueSetVertexAttributes(bool f) const override { return renderable->SetVertexAttributes(f); }
+  void IssueBuffer(bool f) const override { return renderable->Buffer(f); }
   void Draw(const mat4 &m) const override { return renderable->Draw(m * model); }
 
 protected:

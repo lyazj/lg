@@ -84,6 +84,6 @@ void GLExampleApplication::InitRenderable()
   texts->AddRenderable(chineseFont->GetRenderable(words, x, y, 50.0f, (GLfloat)GetWindowWidth() - 50.0f));
 
   renderable = texts;
-  renderable->SetVertexAttributes();
-  renderable->Buffer();
+  renderable->SetVertexAttributes(false);
+  renderable->Buffer(false);
 }

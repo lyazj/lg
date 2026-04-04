@@ -65,8 +65,8 @@ void GLExampleApplication::Init()
   scene->AddRenderable(make_shared<GLSimpleRenderableDecorator>(make_shared<GLAxes>(), GLProgram::GetDefaultProgram()));
   renderable = scene;
 
-  renderable->SetVertexAttributes();
-  renderable->Buffer();
+  renderable->SetVertexAttributes(false);
+  renderable->Buffer(false);
 }
 
 void GLExampleApplication::Display()

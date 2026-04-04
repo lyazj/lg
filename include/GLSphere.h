@@ -8,8 +8,6 @@ public:
   GLSphere(GLfloat radius, GLint slices, GLint stacks);
   ~GLSphere() override;
 
-  void SetVertexAttributes() const override;
-
 protected:
   GLfloat radius;
   GLint slices, stacks;
@@ -18,6 +16,7 @@ protected:
   std::vector<vec2> texCoords;
   std::vector<GLuint> elements;
 
+  void IssueSetVertexAttributes(bool force) const override;
   void IssueBuffer() const override;
   void IssueDraw() const override;
 };

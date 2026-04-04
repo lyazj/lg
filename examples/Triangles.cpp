@@ -43,8 +43,8 @@ void GLExampleApplication::Init()
   vec3 v2(-sqrtf(3.0f) * 0.5f * r, -0.5f * r, 0.0f);
   vec3 v3(+sqrtf(3.0f) * 0.5f * r, -0.5f * r, 0.0f);
   renderable = make_shared<GLTriangle>(v1, v2, v3);
-  renderable->SetVertexAttributes();
-  renderable->Buffer();
+  renderable->SetVertexAttributes(false);
+  renderable->Buffer(false);
 }
 
 void GLExampleApplication::Display()

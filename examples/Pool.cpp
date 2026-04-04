@@ -139,8 +139,8 @@ void GLExampleApplication::Init()
   scene = make_shared<GLCompositeRenderable>();
   InitTable();
   InitBalls();
-  scene->SetVertexAttributes();
-  scene->Buffer();
+  scene->SetVertexAttributes(false);
+  scene->Buffer(false);
 }
 
 void GLExampleApplication::Display()

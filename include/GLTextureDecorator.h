@@ -30,12 +30,11 @@ class GLBufferedTextureDecorator : public GLTextureDecorator {
 public:
   using GLTextureDecorator::GLTextureDecorator;
 
-  void Buffer() const override;
-
 protected:
   GLBuffer texCoordBuffer;
   mutable std::vector<vec2> texCoords;
 
+  void IssueBuffer(bool force) const override;
   void IssueDraw(const mat4 &model) const override;
   virtual void SetTexCoords() const = 0;
 };

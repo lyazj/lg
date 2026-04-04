@@ -19,9 +19,9 @@ void GLTextureDecorator::IssueDraw(const mat4 &model) const
   GLSimpleRenderableDecorator::IssueDraw(model);
 }
 
-void GLBufferedTextureDecorator::Buffer() const
+void GLBufferedTextureDecorator::IssueBuffer(bool force) const
 {
-  GLTextureDecorator::Buffer();
+  GLTextureDecorator::IssueBuffer(force);
   SetTexCoords();
   texCoordBuffer.Buffer(texCoords);
 }

@@ -23,9 +23,9 @@ GLAxes::~GLAxes()
   // empty
 }
 
-void GLAxes::SetVertexAttributes() const
+void GLAxes::IssueSetVertexAttributes(bool force) const
 {
-  GL3DBufferedGeometry::SetVertexAttributes();
+  GL3DBufferedGeometry::IssueSetVertexAttributes(force);
   colorBuffer.Bind();
   GLProgram::SetVertexAttributePointer("a_color", 4);
 }

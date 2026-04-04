@@ -46,9 +46,9 @@ GLSphere::~GLSphere()
   // empty
 }
 
-void GLSphere::SetVertexAttributes() const
+void GLSphere::IssueSetVertexAttributes(bool force) const
 {
-  GL3DBufferedGeometry::SetVertexAttributes();
+  GL3DBufferedGeometry::IssueSetVertexAttributes(force);
   vertexBuffer.Bind();  // reused: centered at the origin, normalized by shaders
   GLProgram::SetVertexAttributePointer("a_normal", 3);
   texCoordBuffer.Bind();

@@ -114,8 +114,8 @@ void GLExampleApplication::Init()
   ball = make_shared<GLTransformedRenderable>(sphere, translate(mat4(1.0f), vec3(0.0f, ballInitialHeight, 0.0f)));
   scene->AddRenderable(ball);
 
-  scene->SetVertexAttributes();
-  scene->Buffer();
+  scene->SetVertexAttributes(false);
+  scene->Buffer(false);
 
   period = sqrtf(2 * ballInitialHeight / g) * 2.0f;    // s
   time = 0.0f;                                         // s

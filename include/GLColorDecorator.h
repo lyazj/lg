@@ -30,12 +30,11 @@ class GLBufferedColorDecorator : public GLColorDecorator {
 public:
   using GLColorDecorator::GLColorDecorator;
 
-  void Buffer() const override;
-
 protected:
   GLBuffer colorBuffer;
   mutable std::vector<vec4> colors;
 
+  void IssueBuffer(bool force) const override;
   void IssueDraw(const mat4 &model) const override;
   virtual void SetColors() const = 0;
 };

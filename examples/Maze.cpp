@@ -91,8 +91,8 @@ void GLExampleApplication::Init()
   scene->AddRenderable(rat);
   renderable = scene;
 
-  renderable->SetVertexAttributes();
-  renderable->Buffer();
+  renderable->SetVertexAttributes(false);
+  renderable->Buffer(false);
 }
 
 void GLExampleApplication::Display()
@@ -184,6 +184,6 @@ void GLExampleApplication::CheckWin()
   if(ratX != exitX || ratY != exitY) return;
   won = true;
   renderable = make_shared<GLSmiley>(0.8f, 256);
-  renderable->SetVertexAttributes();
-  renderable->Buffer();
+  renderable->SetVertexAttributes(false);
+  renderable->Buffer(false);
 }

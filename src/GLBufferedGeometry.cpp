@@ -16,24 +16,24 @@ GLBufferedGeometry::~GLBufferedGeometry()
   // empty
 }
 
-void GLBufferedGeometry::SetVertexAttributes() const
+void GLBufferedGeometry::Draw(const mat4 &model) const
+{
+  Bind();
+  SetUniforms(model);
+  IssueDraw();
+}
+
+void GLBufferedGeometry::IssueSetVertexAttributes(bool) const
 {
   vertexArray.Bind();
   vertexBuffer.Bind();
   GLProgram::SetVertexAttributePointer("a_position", GetDimension());
 }
 
-void GLBufferedGeometry::Buffer() const
+void GLBufferedGeometry::IssueBuffer(bool) const
 {
   Bind();
   IssueBuffer();
-}
-
-void GLBufferedGeometry::Draw(const mat4 &model) const
-{
-  Bind();
-  SetUniforms(model);
-  IssueDraw();
 }
 
 void GLBufferedGeometry::Bind() const { vertexArray.Bind(); }

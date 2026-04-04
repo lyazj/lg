@@ -54,8 +54,8 @@ void GLExampleApplication::Init()
   UseProgram(GLProgram::GetDefaultProgram());
 
   InitRenderable();
-  renderable->SetVertexAttributes();
-  renderable->Buffer();
+  renderable->SetVertexAttributes(false);
+  renderable->Buffer(false);
 
   Display();
   SaveScreen(GetScreenshotName(), GL_FRONT);

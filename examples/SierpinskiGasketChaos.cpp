@@ -35,8 +35,8 @@ void GLExampleApplication::Init()
   UseProgram(GLProgram::GetDefaultProgram());
 
   renderable = make_shared<GLSierpinskiGasketChaos>(1e5);
-  renderable->SetVertexAttributes();
-  renderable->Buffer();
+  renderable->SetVertexAttributes(false);
+  renderable->Buffer(false);
 
   mat4 m(1.0f);
   m = scale(m, vec3(0.5f, 0.5f, 1.0f));

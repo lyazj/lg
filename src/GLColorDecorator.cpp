@@ -15,9 +15,9 @@ void GLUniformColorDecorator::IssueDraw(const mat4 &model) const
   GLProgram::SetDefaultVertexAttribute("a_color");
 }
 
-void GLBufferedColorDecorator::Buffer() const
+void GLBufferedColorDecorator::IssueBuffer(bool force) const
 {
-  GLColorDecorator::Buffer();
+  GLColorDecorator::IssueBuffer(force);
   SetColors();
   colorBuffer.Buffer(colors);
 }

@@ -55,8 +55,8 @@ void GLExampleApplication::Init()
   // Obliquity of the ecliptic.
   SetModel(rotate(mat4(1.0f), 23.44f * deg, vec3(0.0f, 0.0f, -1.0f)));
 
-  renderable->SetVertexAttributes();
-  renderable->Buffer();
+  renderable->SetVertexAttributes(false);
+  renderable->Buffer(false);
 }
 
 void GLExampleApplication::Display()
