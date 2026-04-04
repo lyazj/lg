@@ -117,6 +117,8 @@ private:
 class GLProgramGuard {
 public:
   GLProgramGuard(const GLProgramPtr &p);
+  GLProgramGuard(const GLProgramGuard &) = delete;
+  GLProgramGuard &operator=(const GLProgramGuard &) = delete;
   ~GLProgramGuard();
 
 private:
