@@ -16,14 +16,13 @@ public:
   const GLVertexArray &GetVertexArray() const override { return vertexArray; }
   const GLBuffer &GetVertexBuffer() const override { return vertexBuffer; }
 
-  void Draw(const mat4 &model) const override;
-
 protected:
   GLVertexArray vertexArray;
   GLBuffer vertexBuffer;
 
   void IssueSetVertexAttributes(bool force) const override;
   void IssueBuffer(bool force) const override;
+  void IssueDraw(const mat4 &model) const override;
 
   virtual void SetUniforms(const mat4 &model) const;
   virtual void IssueBuffer() const = 0;

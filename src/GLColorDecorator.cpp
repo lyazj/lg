@@ -8,10 +8,10 @@
 
 using namespace std;
 
-void GLUniformColorDecorator::IssueDraw(const mat4 &model) const
+void GLUniformColorDecorator::DecoratorDraw(const mat4 &model) const
 {
   GLProgram::SetVertexAttribute("a_color", color);
-  GLColorDecorator::IssueDraw(model);
+  GLColorDecorator::DecoratorDraw(model);
   GLProgram::SetDefaultVertexAttribute("a_color");
 }
 
@@ -22,12 +22,12 @@ void GLBufferedColorDecorator::IssueBuffer(bool force) const
   colorBuffer.Buffer(colors);
 }
 
-void GLBufferedColorDecorator::IssueDraw(const mat4 &model) const
+void GLBufferedColorDecorator::DecoratorDraw(const mat4 &model) const
 {
   GetVertexArray().Bind();
   colorBuffer.Bind();
   GLProgram::SetVertexAttributePointer("a_color", 4);
-  GLColorDecorator::IssueDraw(model);
+  GLColorDecorator::DecoratorDraw(model);
   GLProgram::DisableVertexAttribute("a_color");
 }
 

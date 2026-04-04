@@ -16,7 +16,7 @@ public:
 
   void IssueSetVertexAttributes(bool f) const override { return renderable->SetVertexAttributes(f); }
   void IssueBuffer(bool f) const override { return renderable->Buffer(f); }
-  void Draw(const mat4 &m) const override { return renderable->Draw(m * model); }
+  void IssueDraw(const mat4 &m) const override { return renderable->Draw(m * model); }
 
 protected:
   GLRenderablePtr renderable;

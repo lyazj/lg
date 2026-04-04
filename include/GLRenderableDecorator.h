@@ -17,13 +17,12 @@ public:
   const GLRenderablePtr &GetRenderable() const { return renderable; }
   void SetRenderable(const GLRenderablePtr &r) { renderable = r; }
 
-  void Draw(const mat4 &model) const override final;
-
 protected:
   GLRenderablePtr renderable;
   GLProgramPtr program;
 
   void IssueSetVertexAttributes(bool f) const override { renderable->SetVertexAttributes(f); }
   void IssueBuffer(bool f) const override { renderable->Buffer(f); }
-  virtual void IssueDraw(const mat4 &model) const { renderable->Draw(model); }
+  void IssueDraw(const mat4 &model) const override final;
+  virtual void DecoratorDraw(const mat4 &model) const { renderable->Draw(model); }
 };

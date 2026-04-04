@@ -25,3 +25,9 @@ void GLRenderable::Buffer(bool force)
   buffered = true;
   IssueBuffer(force);
 }
+
+void GLRenderable::Draw(const mat4 &model) const
+{
+  if(!vertexAttributesSet || !buffered) abort();
+  IssueDraw(model);
+}

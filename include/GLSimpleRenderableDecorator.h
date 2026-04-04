@@ -17,8 +17,6 @@ public:
   const GLSimpleRenderablePtr &GetRenderable() const { return renderable; }
   void SetRenderable(const GLSimpleRenderablePtr &r) { renderable = r; }
 
-  void Draw(const mat4 &model) const override final;
-
   const GLVertexArray &GetVertexArray() const override final { return renderable->GetVertexArray(); }
   const GLBuffer &GetVertexBuffer() const override final { return renderable->GetVertexBuffer(); }
 
@@ -33,5 +31,6 @@ protected:
 
   void IssueSetVertexAttributes(bool f) const override { renderable->SetVertexAttributes(f); }
   void IssueBuffer(bool f) const override { renderable->Buffer(f); }
-  virtual void IssueDraw(const mat4 &model) const { renderable->Draw(model); }
+  void IssueDraw(const mat4 &model) const override final;
+  virtual void DecoratorDraw(const mat4 &model) const { renderable->Draw(model); }
 };

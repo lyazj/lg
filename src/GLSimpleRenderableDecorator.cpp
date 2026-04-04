@@ -4,9 +4,9 @@
 
 using namespace std;
 
-void GLSimpleRenderableDecorator::Draw(const mat4 &model) const
+void GLSimpleRenderableDecorator::IssueDraw(const mat4 &model) const
 {
-  if(!program) return IssueDraw(model);
+  if(!program) return DecoratorDraw(model);
   GLProgramGuard guard(program);
-  IssueDraw(model);
+  DecoratorDraw(model);
 }

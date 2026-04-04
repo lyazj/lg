@@ -23,7 +23,7 @@ public:
 protected:
   GLTexturePtr texture;
 
-  void IssueDraw(const mat4 &model) const override;
+  void DecoratorDraw(const mat4 &model) const override;
 };
 
 class GLBufferedTextureDecorator : public GLTextureDecorator {
@@ -35,7 +35,7 @@ protected:
   mutable std::vector<vec2> texCoords;
 
   void IssueBuffer(bool force) const override;
-  void IssueDraw(const mat4 &model) const override;
+  void DecoratorDraw(const mat4 &model) const override;
   virtual void SetTexCoords() const = 0;
 };
 

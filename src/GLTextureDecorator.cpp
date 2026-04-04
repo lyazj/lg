@@ -12,11 +12,11 @@
 
 using namespace std;
 
-void GLTextureDecorator::IssueDraw(const mat4 &model) const
+void GLTextureDecorator::DecoratorDraw(const mat4 &model) const
 {
   glActiveTexture(GL_TEXTURE0);
   if(texture) texture->Bind();
-  GLSimpleRenderableDecorator::IssueDraw(model);
+  GLSimpleRenderableDecorator::DecoratorDraw(model);
 }
 
 void GLBufferedTextureDecorator::IssueBuffer(bool force) const
@@ -26,12 +26,12 @@ void GLBufferedTextureDecorator::IssueBuffer(bool force) const
   texCoordBuffer.Buffer(texCoords);
 }
 
-void GLBufferedTextureDecorator::IssueDraw(const mat4 &model) const
+void GLBufferedTextureDecorator::DecoratorDraw(const mat4 &model) const
 {
   GetVertexArray().Bind();
   texCoordBuffer.Bind();
   GLProgram::SetVertexAttributePointer("a_texCoord0", 2);
-  GLTextureDecorator::IssueDraw(model);
+  GLTextureDecorator::DecoratorDraw(model);
   GLProgram::DisableVertexAttribute("a_texCoord0");
 }
 

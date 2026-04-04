@@ -11,11 +11,12 @@ public:
 
   void SetVertexAttributes(bool force);
   void Buffer(bool force);
-  virtual void Draw(const mat4 &model) const = 0;
+  void Draw(const mat4 &model) const;
 
 protected:
   virtual void IssueSetVertexAttributes(bool force) const = 0;
   virtual void IssueBuffer(bool force) const = 0;
+  virtual void IssueDraw(const mat4 &model) const = 0;
 
 private:
   bool vertexAttributesSet;

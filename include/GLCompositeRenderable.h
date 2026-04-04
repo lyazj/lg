@@ -15,16 +15,15 @@ public:
   void SetRenderable(GLint i, const GLRenderablePtr &r) { renderables.at(i) = r; }
   void AddRenderable(const GLRenderablePtr &r) { renderables.push_back(r); }
 
-  void Draw(const mat4 &model) const override;
-
 protected:
   std::vector<GLRenderablePtr> renderables;
 
   void IssueSetVertexAttributes(bool force) const override;
   void IssueBuffer(bool force) const override;
+  void IssueDraw(const mat4 &model) const override;
 };
 
-inline void GLCompositeRenderable::Draw(const mat4 &model) const
+inline void GLCompositeRenderable::IssueDraw(const mat4 &model) const
 {
   for(const GLRenderablePtr &r : renderables) r->Draw(model);
 }
