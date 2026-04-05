@@ -116,7 +116,16 @@ void GLMazeGenerator::GetEntry(GLint width, GLint height, GLint entry, GLint &x,
 }
 
 GLMazeGenerator::GLMazeGenerator(GLint &en, GLint &ex, vector<vector<GLMazeCell>> &c)
-    : width((GLint)c[0].size()), height((GLint)c.size()), entry(en), exit(ex), cells(c), depth(0)
+    : width((GLint)c[0].size()),
+      height((GLint)c.size()),
+      entry(en),
+      exit(ex),
+      cells(c),
+      depth(0),
+      xs(-1),
+      ys(-1),
+      xt(-1),
+      yt(-1)
 {
   // empty
 }
