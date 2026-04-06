@@ -89,13 +89,8 @@ void GLExampleApplication::PreInit()
 void GLExampleApplication::Init()
 {
   GL3DApplication::Init();
-
-  vec3 camera(10.0f, 10.0f, 10.0f);  // m
-  vec3 target(0.0f, 0.0f, 0.0f);
-  vec3 up(0.0f, 1.0f, 0.0f);
-  SetView(lookAt(camera, target, up));
+  SetView({ 10.0f, 10.0f, 10.0f } /* m */, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f });
   SetProjection(45.0f * deg, 0.1f, 100.0f);  // m
-
   UseProgram(GLProgram::GetDefaultProgram());
 
   scene = make_shared<GLCompositeRenderable>();

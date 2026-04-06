@@ -119,11 +119,7 @@ void GLExampleApplication::Init()
   GL3DApplication::Init();
   MaximizeWindow();
   glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
-
-  vec3 camera(0.0f, 0.0f, 3.0f);  // m
-  vec3 target(0.0f, 0.0f, 0.0f);
-  vec3 up(0.0f, 1.0f, 0.0f);
-  SetView(lookAt(camera, target, up));
+  SetView({ 0.0f, 0.0f, 3.0f } /* m */, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f });
   SetProjection(45.0f * deg, 0.1f, 10.0f);  // m
 
   UseProgram(GLProgram::GetDefaultLightingProgram());

@@ -33,7 +33,7 @@ private:
   bool won;
 
   void UpdateRatRenderable();
-  void MouseDown(Mouse button, int x, int y) override;
+  void MouseDown(MouseButton button, int x, int y) override;
   void KeyDown(unsigned char key, int x, int y) override;
   void SpecialKeyDown(SpecialKey key, int x, int y) override;
   void TurnLeft() { ratDirection = (ratDirection + 1) % 4; }
@@ -111,13 +111,13 @@ void GLExampleApplication::UpdateRatRenderable()
   rat->SetModel(m);
 }
 
-void GLExampleApplication::MouseDown(Mouse button, int, int)
+void GLExampleApplication::MouseDown(MouseButton button, int, int)
 {
   if(won) exit(EXIT_SUCCESS);
   switch(button) {
-  case Mouse::LeftButton: TurnLeft(); break;
-  case Mouse::RightButton: TurnRight(); break;
-  case Mouse::MiddleButton: MoveForward(); break;
+  case MouseButton::LeftButton: TurnLeft(); break;
+  case MouseButton::RightButton: TurnRight(); break;
+  case MouseButton::MiddleButton: MoveForward(); break;
   default: break;
   }
   UpdateRatRenderable();
@@ -130,10 +130,10 @@ void GLExampleApplication::KeyDown(unsigned char key, int x, int y)
   GLApplication::KeyDown(key, x, y);
   switch(key) {
   case 'L':
-  case 'l': return MouseDown(Mouse::LeftButton, x, y);
-  case ' ': return MouseDown(Mouse::MiddleButton, x, y);
+  case 'l': return MouseDown(MouseButton::LeftButton, x, y);
+  case ' ': return MouseDown(MouseButton::MiddleButton, x, y);
   case 'R':
-  case 'r': return MouseDown(Mouse::RightButton, x, y);
+  case 'r': return MouseDown(MouseButton::RightButton, x, y);
   }
 }
 

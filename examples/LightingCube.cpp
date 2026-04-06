@@ -51,11 +51,7 @@ CuboidFaceColorDecorator::CuboidFaceColorDecorator(const GLCuboid &c, GLint i) :
 void GLExampleApplication::Init()
 {
   GL3DApplication::Init();
-  vec3 camera(0.0f, 1.0f, 1.0f);
-  vec3 target(0.0f, 0.0f, 0.0f);
-  vec3 up(0.0f, 1.0f, -1.0f);
-  SetView(lookAt(camera, target, up));
-
+  SetView({ 0.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, -1.0f });
   UseProgram(GLProgram::GetDefaultLightingProgram());
 
   auto scene = make_shared<GLCompositeRenderable>();

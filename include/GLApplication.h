@@ -63,22 +63,49 @@ protected:
   int &argc;
   char **argv;
 
-  // clang-format off
-  enum class Mouse {
-    LeftButton, MiddleButton, RightButton,
-    WheelUp, WheelDown, WheelRight, WheelLeft,
-    Backward, Forward,
+  enum MouseButton : uint32_t {
+    LeftButton = 1U << 0,
+    MiddleButton = 1U << 1,
+    RightButton = 1U << 2,
+    WheelUp = 1U << 3,
+    WheelDown = 1U << 4,
+    WheelRight = 1U << 5,
+    WheelLeft = 1U << 6,
+    Backward = 1U << 7,
+    Forward = 1U << 8,
   };
-  // clang-format on
 
-  // clang-format off
-  enum class SpecialKey {
-    F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
-    Up, Down, Left, Right,
-    PageUp, PageDown, Home, End, Insert,
-    ShiftLeft, ShiftRight, CtrlLeft, CtrlRight, AltLeft, AltRight, SuperLeft, SuperRight,
+  enum SpecialKey : uint32_t {
+    F1 = 1U << 0,
+    F2 = 1U << 1,
+    F3 = 1U << 2,
+    F4 = 1U << 3,
+    F5 = 1U << 4,
+    F6 = 1U << 5,
+    F7 = 1U << 6,
+    F8 = 1U << 7,
+    F9 = 1U << 8,
+    F10 = 1U << 9,
+    F11 = 1U << 10,
+    F12 = 1U << 11,
+    Up = 1U << 12,
+    Down = 1U << 13,
+    Left = 1U << 14,
+    Right = 1U << 15,
+    PageUp = 1U << 16,
+    PageDown = 1U << 17,
+    Home = 1U << 18,
+    End = 1U << 19,
+    Insert = 1U << 20,
+    ShiftLeft = 1U << 21,
+    ShiftRight = 1U << 22,
+    CtrlLeft = 1U << 23,
+    CtrlRight = 1U << 24,
+    AltLeft = 1U << 25,
+    AltRight = 1U << 26,
+    SuperLeft = 1U << 27,
+    SuperRight = 1U << 28,
   };
-  // clang-format on
 
   virtual void PreInit();
   virtual void InitGL();
@@ -87,15 +114,17 @@ protected:
   virtual void Reshape(int w, int h);
   virtual void FrameTimer(unsigned mt);
   virtual void Frame(uint64_t t, uint64_t dt);
-  virtual void MouseDown(Mouse, int x, int y);
-  virtual void MouseUp(Mouse, int x, int y);
+  virtual void MouseDown(MouseButton, int x, int y);
+  virtual void MouseUp(MouseButton, int x, int y);
+  virtual void MouseMove(int x, int y, int dx, int dy);
   virtual void KeyDown(unsigned char key, int x, int y);
   virtual void KeyUp(unsigned char key, int x, int y);
   virtual void SpecialKeyDown(SpecialKey key, int x, int y);
   virtual void SpecialKeyUp(SpecialKey key, int x, int y);
   virtual void Loop();
 
-  void GetKeyModifiers(bool &shift, bool &ctrl, bool &alt, bool &super) const;
+  uint32_t GetPressedSpecialKeys() const { return pressedSpecialKeys; }
+  uint32_t GetPressedMouseButtons() const { return pressedMouseButtons; }
   void ShowFrameRate() const;
 
 private:
@@ -112,6 +141,11 @@ private:
   GLint showFrameRateInterval;
   uint64_t frameCount;
   uint64_t frameTime;
+  uint32_t pressedSpecialKeys;
+  static_assert(sizeof(pressedSpecialKeys) >= sizeof(SpecialKey));
+  int mouseX, mouseY;
+  uint32_t pressedMouseButtons;
+  static_assert(sizeof(pressedMouseButtons) >= sizeof(MouseButton));
 };
 
 class GLProgramGuard {
