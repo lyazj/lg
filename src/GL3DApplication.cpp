@@ -1,6 +1,6 @@
 #include "GL3DApplication.h"
 
-#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 using namespace std;
 
@@ -66,18 +66,18 @@ void GL3DApplication::MouseMove(int x, int y, int dx, int dy)
     // Negative sign: rotate the camera opposite to mouse motion (equivalent to rotating the scene).
     GLfloat theta_y = -(GLfloat)dx / (GLfloat)GetWindowWidth() * 360.0f * deg;
     GLfloat theta_x = -(GLfloat)dy / (GLfloat)GetWindowHeight() * 360.0f * deg;
-
-    vec3 ez = normalize(eye - center);
-    vec3 ey = normalize(up);
-    vec3 ex = normalize(cross(ey, ez));
-    ey = cross(ez, ex);  // Conventionally y is not necessarily up.
-
-    mat4 transform = mat4(1.0f);
-    transform = rotate(transform, theta_x, ex);
-    transform = rotate(transform, theta_y, ey);
-    eye = mat3(transform) * (eye - center) + center;
-    up = mat3(transform) * up;
-    SetView(lookAt(eye, center, up));
+    GLfloat theta_angle = hypotf(theta_x, theta_y);
+    if(theta_angle > 0) {
+      vec3 ez = normalize(eye - center);
+      vec3 ey = normalize(up);
+      vec3 ex = normalize(cross(ey, ez));
+      ey = cross(ez, ex);  // Conventionally y is not necessarily up.
+      vec3 theta_axis = (theta_x / theta_angle) * ex + (theta_y / theta_angle) * ey;
+      mat3 r = mat3_cast(angleAxis(theta_angle, theta_axis));
+      eye = r * (eye - center) + center;
+      up = r * up;
+      SetView(lookAt(eye, center, up));
+    }
   }
 
   PostRedisplay();
