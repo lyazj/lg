@@ -35,3 +35,5 @@ Renderable management hierarchy:
               └── GLMaze                           (D=2)
 
 Memo on caveats:
+
+* GLApplication::SaveScreen() reads from the front buffer, which may have already been consumed (invalidated) by the windowing system, potentially producing undefined or garbage output. For example, on Ubuntu 25.10 with double buffering enabled, this issue can occur on the first-frame capture of the Maze example. On the other hand, calling glReadBuffer() on the back buffer immediately after drawing objects can cause the windowing system to malfunction.
