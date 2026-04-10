@@ -7,6 +7,7 @@
 #include "GLCircle.h"
 #include "GLColorDecorator.h"
 #include "GLCompositeRenderable.h"
+#include "GLFrustumLateral.h"
 #include "GLImage.h"
 #include "GLProgram.h"
 #include "GLRectangle.h"
@@ -34,6 +35,9 @@ private:
   GLCompositeRenderablePtr scene;
 
   void Frame(uint64_t t, uint64_t dt) override;
+  void MouseDown(MouseButton button, int x, int y) override;
+  void MouseUp(MouseButton button, int x, int y) override;
+  void MouseMove(int x, int y, int dx, int dy) override;
 
   static constexpr GLfloat tableInnerLength = 2.540f;  // m
   static constexpr GLfloat tableInnerWidth = 1.270f;   // m
@@ -49,6 +53,7 @@ private:
   static constexpr vec4 tableColor = vec4(34.0f, 139.0f, 34.0f, 255.0f) / 255.0f;
   static constexpr vec4 borderColor = vec4(64.0f, 32.0f, 16.0f, 255.0f) / 255.0f;
   static constexpr vec4 holeColor = vec4(0.1f, 0.1f, 0.1f, 1.0f);
+  static constexpr vec4 stickColor = vec4(120.0f, 72.0f, 30.0f, 255.0f) / 255.0f;
 
   static constexpr GLfloat ballRadius = 0.028575f;                                 // m
   static constexpr GLfloat ballAreaLength = tableInnerLength - 2.0f * ballRadius;  // m
@@ -72,6 +77,10 @@ private:
   static constexpr GLfloat elasticityBallBall = 0.9f;
   static constexpr GLfloat elasticityBallBorder = 0.8f;
 
+  static constexpr GLfloat stickLength = 1.47f;        // m
+  static constexpr GLfloat stickLargeRadius = 0.015f;  // m
+  static constexpr GLfloat stickSmallRadius = 0.006f;  // m
+
   static constexpr GLfloat maxInitialVelocity = 3.0f;  // m/s
   static constexpr GLfloat minVelocity = 1e-4f;        // m/s
   static constexpr GLfloat minDistance = 1e-4f;        // m
@@ -82,10 +91,16 @@ private:
   GLCompositeRenderablePtr balls;        // each component of type GLTransformedRenderable
   vector<GLint> ballApproachingHoles;    // 0--5: approaching the hole; -1: not; -2: holed
   vector<pair<GLint, GLint>> ballPairs;  // sorted by increasing ball-ball distance
+  GLTransformedRenderablePtr stick;
+  vec2 stickPosition = { 0.0f, 0.0f };
+  GLfloat stickRotation = 0.0f;
+  GLfloat stickStartTime = 0.0f;
+  vec2 stickStartPosition = { 0.0f, 0.0f };
   GLint nGoals = 0;
 
   void InitTable();
   void InitBalls();
+  void InitStick();
 
   GLint collisionBall = -1;
   GLint collisionType = -1;
@@ -95,9 +110,13 @@ private:
   void HandleCollision();
   void UpdateApproachingHole(GLint i);
   void UpdateBallPairs();
+  void UpdateStickTransformation();
+  void HitBalls();
 
   void RegularizeVelocity(vec2 &v) const;  // Use it after each change.
   GLfloat RegularizeDistance(GLfloat d) const;
+
+  vec3 MouseToWorld(int x, int y, GLfloat worldZ) const;
 };
 
 int main(int argc, char *argv[])
@@ -136,6 +155,7 @@ void GLExampleApplication::Init()
   scene = make_shared<GLCompositeRenderable>();
   InitTable();
   InitBalls();
+  InitStick();
   scene->SetVertexAttributes(false);
   scene->Buffer(false);
 }
@@ -156,6 +176,44 @@ void GLExampleApplication::Frame(uint64_t t [[maybe_unused]], uint64_t dt_in [[m
     HandleCollision();
     dt -= ft;
   }
+}
+
+void GLExampleApplication::MouseDown(MouseButton button, int x, int y)
+{
+  GL3DApplication::MouseDown(button, x, y);
+
+  if(button == MouseButton::LeftButton) {
+    stickPosition = MouseToWorld(x, y, ballAreaHeight);
+    stickStartPosition = stickPosition;
+    stickStartTime = (GLfloat)GetElapsedTime() * 1e-9f;
+  }
+}
+
+void GLExampleApplication::MouseUp(MouseButton button, int x, int y)
+{
+  GL3DApplication::MouseUp(button, x, y);
+
+  if(button == MouseButton::LeftButton) {
+    stickPosition = MouseToWorld(x, y, ballAreaHeight);
+    stickStartPosition = { 0.0f, 0.0f };
+    stickStartTime = 0.0f;
+  }
+}
+
+void GLExampleApplication::MouseMove(int x, int y, int dx [[maybe_unused]], int dy [[maybe_unused]])
+{
+  vec2 newPosition = MouseToWorld(x, y, ballAreaHeight);
+  if(GetPressedMouseButtons() & MouseButton::RightButton) {  // Rotate the stick.
+    vec2 fixedPoint = {
+      stickPosition.x - cosf(stickRotation) * stickLength * 0.5f,
+      stickPosition.y - sinf(stickRotation) * stickLength * 0.5f,
+    };  // The midpoint of the stick.
+    vec2 newDirection = newPosition - fixedPoint;
+    stickRotation = atan2f(newDirection.y, newDirection.x);
+  }
+  stickPosition = newPosition;
+  UpdateStickTransformation();
+  HitBalls();
 }
 
 void GLExampleApplication::InitTable()
@@ -258,6 +316,31 @@ void GLExampleApplication::InitBalls()
   UpdateBallPairs();
 
   scene->AddRenderable(make_shared<GLRenderableDecorator>(balls, textureProgram));
+}
+
+void GLExampleApplication::InitStick()
+{
+  auto stick0 = make_shared<GLFrustumLateral>(stickSmallRadius, stickLargeRadius, stickLength, 64);
+  auto stick1 = make_shared<GLUniformColorDecorator>(stick0, stickColor);
+  auto stick2 = make_shared<GLCompositeRenderable>();
+  stick2->AddRenderable(stick1);
+
+  auto t0 = make_shared<GLCircle>(stickSmallRadius, 64);
+  auto t1 = make_shared<GLUniformColorDecorator>(t0, stickColor);
+  auto t2 = make_shared<GLTransformedRenderable>(t1, translate(mat4(1.0f), vec3(0.0f, 0.0f, stickLength * 0.5f)));
+  stick2->AddRenderable(t2);
+
+  auto b0 = make_shared<GLCircle>(stickLargeRadius, 64);
+  auto b1 = make_shared<GLUniformColorDecorator>(b0, stickColor);
+  auto b2 = make_shared<GLTransformedRenderable>(b1, translate(mat4(1.0f), vec3(0.0f, 0.0f, -stickLength * 0.5f)));
+  b2->SetModel(rotate(b2->GetModel(), 180.0f * deg, vec3(1.0f, 0.0f, 0.0f)));
+  stick2->AddRenderable(b2);
+
+  auto stick3 = make_shared<GLTransformedRenderable>(stick2, rotate(mat4(1.0f), 90.0f * deg, vec3(0.0f, 1.0f, 0.0f)));
+  stick3->SetModel(translate(stick3->GetModel(), vec3(0.0f, 0.0f, -stickLength * 0.5f)));
+  stick = make_shared<GLTransformedRenderable>(stick3, translate(mat4(1.0f), vec3(0.0f, 0.0f, ballAreaHeight)));
+  scene->AddRenderable(stick);
+  UpdateStickTransformation();
 }
 
 // Compute the time before a ball-border collision.
@@ -594,6 +677,22 @@ void GLExampleApplication::UpdateBallPairs()
   }
 }
 
+void GLExampleApplication::UpdateStickTransformation()
+{
+  mat4 transform(1.0f);
+  transform = translate(transform, vec3(stickPosition, ballAreaHeight));
+  transform = rotate(transform, stickRotation, vec3(0.0f, 0.0f, 1.0f));
+  stick->SetModel(transform);
+}
+
+void GLExampleApplication::HitBalls()
+{
+  if(stickStartTime == 0.0f) return;  // Not dragging.
+  vec2 stickVelocity = (stickPosition - stickStartPosition) / ((GLfloat)GetElapsedTime() * 1e-9f - stickStartTime);
+  clog << "Debug: stick velocity = " << stickVelocity << " [m/s]" << endl;
+  // [TODO]
+}
+
 void GLExampleApplication::RegularizeVelocity(vec2 &v) const
 {
   for(GLfloat *p : { &v.x, &v.y }) {
@@ -605,4 +704,18 @@ GLfloat GLExampleApplication::RegularizeDistance(GLfloat d) const
 {
   if(fabsf(d) < minDistance) return 0.0f;
   return d;
+}
+
+vec3 GLExampleApplication::MouseToWorld(int x, int y, GLfloat worldZ) const
+{
+  mat4 inv = inverse(GetProjection() * GetView() * GetModel());
+  float ndcX = 2.0f * (GLfloat)x / (GLfloat)GetWindowWidth() - 1.0f;
+  float ndcY = 1.0f - 2.0f * (GLfloat)y / (GLfloat)GetWindowHeight();
+  vec4 p0 = inv * vec4(ndcX, ndcY, -1.0f, 1.0f);  // near
+  vec4 p1 = inv * vec4(ndcX, ndcY, 1.0f, 1.0f);   // far
+  p0 /= p0.w, p1 /= p1.w;
+  vec3 origin = vec3(p0);  // the ray
+  vec3 dir = normalize(vec3(p1 - p0));
+  float t = (worldZ - origin.z) / dir.z;
+  return origin + t * dir;
 }
