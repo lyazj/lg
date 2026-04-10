@@ -64,6 +64,7 @@ void GL3DApplication::MouseMove(int x, int y, int dx, int dy)
 
   if(ctrl && leftButton) {
     // Negative sign: rotate the camera opposite to mouse motion (equivalent to rotating the scene).
+    // For mouse coordinates: x increases to the right, y increases downwards.
     GLfloat theta_y = -(GLfloat)dx / (GLfloat)GetWindowWidth() * 360.0f * deg;
     GLfloat theta_x = -(GLfloat)dy / (GLfloat)GetWindowHeight() * 360.0f * deg;
     GLfloat theta_angle = hypotf(theta_x, theta_y);
