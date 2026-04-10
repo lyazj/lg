@@ -3,7 +3,6 @@
 #include <math.h>
 
 #include <algorithm>
-#include <glm/geometric.hpp>
 
 #include "GLProgram.h"
 #include "Utils.h"

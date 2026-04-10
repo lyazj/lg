@@ -23,6 +23,7 @@ Renderable management hierarchy:
               ├── GLTriangle                       (D=3)
               ├── GLTriangleStrip                  (D=3)
               ├── GLSphere                         (D=3)
+              ├── GLFrustumLateral                 (D=3)
               ├── GLCuboid                         (D=3)
               ├── GLAxes                           (D=3)
               ├── GLRectangle                      (D=2)
@@ -36,4 +37,4 @@ Renderable management hierarchy:
 
 Memo on caveats:
 
-* GLApplication::SaveScreen() reads from the front buffer, which may have already been consumed (invalidated) by the windowing system, potentially producing undefined or garbage output. For example, on Ubuntu 25.10 with double buffering enabled, this issue can occur on the first-frame capture of the Maze example. On the other hand, calling glReadBuffer() on the back buffer immediately after drawing objects can cause the windowing system to malfunction.
+* GLApplication::SaveScreen() reads from the front buffer, which may have already been consumed (invalidated) by the windowing system, potentially producing undefined or garbage output. For example, on Ubuntu 25.10 with double buffering enabled, this issue can occur on the first-frame capture of the Maze example. On the other hand, calling glReadPixels() on the back buffer immediately after drawing objects can cause the windowing system to malfunction.
