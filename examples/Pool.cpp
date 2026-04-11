@@ -25,7 +25,7 @@ using namespace std;
 
 class WindowedVelocityCalculator {
 public:
-  WindowedVelocityCalculator(GLfloat d) : duration(d) { }
+  WindowedVelocityCalculator(uint64_t d) : duration(d) { }
 
   void AddPosition(const vec2 &position);
 
@@ -34,8 +34,8 @@ public:
   vec2 GetVelocity() const;
 
 private:
-  GLfloat duration;                   // window duration in seconds
-  deque<pair<GLfloat, vec2>> window;  // (time, position)
+  uint64_t duration;                   // window duration in nanoseconds
+  deque<pair<uint64_t, vec2>> window;  // (time, position)
 };
 
 class GLExampleApplication final : public GL3DApplication {
@@ -113,8 +113,9 @@ private:
   bool ballsMoving = true;
   GLTransformedRenderablePtr stick;
   vec2 stickPosition = { 0.0f, 0.0f };
+  vec2 stickStartPosition = { 0.0f, 0.0f };
   GLfloat stickRotation = 0.0f;
-  WindowedVelocityCalculator stickVelocityCalculator{ 0.1f };  // 100 ms sliding window
+  WindowedVelocityCalculator stickVelocityCalculator{ 100'000'000 };  // 100 ms sliding window
   GLint nGoals = 0;
 
   void InitTable();
@@ -148,17 +149,17 @@ int main(int argc, char *argv[])
 
 void WindowedVelocityCalculator::AddPosition(const vec2 &position)
 {
-  GLfloat t = (GLfloat)GetElapsedTime() * 1e-9f;  // s
-  while(!window.empty() && window.front().first < t - duration) window.pop_front();
+  uint64_t t = GetElapsedTime();  // ns
+  while(!window.empty() && window.front().first + duration < t) window.pop_front();
   window.emplace_back(t, position);
 }
 
 vec2 WindowedVelocityCalculator::GetVelocity() const
 {
   if(window.size() < 2) return vec2(0.0f);
-  GLfloat dt = window.back().first - window.front().first;
-  if(dt == 0.0f) return vec2(0.0f);
-  return (window.back().second - window.front().second) / dt;
+  uint64_t dt = window.back().first - window.front().first;
+  if(dt == 0) return vec2(0.0f);
+  return (window.back().second - window.front().second) / ((GLfloat)dt * 1e-9f);
 }
 
 void GLExampleApplication::PreInit()
@@ -221,6 +222,7 @@ void GLExampleApplication::MouseDown(MouseButton button, int x, int y)
 
   if(button == MouseButton::LeftButton) {
     stickPosition = MouseToWorld(x, y, ballAreaHeight);
+    stickStartPosition = stickPosition;
     UpdateStickTransformation();
   }
 }
@@ -238,7 +240,12 @@ void GLExampleApplication::MouseUp(MouseButton button, int x, int y)
 void GLExampleApplication::MouseMove(int x, int y, int dx [[maybe_unused]], int dy [[maybe_unused]])
 {
   vec2 newPosition = MouseToWorld(x, y, ballAreaHeight);
-  if(GetPressedMouseButtons() & MouseButton::RightButton) {  // Rotate the stick.
+  if(GetPressedMouseButtons() & MouseButton::LeftButton) {  // Move in a 1D line.
+    vec2 displacement = newPosition - stickStartPosition;
+    vec2 direction = vec2(cosf(stickRotation), sinf(stickRotation));
+    displacement = dot(displacement, direction) * direction;
+    newPosition = stickStartPosition + displacement;
+  } else if(GetPressedMouseButtons() & MouseButton::RightButton) {  // Rotate.
     vec2 fixedPoint = {
       stickPosition.x - cosf(stickRotation) * stickLength * 0.5f,
       stickPosition.y - sinf(stickRotation) * stickLength * 0.5f,
@@ -773,6 +780,7 @@ void GLExampleApplication::HitBalls()
   vec2 stickVelocity = stickVelocityCalculator.GetVelocity();
 
   for(GLint i = 0; i < (GLint)balls->GetNRenderable(); ++i) {
+    if(ballApproachingHoles[i] == -2) continue;  // Already in hole.
     vec2 r = stickPosition - ballPositions[i];
     if(length(r) >= ballRadius) continue;
     vec2 n;
