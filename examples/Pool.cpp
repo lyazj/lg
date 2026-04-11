@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <deque>
 #include <glm/geometric.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
@@ -21,6 +22,21 @@
 #include "Utils.h"
 
 using namespace std;
+
+class WindowedVelocityCalculator {
+public:
+  WindowedVelocityCalculator(GLfloat d) : duration(d) { }
+
+  void AddPosition(const vec2 &position);
+
+  // Returns the average velocity over the sliding window.
+  // If the window contains fewer than two positions, returns {0.0f, 0.0f}.
+  vec2 GetVelocity() const;
+
+private:
+  GLfloat duration;                   // window duration in seconds
+  deque<pair<GLfloat, vec2>> window;  // (time, position)
+};
 
 class GLExampleApplication final : public GL3DApplication {
 public:
@@ -91,11 +107,11 @@ private:
   GLCompositeRenderablePtr balls;        // each component of type GLTransformedRenderable
   vector<GLint> ballApproachingHoles;    // 0--5: approaching the hole; -1: not; -2: holed
   vector<pair<GLint, GLint>> ballPairs;  // sorted by increasing ball-ball distance
+  bool ballsMoving = true;
   GLTransformedRenderablePtr stick;
   vec2 stickPosition = { 0.0f, 0.0f };
   GLfloat stickRotation = 0.0f;
-  GLfloat stickStartTime = 0.0f;
-  vec2 stickStartPosition = { 0.0f, 0.0f };
+  WindowedVelocityCalculator stickVelocityCalculator{ 0.1f };  // 100 ms sliding window
   GLint nGoals = 0;
 
   void InitTable();
@@ -125,6 +141,21 @@ int main(int argc, char *argv[])
   application = make_shared<GLExampleApplication>(argc, argv);
   application->Run();
   return 0;
+}
+
+void WindowedVelocityCalculator::AddPosition(const vec2 &position)
+{
+  GLfloat t = (GLfloat)GetElapsedTime() * 1e-9f;  // s
+  while(!window.empty() && window.front().first < t - duration) window.pop_front();
+  window.emplace_back(t, position);
+}
+
+vec2 WindowedVelocityCalculator::GetVelocity() const
+{
+  if(window.size() < 2) return vec2(0.0f);
+  GLfloat dt = window.back().first - window.front().first;
+  if(dt == 0.0f) return vec2(0.0f);
+  return (window.back().second - window.front().second) / dt;
 }
 
 void GLExampleApplication::PreInit()
@@ -158,12 +189,15 @@ void GLExampleApplication::Init()
   InitStick();
   scene->SetVertexAttributes(false);
   scene->Buffer(false);
+  stick->SetVertexAttributes(false);
+  stick->Buffer(false);
 }
 
 void GLExampleApplication::Display()
 {
   Clear();
   scene->Draw(GetModel());
+  if(!ballsMoving) stick->Draw(GetModel());
   Flush();
 }
 
@@ -184,8 +218,7 @@ void GLExampleApplication::MouseDown(MouseButton button, int x, int y)
 
   if(button == MouseButton::LeftButton) {
     stickPosition = MouseToWorld(x, y, ballAreaHeight);
-    stickStartPosition = stickPosition;
-    stickStartTime = (GLfloat)GetElapsedTime() * 1e-9f;
+    UpdateStickTransformation();
   }
 }
 
@@ -195,8 +228,7 @@ void GLExampleApplication::MouseUp(MouseButton button, int x, int y)
 
   if(button == MouseButton::LeftButton) {
     stickPosition = MouseToWorld(x, y, ballAreaHeight);
-    stickStartPosition = { 0.0f, 0.0f };
-    stickStartTime = 0.0f;
+    UpdateStickTransformation();
   }
 }
 
@@ -213,7 +245,7 @@ void GLExampleApplication::MouseMove(int x, int y, int dx [[maybe_unused]], int 
   }
   stickPosition = newPosition;
   UpdateStickTransformation();
-  HitBalls();
+  if(GetPressedMouseButtons() & MouseButton::LeftButton) HitBalls();
 }
 
 void GLExampleApplication::InitTable()
@@ -277,6 +309,7 @@ void GLExampleApplication::InitBalls()
   ballVelocities.reserve(16);
   balls = make_shared<GLCompositeRenderable>();
   balls->Reserve(16);
+  ballsMoving = false;
 
   auto ball = make_shared<GLSphere>(ballRadius, 64, 32);
   for(GLint i = 0; i < 16; ++i) {
@@ -312,6 +345,7 @@ void GLExampleApplication::InitBalls()
       ballPairs.emplace_back(j, balls->GetNRenderable() - 1);
     }
     UpdateApproachingHole(GLint(balls->GetNRenderable() - 1));
+    if(ballApproachingHoles.back() != -2 && length(ballVelocities.back()) > 0.0f) ballsMoving = true;
   }
   UpdateBallPairs();
 
@@ -339,7 +373,6 @@ void GLExampleApplication::InitStick()
   auto stick3 = make_shared<GLTransformedRenderable>(stick2, rotate(mat4(1.0f), 90.0f * deg, vec3(0.0f, 1.0f, 0.0f)));
   stick3->SetModel(translate(stick3->GetModel(), vec3(0.0f, 0.0f, -stickLength * 0.5f)));
   stick = make_shared<GLTransformedRenderable>(stick3, translate(mat4(1.0f), vec3(0.0f, 0.0f, ballAreaHeight)));
-  scene->AddRenderable(stick);
   UpdateStickTransformation();
 }
 
@@ -491,6 +524,8 @@ GLfloat GLExampleApplication::GetFreeTime(GLfloat dt)
 
 void GLExampleApplication::Transport(GLfloat dt)
 {
+  ballsMoving = false;
+
   for(GLint i = 0; i < (GLint)balls->GetNRenderable(); ++i) {
     if(length(ballVelocities[i]) == 0.0f) continue;
 
@@ -505,6 +540,7 @@ void GLExampleApplication::Transport(GLfloat dt)
     RegularizeVelocity(ballVelocities[i]);
     UpdateApproachingHole(i);
     if(ballApproachingHoles[i] == -2) continue;
+    if(length(ballVelocities[i]) > 0.0f) ballsMoving = true;
 
     // Update model.
     mat4 transform = translate(mat4(1.0f), vec3(ballPositions[i], ballAreaHeight));
@@ -683,12 +719,13 @@ void GLExampleApplication::UpdateStickTransformation()
   transform = translate(transform, vec3(stickPosition, ballAreaHeight));
   transform = rotate(transform, stickRotation, vec3(0.0f, 0.0f, 1.0f));
   stick->SetModel(transform);
+  stickVelocityCalculator.AddPosition(stickPosition);
 }
 
 void GLExampleApplication::HitBalls()
 {
-  if(stickStartTime == 0.0f) return;  // Not dragging.
-  vec2 stickVelocity = (stickPosition - stickStartPosition) / ((GLfloat)GetElapsedTime() * 1e-9f - stickStartTime);
+  if(ballsMoving) return;
+  vec2 stickVelocity = stickVelocityCalculator.GetVelocity();
   clog << "Debug: stick velocity = " << stickVelocity << " [m/s]" << endl;
   // [TODO]
 }
