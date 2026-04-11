@@ -727,7 +727,23 @@ void GLExampleApplication::HitBalls()
   if(ballsMoving) return;
   vec2 stickVelocity = stickVelocityCalculator.GetVelocity();
   clog << "Debug: stick velocity = " << stickVelocity << " [m/s]" << endl;
-  // [TODO]
+
+  for(GLint i = 0; i < (GLint)balls->GetNRenderable(); ++i) {
+    vec2 r = stickPosition - ballPositions[i];
+    if(length(r) >= ballRadius) continue;
+    vec2 n;
+    if(length(r) == 0.0f) {  // May be caused by too large stick movement.
+      n = -vec2(cosf(stickRotation), sinf(stickRotation));
+    } else {
+      n = normalize(r);
+    }
+    GLfloat v = 2 * dot(stickVelocity, -n);  // Assumes m(stick) >> m(ball).
+    if(v < 0) v = -v;                        // May be caused by too large stick movement.
+    ballVelocities[i] = v * -n;
+    RegularizeVelocity(ballVelocities[i]);
+    if(length(ballVelocities[i]) > 0.0f) ballsMoving = true;
+    break;
+  }
 }
 
 void GLExampleApplication::RegularizeVelocity(vec2 &v) const
