@@ -88,6 +88,9 @@ private:
     { +tableLengthAvg * 0.0f, -tableWidthAvg * 0.5f },
     { +tableLengthAvg * 0.5f - holeOffset, -tableWidthAvg * 0.5f + holeOffset },
   };
+  static constexpr vec2 headSpotPosition = { -tableLengthAvg * 0.25f, 0.0f };
+  static constexpr vec2 footSpotPosition = { +tableLengthAvg * 0.25f, 0.0f };
+  static constexpr GLfloat ballPositionPerturbation = ballRadius * 0.01f;  // m
 
   static constexpr GLfloat frictionDeceleration = 0.3f;  // m/s^2
   static constexpr GLfloat elasticityBallBall = 0.9f;
@@ -97,7 +100,7 @@ private:
   static constexpr GLfloat stickLargeRadius = 0.015f;  // m
   static constexpr GLfloat stickSmallRadius = 0.006f;  // m
 
-  static constexpr GLfloat maxInitialVelocity = 3.0f;  // m/s
+  static constexpr GLfloat maxInitialVelocity = 0.0f;  // m/s
   static constexpr GLfloat minVelocity = 1e-4f;        // m/s
   static constexpr GLfloat minDistance = 1e-4f;        // m
   static constexpr GLfloat minRotation = 1e-4f;        // rad
@@ -303,6 +306,21 @@ void GLExampleApplication::InitTable()
   scene->AddRenderable(table1);
 }
 
+static vector<vec2> GetColorBallPositions(vec2 foot, GLfloat r)
+{
+  vector<vec2> balls;
+  balls.reserve(15);
+  balls.push_back(foot);
+  for(size_t i = 1; i < 5; ++i) {  // row
+    foot += vec2(r * sqrtf(3), -r);
+    balls.push_back(foot);
+    for(size_t j = 1; j <= i; ++j) {  // column
+      balls.push_back(balls.back() + vec2(0.0f, 2.0f * r));
+    }
+  }
+  return balls;
+}
+
 void GLExampleApplication::InitBalls()
 {
   ballPositions.reserve(16);
@@ -312,6 +330,21 @@ void GLExampleApplication::InitBalls()
   ballsMoving = false;
 
   auto ball = make_shared<GLSphere>(ballRadius, 64, 32);
+  vector<vec2> colorBallPositions =
+      GetColorBallPositions(footSpotPosition, ballRadius + 2.0f * ballPositionPerturbation);
+  /*
+   * We fix this arrangement to simplify the problem,
+   * while introducing small perturbations at each position.
+   *
+   * ----------------------- y
+   * |          1
+   * |        10   2
+   * |      3   8   9
+   * |    5   7   14   15
+   * |  4   11   6   13   12
+   * x
+   */
+  vector<GLint> colorBallPermutation = { 1, 10, 2, 3, 8, 9, 5, 7, 14, 15, 4, 11, 6, 13, 12 };
   for(GLint i = 0; i < 16; ++i) {
     // Texture depicting number and pattern.
     GLImage ballImage;
@@ -323,17 +356,22 @@ void GLExampleApplication::InitBalls()
 
     // Randomize initial position, velocity, and rotation.
     vec2 position;
-    for(;;) {
-      position = { (RandFloat() - 0.5f) * ballAreaLength, (RandFloat() - 0.5f) * ballAreaWidth };
-      bool overlap = false;
-      for(const auto &p : ballPositions) {
-        if(length(position - p) < 2.0f * ballRadius) {
-          overlap = true;
-          break;
+    if(i == 0) {
+      position = headSpotPosition;
+    } else {
+      size_t j = find(colorBallPermutation.begin(), colorBallPermutation.end(), i) - colorBallPermutation.begin();
+      for(;;) {
+        position = colorBallPositions[j] + (2.0f * RandVec2() - 1.0f) * ballPositionPerturbation;
+        bool overlap = false;
+        for(const auto &p : ballPositions) {
+          if(length(position - p) < 2.0f * ballRadius) {
+            overlap = true;
+            break;
+          }
         }
+        if(overlap) continue;
+        break;
       }
-      if(overlap) continue;
-      break;
     }
     ballPositions.emplace_back(position);
     ballVelocities.emplace_back(maxInitialVelocity * RandFloat() * RandDirection2D());
@@ -664,19 +702,26 @@ void GLExampleApplication::UpdateApproachingHole(GLint i)
     ballVelocities[i] = length(ballVelocities[i]) * normalize(holePositions[iHole] - ballPositions[i]);
   }
   if(length(holePositions[iHole] - ballPositions[i]) < holeRadius) {  // Entering the hole.
-    // approach -> enter: move the ball out from the table
-    iHole = -2;
-    ballPositions[i] = {
-      (GLfloat)(nGoals - 7) * 3.0f * ballRadius,
-      tableOuterWidth * 0.5f + 2.0f * ballRadius,
-    };
-    ballVelocities[i] = { 0.0f, 0.0f };
-    mat4 transform = translate(mat4(1.0f), vec3(ballPositions[i], ballAreaHeight));
-    transform = rotate(transform, -75.0f * deg, vec3(1.0f, 0.0f, 0.0f));
-    transform = rotate(transform, +90.0f * deg, vec3(0.0f, 0.0f, 1.0f));
-    transform = scale(transform, vec3(1.2f, 1.2f, 1.2f));
-    ((GLTransformedRenderable *)balls->GetRenderable(i).get())->SetModel(transform);
-    ++nGoals;
+    if(i == 0) {
+      // Place the cue back to the head spot.
+      iHole = -1;
+      ballPositions[i] = headSpotPosition;
+      ballVelocities[i] = vec2(0.0f);
+    } else {
+      // approach → enter: move the ball out from the table
+      iHole = -2;
+      ballPositions[i] = {
+        (GLfloat)(nGoals - 7) * 3.0f * ballRadius,
+        tableOuterWidth * 0.5f + 2.0f * ballRadius,
+      };
+      ballVelocities[i] = { 0.0f, 0.0f };
+      mat4 transform = translate(mat4(1.0f), vec3(ballPositions[i], ballAreaHeight));
+      transform = rotate(transform, -75.0f * deg, vec3(1.0f, 0.0f, 0.0f));
+      transform = rotate(transform, +90.0f * deg, vec3(0.0f, 0.0f, 1.0f));
+      transform = scale(transform, vec3(1.2f, 1.2f, 1.2f));
+      ((GLTransformedRenderable *)balls->GetRenderable(i).get())->SetModel(transform);
+      ++nGoals;
+    }
     UpdateBallPairs();
   }
   ballApproachingHoles[i] = iHole;
@@ -726,7 +771,6 @@ void GLExampleApplication::HitBalls()
 {
   if(ballsMoving) return;
   vec2 stickVelocity = stickVelocityCalculator.GetVelocity();
-  clog << "Debug: stick velocity = " << stickVelocity << " [m/s]" << endl;
 
   for(GLint i = 0; i < (GLint)balls->GetNRenderable(); ++i) {
     vec2 r = stickPosition - ballPositions[i];
