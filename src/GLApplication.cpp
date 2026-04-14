@@ -2,6 +2,8 @@
 
 #include <GL/glut.h>
 
+#include <glm/gtc/matrix_transform.hpp>
+
 #ifdef FREEGLUT
 #include <GL/freeglut_ext.h>
 #endif /* FREEGLUT */
@@ -48,7 +50,7 @@ GLApplication::GLApplication(int &ac, char *av[])
 #endif /* _WIN32 */
       title(L"GL Application"),
       windowId(-1),
-      projection(1.0f),
+      projection(glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f)),
       view(1.0f),
       model(1.0f),
       clearMask(GL_COLOR_BUFFER_BIT),

@@ -1,14 +1,14 @@
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "GLApplication.h"
+#include "GL3DApplication.h"
 #include "GLProgram.h"
 #include "GLTriangle.h"
 
 using namespace std;
 
-class GLExampleApplication final : public GLApplication {
+class GLExampleApplication final : public GL3DApplication {
 public:
-  using GLApplication::GLApplication;
+  using GL3DApplication::GL3DApplication;
 
   void PreInit() override;
   void Init() override;
@@ -28,18 +28,17 @@ int main(int argc, char *argv[])
 
 void GLExampleApplication::PreInit()
 {
-  GLApplication::PreInit();
+  GL3DApplication::PreInit();
   SetFrameRate(0);
   SetShowFrameRateInterval(0);
 }
 
 void GLExampleApplication::Init()
 {
-  GLApplication::Init();
-  EnableDepthTest();
+  GL3DApplication::Init();
   UseProgram(GLProgram::GetDefaultProgram());
 
-  GLfloat r = 0.8f;
+  GLfloat r = 0.2f;
   vec3 v1(0.0f, r, 0.0f);
   vec3 v2(-sqrtf(3.0f) * 0.5f * r, -0.5f * r, 0.0f);
   vec3 v3(+sqrtf(3.0f) * 0.5f * r, -0.5f * r, 0.0f);
