@@ -24,7 +24,7 @@ GLFrustumLateral::GLFrustumLateral(GLfloat tr, GLfloat br, GLfloat h, GLint s)
     GLfloat lambda = u * (2.0f * pi);
     GLfloat sinLambda = sinf(lambda), cosLambda = cosf(lambda);
     for(GLint istack = 0; istack <= 1; ++istack) {
-      GLfloat v = (GLfloat)istack;
+      GLfloat v = 1.0f - GLfloat(istack);
       GLfloat z = (v - 0.5f) * height, rho = bottomRadius + v * (topRadius - bottomRadius);
       GLfloat x = rho * cosLambda, y = rho * sinLambda;
       vertices.emplace_back(x, y, z);
