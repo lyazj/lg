@@ -100,9 +100,9 @@ GLRenderablePtr GLFontRange::GetRenderable(char32_t c, GLfloat &x, GLfloat &y, G
     x = xmin, y += fontHeight;
     stbtt_GetBakedQuad(inner->CharData(), atlasWidth, atlasHeight, c - firstChar, &x, &y, &q, 1);
   }
-  auto rectangle0 = make_shared<GLRectangle>(q.x1 - q.x0, q.y1 - q.y0);
+  auto rectangle0 = make_shared<GLRectangle>(q.x1 - q.x0, q.y0 - q.y1);  // y-flipped
   auto rectangle1 = make_shared<GLFontRangeTextureDecorator>(rectangle0, GLFont::GetProgram(), texture);
-  rectangle1->SetTexCoords(q.s0, q.t0, q.s1, q.t1);
+  rectangle1->SetTexCoords(q.s0, q.t1, q.s1, q.t0);  // t-flipped
   mat4 transform = translate(mat4(1.0f), vec3((q.x0 + q.x1) * 0.5f, (q.y0 + q.y1) * 0.5f, 0.0f));
   return make_shared<GLTransformedRenderable>(rectangle1, transform);
 #else  /* HAS_STB */

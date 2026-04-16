@@ -51,7 +51,7 @@ void GLExampleApplication::Init()
   GLApplication::Init();
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   UseProgram(GLProgram::GetDefaultTextureProgram());
-  SetModel(scale(mat4(1.0f), vec3(1.0f, -1.0f, 1.0f)));
+  SetModel(scale(mat4(1.0f), vec3(1.0f, -1.0f, 1.0f)));  // y-flipped
 
   InitRenderable();
 }
@@ -110,7 +110,7 @@ void GLExampleApplication::UpdateViewer()
   } else {
     viewerWidth = iWidth * viewerHeight / iHeight;
   }
-  renderable->SetRenderable(make_shared<GLRectangle>(viewerWidth, viewerHeight));
+  renderable->SetRenderable(make_shared<GLRectangle>(viewerWidth, -viewerHeight));  // y-flipped
   renderable->SetVertexAttributes(true);
   renderable->Buffer(true);
 }

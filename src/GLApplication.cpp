@@ -298,6 +298,7 @@ void GLApplication::Init()
 #endif /* _WIN32 */
   GLProgram::SetDefaultVertexAttributes();
 
+  glEnable(GL_CULL_FACE);
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
   static unordered_map<int, MouseButton> buttonMap = {
