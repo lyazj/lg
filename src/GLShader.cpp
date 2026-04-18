@@ -139,14 +139,15 @@ GLShaderPtr GLShader::GetDefaultLightingFragmentShader()
 #version 150
 
 layout(std140) uniform u_light {
-  vec3 position;
-  vec3 color;
+  vec4 position;  // w discarded
+  vec4 color;     // a discarded
   float distance;
   float ambient;
 };
+
 layout(std140) uniform u_highlight {
-  vec3 viewPos;
-  vec3 highColor;
+  vec4 viewPos;    // w discarded
+  vec4 highColor;  // a discarded
   float shininess;
 };
 
@@ -157,14 +158,14 @@ out vec4 f_color;
 
 void main()
 {
-  float d = length(position - v_position);
-  vec3 l = normalize(position - v_position);
+  float d = length(position.xyz - v_position);
+  vec3 l = normalize(position.xyz - v_position);
   vec3 n = normalize(v_normal);
-  vec3 v = normalize(viewPos - v_position);
+  vec3 v = normalize(viewPos.xyz - v_position);
   vec3 r = reflect(-l, n);
   float atten = clamp(1.0 - log(d / distance) / log(1.0e3), 0.0, 1.0);
-  vec3 diffuse = color * max(dot(n, l), 0.0);
-  vec3 specular = highColor * pow(max(dot(v, r), 0.0), shininess);
+  vec3 diffuse = color.rgb * max(dot(n, l), 0.0);
+  vec3 specular = highColor.rgb * pow(max(dot(v, r), 0.0), shininess);
   f_color = vec4(v_color.rgb * atten * ((diffuse + specular + ambient) / (1.0 + ambient)), v_color.a);
 }
   )");
@@ -179,10 +180,16 @@ GLShaderPtr GLShader::GetLightingTextureFragmentShader()
 uniform sampler2D u_texture0;
 
 layout(std140) uniform u_light {
-  vec3 position;
-  vec3 color;
+  vec4 position;  // w discarded
+  vec4 color;     // a discarded
   float distance;
   float ambient;
+};
+
+layout(std140) uniform u_highlight {
+  vec4 viewPos;    // w discarded
+  vec4 highColor;  // a discarded
+  float shininess;
 };
 
 in vec3 v_position;
@@ -192,13 +199,16 @@ out vec4 f_color;
 
 void main()
 {
-  vec3 pos = position - v_position;
-  float dist = length(pos);
-  vec3 dir = normalize(pos);
-  float atten = clamp(1.0 - log(dist / distance) / log(1.0e3), 0.0, 1.0);
-  vec3 diffuse = color.rgb * max(dot(normalize(v_normal), dir), 0.0);
+  float d = length(position.xyz - v_position);
+  vec3 l = normalize(position.xyz - v_position);
+  vec3 n = normalize(v_normal);
+  vec3 v = normalize(viewPos.xyz - v_position);
+  vec3 r = reflect(-l, n);
+  float atten = clamp(1.0 - log(d / distance) / log(1.0e3), 0.0, 1.0);
+  vec3 diffuse = color.rgb * max(dot(n, l), 0.0);
+  vec3 specular = highColor.rgb * pow(max(dot(v, r), 0.0), shininess);
   f_color = texture(u_texture0, v_texCoord0);
-  f_color = vec4(f_color.rgb * atten * ((diffuse + ambient) / (1.0 + ambient)), f_color.a);
+  f_color = vec4(f_color.rgb * atten * ((diffuse + specular + ambient) / (1.0 + ambient)), f_color.a);
 }
   )");
 }
@@ -231,13 +241,13 @@ static GLfloat GetAttenuation(GLfloat dist, GLfloat distance)
 void GLShader::DefaultLightingBlock::SetLightPoint(const vec3 &p)
 {
   if(length(color) == 0.0f) return;
-  color *= 1.0f / GetAttenuation(length(position - p), distance);
+  color *= 1.0f / GetAttenuation(length(vec3(position) - p), distance);
 }
 
 void GLShader::DefaultLightingBlock::SetNearLight()
 {
-  position = vec3(0.0f, 2.0f, 2.0f);
-  color = vec3(1.0f);
+  position = vec4(0.0f, 2.0f, 2.0f, 1.0f);
+  color = vec4(1.0f);
   distance = 1.0f;
   ambient = 0.15f;
   SetLightPoint({ 0.0f, 1.0f, 1.0f });
@@ -245,8 +255,8 @@ void GLShader::DefaultLightingBlock::SetNearLight()
 
 void GLShader::DefaultLightingBlock::SetMediumLight()
 {
-  position = vec3(0.0f, 4.0f, 4.0f);
-  color = vec3(1.0f);
+  position = vec4(0.0f, 4.0f, 4.0f, 1.0f);
+  color = vec4(1.0f);
   distance = 1.0f;
   ambient = 0.15f;
   SetLightPoint({ 0.0f, 2.0f, 2.0f });
@@ -254,8 +264,8 @@ void GLShader::DefaultLightingBlock::SetMediumLight()
 
 void GLShader::DefaultLightingBlock::SetFarLight()
 {
-  position = vec3(0.0f, 10.0f, 10.0f);
-  color = vec3(1.0f);
+  position = vec4(0.0f, 10.0f, 10.0f, 1.0f);
+  color = vec4(1.0f);
   distance = 1.0f;
   ambient = 0.15f;
   SetLightPoint({ 0.0f, 5.0f, 5.0f });
@@ -263,7 +273,7 @@ void GLShader::DefaultLightingBlock::SetFarLight()
 
 void GLShader::DefaultHighlightBlock::Disable()
 {
-  viewPos = vec3(0.0f, 0.0f, 0.0f);  // placeholder
-  highColor = vec3(0.0f);            // disabled
-  shininess = 0.0f;                  // placeholder
+  viewPos = vec4(0.0f, 0.0f, 0.0f, 1.0f);    // placeholder
+  highColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);  // disabled
+  shininess = 1.0f;                          // placeholder
 }

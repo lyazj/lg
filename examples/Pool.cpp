@@ -180,10 +180,10 @@ void GLExampleApplication::Init()
   UseProgram(GLProgram::GetDefaultLightingProgram());
   textureProgram = GLProgram::GetLightingTextureProgram();
   GLShader::DefaultLightingBlock lighting;
-  lighting.position = { 0.0f, 0.0f, 4.0f };  // m
-  lighting.color = vec3(1.0f);
+  lighting.position = { 0.0f, 0.0f, 4.0f, 1.0f };  // m
+  lighting.color = vec4(1.0f);
   lighting.distance = 1.0f;
-  lighting.ambient = 0.15f;
+  lighting.ambient = 0.5f;
   lighting.SetLightPoint({ 0.0f, 0.0f, tableTopHeight });
   GetProgram()->SetUniformBlock("u_light", &lighting);
   textureProgram->SetUniformBlock("u_light", &lighting);

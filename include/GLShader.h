@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 
 #include "Global.h"
 
@@ -26,10 +26,8 @@ public:
   static GLShaderPtr GetFontTextureFragmentShader();
 
   struct DefaultLightingBlock {
-    vec3 position;
-    GLfloat padding_0 = 1.0f;
-    vec3 color;
-    GLfloat padding_1 = 1.0f;
+    vec4 position;
+    vec4 color;
     GLfloat distance;
     GLfloat ambient;
     GLfloat padding_2[2] = { 0.0f, 0.0f };
@@ -42,10 +40,8 @@ public:
   static_assert(sizeof(DefaultLightingBlock) == 48);
 
   struct DefaultHighlightBlock {
-    vec3 viewPos;
-    GLfloat padding_0 = 1.0f;
-    vec3 highColor;
-    GLfloat padding_1 = 1.0f;
+    vec4 viewPos;
+    vec4 highColor;
     GLfloat shininess;
     GLfloat padding_2[3] = { 0.0f, 0.0f, 0.0f };
 

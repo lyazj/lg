@@ -5,6 +5,7 @@
 #include "GLColorDecorator.h"
 #include "GLCompositeRenderable.h"
 #include "GLProgram.h"
+#include "GLShader.h"
 #include "GLSimpleRenderableDecorator.h"
 #include "GLSphere.h"
 
@@ -36,6 +37,10 @@ void GLExampleApplication::Init()
   GL3DApplication::Init();
 
   UseProgram(GLProgram::GetDefaultLightingProgram());
+  GLShader::DefaultLightingBlock lighting;
+  lighting.SetMediumLight();
+  lighting.ambient = 0.5f;
+  GetProgram()->SetUniformBlock("u_light", &lighting);
 
   auto scene = make_shared<GLCompositeRenderable>();
   GLSimpleRenderablePtr sphere = make_shared<GLSphere>(0.2f, 64, 32);

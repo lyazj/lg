@@ -286,8 +286,8 @@ GLProgramPtr GLProgram::GetFontTextureProgram()
 void GLProgram::SetDefaultHighlight(const vec3 &highColor, GLfloat shininess) const
 {
   GLShader::DefaultHighlightBlock highlight;
-  highlight.viewPos = GLApplication::GetInstance()->GetViewerPosition();
-  highlight.highColor = highColor;
+  highlight.viewPos = vec4(GLApplication::GetInstance()->GetViewerPosition(), 1.0f);
+  highlight.highColor = vec4(highColor, 1.0f);
   highlight.shininess = shininess;
   SetUniformBlock("u_highlight", &highlight);
 }
