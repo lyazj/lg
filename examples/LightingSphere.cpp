@@ -41,7 +41,7 @@ void GLExampleApplication::Init()
   lighting.SetMediumLight();
   lighting.ambient = 0.5f;
   GetProgram()->SetUniformBlock("u_light", &lighting);
-  GetProgram()->SetDefaultHighlight({ 0.5f, 0.5f, 0.5f }, 2.0f);
+  GetProgram()->SetDefaultHighlight({ 0.5f, 0.5f, 0.5f }, 10.0f);
 
   auto scene = make_shared<GLCompositeRenderable>();
   GLSimpleRenderablePtr sphere = make_shared<GLSphere>(0.2f, 64, 32);
