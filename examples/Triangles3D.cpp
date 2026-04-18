@@ -56,10 +56,13 @@ void GLExampleApplication::Display()
   m = mat4(1.0f);
   renderable->Draw(GetModel() * m);
 
+  glEnable(GL_POLYGON_OFFSET_FILL);
+  glPolygonOffset(1.0f, 1.0f);  // Avoid z-fighting.
   GLProgram::SetVertexAttribute("a_color", vec4(0.0f, 1.0f, 0.0f, 1.0f));
   m = mat4(1.0f);
   m = rotate(m, 20.0f * deg, vec3(0.0f, 0.0f, 1.0f));
   renderable->Draw(GetModel() * m);
+  glDisable(GL_POLYGON_OFFSET_FILL);
 
   GLProgram::SetVertexAttribute("a_color", vec4(0.0f, 0.0f, 1.0f, 1.0f));
   m = mat4(1.0f);
