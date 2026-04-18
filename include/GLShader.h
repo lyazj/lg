@@ -41,6 +41,18 @@ public:
   };
   static_assert(sizeof(DefaultLightingBlock) == 48);
 
+  struct DefaultHighlightBlock {
+    vec3 viewPos;
+    GLfloat padding_0 = 1.0f;
+    vec3 highColor;
+    GLfloat padding_1 = 1.0f;
+    GLfloat shininess;
+    GLfloat padding_2[3] = { 0.0f, 0.0f, 0.0f };
+
+    void Disable();
+  };
+  static_assert(sizeof(DefaultHighlightBlock) == 48);
+
 private:
   GLenum type;
   GLuint id;

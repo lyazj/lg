@@ -201,6 +201,16 @@ void GLApplication::SetModel(const mat4 &m)
   model = m;
 }
 
+vec3 GLApplication::GetViewerPosition() const
+{
+#if 0  // If view is created by lookAt, this method is more efficient.
+  mat3 m = view;
+  vec3 v = view[3];
+  return -transpose(m) * v;
+#endif
+  return inverse(view)[3];
+}
+
 void GLApplication::EnableBlend()
 {
   glEnable(GL_BLEND);

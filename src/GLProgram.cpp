@@ -241,6 +241,14 @@ GLProgramPtr GLProgram::GetDefaultTextureProgram()
   return program;
 }
 
+static void InitLighting(const GLProgramPtr &program)
+{
+  GLShader::DefaultLightingBlock lighting;
+  lighting.SetNearLight();
+  program->SetUniformBlock("u_light", &lighting);
+  program->ResetDefaultHighlight();
+}
+
 GLProgramPtr GLProgram::GetDefaultLightingProgram()
 {
   auto program = make_shared<GLProgram>();
@@ -248,11 +256,7 @@ GLProgramPtr GLProgram::GetDefaultLightingProgram()
   program->AttachShader(GLShader::GetDefaultLightingFragmentShader());
   program->Link();
   program->DetachShaders();
-
-  GLShader::DefaultLightingBlock lighting;
-  lighting.SetNearLight();
-  program->SetUniformBlock("u_light", &lighting);
-
+  InitLighting(program);
   return program;
 }
 
@@ -263,11 +267,7 @@ GLProgramPtr GLProgram::GetLightingTextureProgram()
   program->AttachShader(GLShader::GetLightingTextureFragmentShader());
   program->Link();
   program->DetachShaders();
-
-  GLShader::DefaultLightingBlock lighting;
-  lighting.SetMediumLight();
-  program->SetUniformBlock("u_light", &lighting);
-
+  InitLighting(program);
   program->AssignDefaultTextureUnits();
   return program;
 }
@@ -281,4 +281,20 @@ GLProgramPtr GLProgram::GetFontTextureProgram()
   program->DetachShaders();
   program->AssignDefaultTextureUnits();
   return program;
+}
+
+void GLProgram::SetDefaultHighlight(const vec3 &highColor, GLfloat shininess) const
+{
+  GLShader::DefaultHighlightBlock highlight;
+  highlight.viewPos = GLApplication::GetInstance()->GetViewerPosition();
+  highlight.highColor = highColor;
+  highlight.shininess = shininess;
+  SetUniformBlock("u_highlight", &highlight);
+}
+
+void GLProgram::ResetDefaultHighlight() const
+{
+  GLShader::DefaultHighlightBlock highlight;
+  highlight.Disable();
+  SetUniformBlock("u_highlight", &highlight);
 }
