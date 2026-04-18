@@ -40,7 +40,7 @@ GLApplication::GLApplication(int &ac, char *av[])
       argv(av),
       programName(L"GLApplication"),
       programShortName(L"GLApplication"),
-      displayMode(GLUT_SINGLE | GLUT_RGBA | GLUT_DEPTH),  // negligible overhead
+      displayMode(GLUT_SINGLE | GLUT_RGBA | GLUT_DEPTH | GLUT_MULTISAMPLE),  // negligible overhead for GLUT_DEPTH
 #ifdef _WIN32
       width(512),
       height(512),
@@ -309,6 +309,7 @@ void GLApplication::Init()
   GLProgram::SetDefaultVertexAttributes();
 
   glEnable(GL_CULL_FACE);
+  glEnable(GL_MULTISAMPLE);
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
   static unordered_map<int, MouseButton> buttonMap = {
