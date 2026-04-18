@@ -20,31 +20,41 @@ GLShader::~GLShader() { glDeleteShader(id); }
 void GLShader::Attach(GLuint program) const { glAttachShader(program, id); }
 void GLShader::Detach(GLuint program) const { glDetachShader(program, id); }
 
-GLShaderPtr GLShader::GetDefaultVertexShader()
-{
-  return make_shared<GLShader>(GL_VERTEX_SHADER,
-      R"(
-#version 150
-
+static constexpr const char *defaultPositioningSnippet = R"(
 uniform mat4 u_model;
 uniform mat4 u_view;
 uniform mat4 u_projection;
 
 in vec3 a_position;
 in vec3 a_normal;
-in vec4 a_color;
 out vec3 v_position;
 out vec3 v_normal;
-out vec4 v_color;
 
-void main()
+void position(void)
 {
   v_position = (u_model * vec4(a_position, 1.0)).xyz;
   v_normal = normalize(transpose(inverse(mat3(u_model))) * a_normal);
-  v_color = a_color;
   gl_Position = u_projection * u_view * vec4(v_position, 1.0);
 }
-)");
+)";
+
+GLShaderPtr GLShader::GetDefaultVertexShader()
+{
+  return make_shared<GLShader>(GL_VERTEX_SHADER,
+      R"(
+#version 150
+
+in vec4 a_color;
+out vec4 v_color;
+
+void position(void);
+
+void main()
+{
+  position();
+  v_color = a_color;
+}
+)"s + defaultPositioningSnippet);
 }
 
 GLShaderPtr GLShader::GetDefaultTextureVertexShader()
@@ -53,25 +63,17 @@ GLShaderPtr GLShader::GetDefaultTextureVertexShader()
       R"(
 #version 150
 
-uniform mat4 u_model;
-uniform mat4 u_view;
-uniform mat4 u_projection;
-
-in vec3 a_position;
-in vec3 a_normal;
 in vec2 a_texCoord0;
-out vec3 v_position;
-out vec3 v_normal;
 out vec2 v_texCoord0;
+
+void position(void);
 
 void main()
 {
-  v_position = (u_model * vec4(a_position, 1.0)).xyz;
-  v_normal = normalize(transpose(inverse(mat3(u_model))) * a_normal);
+  position();
   v_texCoord0 = a_texCoord0;
-  gl_Position = u_projection * u_view * vec4(v_position, 1.0);
 }
-)");
+)"s + defaultPositioningSnippet);
 }
 
 GLShaderPtr GLShader::GetFontTextureVertexShader()
@@ -146,7 +148,11 @@ layout(std140) uniform u_highlight {
   float shininess;
 };
 
-void lighting(vec4 p_color)
+in vec3 v_position;
+in vec3 v_normal;
+out vec4 f_color;
+
+void light(vec4 p_color)
 {
   float d = length(position.xyz - v_position);
   vec3 l = normalize(position.xyz - v_position);
@@ -165,16 +171,13 @@ GLShaderPtr GLShader::GetDefaultLightingFragmentShader()
   return make_shared<GLShader>(GL_FRAGMENT_SHADER, R"(
 #version 150
 
-in vec3 v_position;
-in vec3 v_normal;
 in vec4 v_color;
-out vec4 f_color;
 
-void lighting(vec4 p_color);
+void light(vec4 p_color);
 
 void main()
 {
-  lighting(v_color);
+  light(v_color);
 }
 )"s + defaultLightingSnippet);
 }
@@ -186,16 +189,13 @@ GLShaderPtr GLShader::GetLightingTextureFragmentShader()
 
 uniform sampler2D u_texture0;
 
-in vec3 v_position;
-in vec3 v_normal;
 in vec2 v_texCoord0;
-out vec4 f_color;
 
-void lighting(vec4 p_color);
+void light(vec4 p_color);
 
 void main()
 {
-  lighting(texture(u_texture0, v_texCoord0));
+  light(texture(u_texture0, v_texCoord0));
 }
 )"s + defaultLightingSnippet);
 }
