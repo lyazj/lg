@@ -158,11 +158,11 @@ void light(vec4 p_color)
   vec3 l = normalize(position.xyz - v_position * position.w);
   vec3 n = normalize(v_normal);
   vec3 v = normalize(viewPos.xyz - v_position);
-  vec3 r = reflect(-l, n);
+  vec3 h = normalize(l + v);
   float atten = clamp(1.0 - position.w * log(d / distance) / log(1.0e3), 0.0, 1.0);
   vec3 diffuse = color.rgb * max(dot(n, l), 0.0);
-  vec3 specular = highColor.rgb * pow(max(dot(v, r), 0.0), shininess) * step(0.0, dot(n, l));
-  f_color = vec4(p_color.rgb * atten * (diffuse + specular + ambient), p_color.a);
+  vec3 specular = highColor.rgb * pow(max(dot(n, h), 0.0), shininess) * step(0.0, dot(n, l));
+  f_color = vec4(atten * (p_color.rgb * (diffuse + ambient) + specular), p_color.a);
 }
 )";
 
