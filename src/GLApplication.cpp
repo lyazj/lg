@@ -310,6 +310,7 @@ void GLApplication::Init()
 
   glEnable(GL_CULL_FACE);
   glEnable(GL_MULTISAMPLE);
+  glEnable(GL_FRAMEBUFFER_SRGB);
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
   static unordered_map<int, MouseButton> buttonMap = {

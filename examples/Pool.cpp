@@ -172,7 +172,8 @@ void GLExampleApplication::Init()
 {
   GL3DApplication::Init();
   MaximizeWindow();
-  glDisable(GL_CULL_FACE);  // We don't follow the winding order convention.
+  glDisable(GL_CULL_FACE);         // We don't follow the winding order convention.
+  glDisable(GL_FRAMEBUFFER_SRGB);  // We designed the colors before this default...
   glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
   SetView({ 0.0f, 0.0f, 3.0f } /* m */, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f });
   SetProjection(45.0f * deg, 0.1f, 10.0f);  // m

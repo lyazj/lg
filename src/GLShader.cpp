@@ -162,7 +162,7 @@ void light(vec4 p_color)
   float atten = clamp(1.0 - position.w * log(d / distance) / log(1.0e3), 0.0, 1.0);
   vec3 diffuse = color.rgb * max(dot(n, l), 0.0);
   vec3 specular = highColor.rgb * pow(max(dot(n, h), 0.0), shininess) * step(0.0, dot(n, l));
-  f_color = vec4(atten * (p_color.rgb * (diffuse + ambient) + specular), p_color.a);
+  f_color = vec4(atten * p_color.rgb * (diffuse + ambient) + specular, p_color.a);
 }
 )";
 
@@ -237,7 +237,7 @@ void GLShader::DefaultLightingBlock::SetNearLight()
   position = vec4(0.0f, 2.0f, 2.0f, 1.0f);
   color = vec4(1.0f);
   distance = 1.0f;
-  ambient = 0.3f;
+  ambient = 0.15f;
   SetLightPoint({ 0.0f, 1.0f, 1.0f });
 }
 
@@ -246,7 +246,7 @@ void GLShader::DefaultLightingBlock::SetMediumLight()
   position = vec4(0.0f, 4.0f, 4.0f, 1.0f);
   color = vec4(1.0f);
   distance = 1.0f;
-  ambient = 0.3f;
+  ambient = 0.15f;
   SetLightPoint({ 0.0f, 2.0f, 2.0f });
 }
 
@@ -255,7 +255,7 @@ void GLShader::DefaultLightingBlock::SetFarLight()
   position = vec4(0.0f, 10.0f, 10.0f, 1.0f);
   color = vec4(1.0f);
   distance = 1.0f;
-  ambient = 0.3f;
+  ambient = 0.15f;
   SetLightPoint({ 0.0f, 5.0f, 5.0f });
 }
 

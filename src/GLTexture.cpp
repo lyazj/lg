@@ -55,18 +55,22 @@ void GLTexture::Texture(
   glGenerateMipmap(target);
 }
 
-static GLenum GetImageFormat(const GLImage &image)
+static GLenum GetImageFormat(const GLImage &image, bool srgb)
 {
   switch(image.GetType()) {
-  case GLImageType::RGB: return GL_RGB;
-  case GLImageType::RGBA: return GL_RGBA;
+  case GLImageType::RGB: return srgb ? GL_SRGB : GL_RGB;
+  case GLImageType::RGBA: return srgb ? GL_SRGB_ALPHA : GL_RGBA;
   default: abort();
   }
 }
 
 void GLTexture::Texture(GLenum iFormat, const GLImage &image) const
 {
-  Texture(iFormat, image.GetWidth(), image.GetHeight(), GetImageFormat(image), image.GetData().data());
+  Texture(iFormat, image.GetWidth(), image.GetHeight(), GetImageFormat(image, false), image.GetData().data());
 }
 
-void GLTexture::Texture(const GLImage &image) const { Texture(GetImageFormat(image), image); }
+void GLTexture::Texture(const GLImage &image) const
+{
+  // We assume the application keeps the sRGB enable state unchanged throughout execution.
+  Texture(GetImageFormat(image, glIsEnabled(GL_FRAMEBUFFER_SRGB)), image);
+}
