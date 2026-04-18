@@ -136,7 +136,7 @@ void main()
 
 static constexpr const char *defaultLightingSnippet = R"(
 layout(std140) uniform u_light {
-  vec4 position;  // w discarded
+  vec4 position;  // w=0: parallel; w=1: point
   vec4 color;     // a discarded
   float distance;
   float ambient;
@@ -154,15 +154,15 @@ out vec4 f_color;
 
 void light(vec4 p_color)
 {
-  float d = length(position.xyz - v_position);
-  vec3 l = normalize(position.xyz - v_position);
+  float d = length(position.xyz - v_position * position.w);
+  vec3 l = normalize(position.xyz - v_position * position.w);
   vec3 n = normalize(v_normal);
   vec3 v = normalize(viewPos.xyz - v_position);
   vec3 r = reflect(-l, n);
-  float atten = clamp(1.0 - log(d / distance) / log(1.0e3), 0.0, 1.0);
+  float atten = clamp(1.0 - position.w * log(d / distance) / log(1.0e3), 0.0, 1.0);
   vec3 diffuse = color.rgb * max(dot(n, l), 0.0);
   vec3 specular = highColor.rgb * pow(max(dot(v, r), 0.0), shininess) * step(0.0, dot(n, l));
-  f_color = vec4(p_color.rgb * atten * ((diffuse + specular + ambient) / (1.0 + ambient)), p_color.a);
+  f_color = vec4(p_color.rgb * atten * (diffuse + specular + ambient), p_color.a);
 }
 )";
 
@@ -228,7 +228,8 @@ static GLfloat GetAttenuation(GLfloat dist, GLfloat distance)
 void GLShader::DefaultLightingBlock::SetLightPoint(const vec3 &p)
 {
   if(length(color) == 0.0f) return;
-  color *= 1.0f / GetAttenuation(length(vec3(position) - p), distance);
+  if(position.w == 0.0f) return;  // Parallel light doesn't attenuate.
+  color /= (1.0f + ambient) * GetAttenuation(length(vec3(position) - p), distance);
 }
 
 void GLShader::DefaultLightingBlock::SetNearLight()
@@ -236,7 +237,7 @@ void GLShader::DefaultLightingBlock::SetNearLight()
   position = vec4(0.0f, 2.0f, 2.0f, 1.0f);
   color = vec4(1.0f);
   distance = 1.0f;
-  ambient = 0.15f;
+  ambient = 0.3f;
   SetLightPoint({ 0.0f, 1.0f, 1.0f });
 }
 
@@ -245,7 +246,7 @@ void GLShader::DefaultLightingBlock::SetMediumLight()
   position = vec4(0.0f, 4.0f, 4.0f, 1.0f);
   color = vec4(1.0f);
   distance = 1.0f;
-  ambient = 0.15f;
+  ambient = 0.3f;
   SetLightPoint({ 0.0f, 2.0f, 2.0f });
 }
 
@@ -254,7 +255,7 @@ void GLShader::DefaultLightingBlock::SetFarLight()
   position = vec4(0.0f, 10.0f, 10.0f, 1.0f);
   color = vec4(1.0f);
   distance = 1.0f;
-  ambient = 0.15f;
+  ambient = 0.3f;
   SetLightPoint({ 0.0f, 5.0f, 5.0f });
 }
 
