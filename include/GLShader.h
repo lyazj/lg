@@ -7,6 +7,7 @@
 class GLShader {
 public:
   GLShader(GLenum type, const char *source);
+  GLShader(GLenum t, const std::string &s) : GLShader(t, s.c_str()) { }
   ~GLShader();
   GLShader(const GLShader &) = delete;
   GLShader &operator=(const GLShader &) = delete;

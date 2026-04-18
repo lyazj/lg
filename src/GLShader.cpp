@@ -44,7 +44,7 @@ void main()
   v_color = a_color;
   gl_Position = u_projection * u_view * vec4(v_position, 1.0);
 }
-  )");
+)");
 }
 
 GLShaderPtr GLShader::GetDefaultTextureVertexShader()
@@ -71,7 +71,7 @@ void main()
   v_texCoord0 = a_texCoord0;
   gl_Position = u_projection * u_view * vec4(v_position, 1.0);
 }
-  )");
+)");
 }
 
 GLShaderPtr GLShader::GetFontTextureVertexShader()
@@ -95,7 +95,7 @@ void main()
   gl_Position = vec4(gl_Position.x / u_winWidth * 2.0 - 1.0, 1.0 - gl_Position.y / u_winHeight * 2.0, u_depth, 1.0);
   v_texCoord0 = a_texCoord0;
 }
-  )");
+)");
 }
 
 GLShaderPtr GLShader::GetDefaultFragmentShader()
@@ -111,7 +111,7 @@ void main()
 {
   f_color = v_color;
 }
-  )");
+)");
 }
 
 GLShaderPtr GLShader::GetDefaultTextureFragmentShader()
@@ -129,15 +129,10 @@ void main()
 {
   f_color = texture(u_texture0, v_texCoord0);
 }
-  )");
+)");
 }
 
-GLShaderPtr GLShader::GetDefaultLightingFragmentShader()
-{
-  return make_shared<GLShader>(GL_FRAGMENT_SHADER,
-      R"(
-#version 150
-
+static constexpr const char *defaultLightingSnippet = R"(
 layout(std140) uniform u_light {
   vec4 position;  // w discarded
   vec4 color;     // a discarded
@@ -150,67 +145,59 @@ layout(std140) uniform u_highlight {
   vec4 highColor;  // a discarded
   float shininess;
 };
+
+void lighting(vec4 p_color)
+{
+  float d = length(position.xyz - v_position);
+  vec3 l = normalize(position.xyz - v_position);
+  vec3 n = normalize(v_normal);
+  vec3 v = normalize(viewPos.xyz - v_position);
+  vec3 r = reflect(-l, n);
+  float atten = clamp(1.0 - log(d / distance) / log(1.0e3), 0.0, 1.0);
+  vec3 diffuse = color.rgb * max(dot(n, l), 0.0);
+  vec3 specular = highColor.rgb * pow(max(dot(v, r), 0.0), shininess) * step(0.0, dot(n, l));
+  f_color = vec4(p_color.rgb * atten * ((diffuse + specular + ambient) / (1.0 + ambient)), p_color.a);
+}
+)";
+
+GLShaderPtr GLShader::GetDefaultLightingFragmentShader()
+{
+  return make_shared<GLShader>(GL_FRAGMENT_SHADER, R"(
+#version 150
 
 in vec3 v_position;
 in vec3 v_normal;
 in vec4 v_color;
 out vec4 f_color;
 
+void lighting(vec4 p_color);
+
 void main()
 {
-  float d = length(position.xyz - v_position);
-  vec3 l = normalize(position.xyz - v_position);
-  vec3 n = normalize(v_normal);
-  vec3 v = normalize(viewPos.xyz - v_position);
-  vec3 r = reflect(-l, n);
-  float atten = clamp(1.0 - log(d / distance) / log(1.0e3), 0.0, 1.0);
-  vec3 diffuse = color.rgb * max(dot(n, l), 0.0);
-  vec3 specular = highColor.rgb * pow(max(dot(v, r), 0.0), shininess);
-  f_color = vec4(v_color.rgb * atten * ((diffuse + specular + ambient) / (1.0 + ambient)), v_color.a);
+  lighting(v_color);
 }
-  )");
+)"s + defaultLightingSnippet);
 }
 
 GLShaderPtr GLShader::GetLightingTextureFragmentShader()
 {
-  return make_shared<GLShader>(GL_FRAGMENT_SHADER,
-      R"(
+  return make_shared<GLShader>(GL_FRAGMENT_SHADER, R"(
 #version 150
 
 uniform sampler2D u_texture0;
-
-layout(std140) uniform u_light {
-  vec4 position;  // w discarded
-  vec4 color;     // a discarded
-  float distance;
-  float ambient;
-};
-
-layout(std140) uniform u_highlight {
-  vec4 viewPos;    // w discarded
-  vec4 highColor;  // a discarded
-  float shininess;
-};
 
 in vec3 v_position;
 in vec3 v_normal;
 in vec2 v_texCoord0;
 out vec4 f_color;
 
+void lighting(vec4 p_color);
+
 void main()
 {
-  float d = length(position.xyz - v_position);
-  vec3 l = normalize(position.xyz - v_position);
-  vec3 n = normalize(v_normal);
-  vec3 v = normalize(viewPos.xyz - v_position);
-  vec3 r = reflect(-l, n);
-  float atten = clamp(1.0 - log(d / distance) / log(1.0e3), 0.0, 1.0);
-  vec3 diffuse = color.rgb * max(dot(n, l), 0.0);
-  vec3 specular = highColor.rgb * pow(max(dot(v, r), 0.0), shininess);
-  f_color = texture(u_texture0, v_texCoord0);
-  f_color = vec4(f_color.rgb * atten * ((diffuse + specular + ambient) / (1.0 + ambient)), f_color.a);
+  lighting(texture(u_texture0, v_texCoord0));
 }
-  )");
+)"s + defaultLightingSnippet);
 }
 
 GLShaderPtr GLShader::GetFontTextureFragmentShader()
@@ -230,7 +217,7 @@ void main()
   f_color = texture(u_texture0, v_texCoord0);
   f_color = f_color.r * u_color;
 }
-  )");
+)");
 }
 
 static GLfloat GetAttenuation(GLfloat dist, GLfloat distance)
