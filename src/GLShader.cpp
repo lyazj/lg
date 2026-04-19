@@ -143,9 +143,10 @@ layout(std140) uniform u_light {
 };
 
 layout(std140) uniform u_highlight {
-  vec4 viewPos;    // w discarded
+  vec4 viewPos;    // w=0: orthographic; w=1: perspective
   vec4 highColor;  // a discarded
   float shininess;
+  bool attenuating;
 };
 
 in vec3 v_position;
@@ -157,11 +158,12 @@ void light(vec4 p_color)
   float d = length(position.xyz - v_position * position.w);
   vec3 l = normalize(position.xyz - v_position * position.w);
   vec3 n = normalize(v_normal);
-  vec3 v = normalize(viewPos.xyz - v_position);
+  vec3 v = normalize(viewPos.xyz - v_position * viewPos.w);
   vec3 h = normalize(l + v);
   float atten = clamp(1.0 - position.w * log(d / distance) / log(1.0e3), 0.0, 1.0);
   vec3 diffuse = color.rgb * max(dot(n, l), 0.0);
   vec3 specular = highColor.rgb * pow(max(dot(n, h), 0.0), shininess) * step(0.0, dot(n, l));
+  if(attenuating) specular *= atten;
   f_color = vec4(atten * p_color.rgb * (diffuse + ambient) + specular, p_color.a);
 }
 )";
@@ -264,4 +266,5 @@ void GLShader::DefaultHighlightBlock::Disable()
   viewPos = vec4(0.0f, 0.0f, 0.0f, 1.0f);    // placeholder
   highColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);  // disabled
   shininess = 1.0f;                          // placeholder
+  attenuating = true;                        // placeholder
 }

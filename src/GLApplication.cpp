@@ -201,14 +201,10 @@ void GLApplication::SetModel(const mat4 &m)
   model = m;
 }
 
-vec3 GLApplication::GetViewerPosition() const
+vec4 GLApplication::GetViewerPosition() const
 {
-#if 0  // If view is created by lookAt, this method is more efficient.
-  mat3 m = view;
-  vec3 v = view[3];
-  return -transpose(m) * v;
-#endif
-  return inverse(view)[3];
+  vec3 v = -transpose(mat3(view)) * view[3];
+  return vec4(v, projection[2][3] != 0.0f);  // 0 for orthographic and 1 for perspective
 }
 
 void GLApplication::EnableBlend()

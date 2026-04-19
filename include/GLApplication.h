@@ -38,7 +38,7 @@ public:
   void SetProjection(const mat4 &p);
   void SetView(const mat4 &v);
   void SetModel(const mat4 &m);
-  vec3 GetViewerPosition() const;
+  vec4 GetViewerPosition() const;
 
   void EnableBlend();
   void DisableBlend();

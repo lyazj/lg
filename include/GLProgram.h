@@ -51,7 +51,7 @@ public:
   static GLProgramPtr GetDefaultLightingProgram();
   static GLProgramPtr GetLightingTextureProgram();
   static GLProgramPtr GetFontTextureProgram();
-  void SetDefaultHighlight(const vec3 &highColor, GLfloat shininess) const;
+  void SetDefaultHighlight(const vec3 &highColor, GLfloat shininess, bool attenuating) const;
   void ResetDefaultHighlight() const;
 
 private:

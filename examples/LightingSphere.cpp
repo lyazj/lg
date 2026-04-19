@@ -42,7 +42,7 @@ void GLExampleApplication::Init()
   GL3DApplication::Init();
 
   UseProgram(GLProgram::GetDefaultLightingProgram());
-  GetProgram()->SetDefaultHighlight({ 0.8f, 0.8f, 0.8f }, 50.0f);
+  GetProgram()->SetDefaultHighlight({ 0.8f, 0.8f, 0.8f }, 50.0f, false);
 
   auto scene = make_shared<GLCompositeRenderable>();
   GLSimpleRenderablePtr sphere0 = make_shared<GLSphere>(0.2f, 64, 32);

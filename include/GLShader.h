@@ -44,7 +44,8 @@ public:
     vec4 viewPos;
     vec4 highColor;
     GLfloat shininess;
-    GLfloat padding_2[3] = { 0.0f, 0.0f, 0.0f };
+    GLint attenuating;  // must be either 0 or 1
+    GLfloat padding_2[2] = { 0.0f, 0.0f };
 
     void Disable();
   };
