@@ -203,8 +203,19 @@ void GLApplication::SetModel(const mat4 &m)
 
 vec4 GLApplication::GetViewerPosition() const
 {
-  vec3 v = -transpose(mat3(view)) * view[3];
-  return vec4(v, projection[2][3] != 0.0f);  // 0 for orthographic and 1 for perspective
+  // In our convention, a perspective projection matrix has a
+  // nonzero (2, 3) entry, which encodes the perspective divide.
+  if(projection[2][3] != 0.0f) {  // perspective projection
+    // In our convention, COP is (0, 0, 0, 1) in view space,
+    // and the non-affine component of projection is isolated
+    // in the projection matrix.
+    return inverse(view)[3];
+  } else {  // parallel projection
+    // In our convention, DOP is (0, 0, -1, 0) in view space,
+    // and projection can be taken as a shear aligning DOP with
+    // z followed by an orthographic projection flipping z.
+    return -inverse(projection * view)[2];
+  }
 }
 
 void GLApplication::EnableBlend()
