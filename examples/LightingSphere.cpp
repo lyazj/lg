@@ -7,6 +7,9 @@
 #include "GLProgram.h"
 #include "GLSimpleRenderableDecorator.h"
 #include "GLSphere.h"
+#include "Utils.h"
+
+GL_DECLARE_CLASS(GLUniformColorDecorator)
 
 using namespace std;
 
@@ -19,8 +22,11 @@ public:
 
 private:
   GLRenderablePtr renderable;
+  GLUniformColorDecoratorPtr sphere;
+  GLuint nRightClicks = 0;
 
   void Frame(uint64_t t, uint64_t dt) override;
+  void MouseDown(MouseButton, int x, int y) override;
 };
 
 int main(int argc, char *argv[])
@@ -39,8 +45,8 @@ void GLExampleApplication::Init()
   GetProgram()->SetDefaultHighlight({ 0.8f, 0.8f, 0.8f }, 50.0f);
 
   auto scene = make_shared<GLCompositeRenderable>();
-  GLSimpleRenderablePtr sphere = make_shared<GLSphere>(0.2f, 64, 32);
-  sphere = make_shared<GLUniformColorDecorator>(sphere, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+  GLSimpleRenderablePtr sphere0 = make_shared<GLSphere>(0.2f, 64, 32);
+  sphere = make_shared<GLUniformColorDecorator>(sphere0, vec4(1.0f, 0.0f, 0.0f, 1.0f));
   scene->AddRenderable(sphere);
   scene->AddRenderable(make_shared<GLSimpleRenderableDecorator>(make_shared<GLAxes>(), GLProgram::GetDefaultProgram()));
   renderable = scene;
@@ -59,4 +65,22 @@ void GLExampleApplication::Display()
 void GLExampleApplication::Frame(uint64_t t [[maybe_unused]], uint64_t dt)
 {
   SetModel(rotate(GetModel(), 2.0f * pi * (GLfloat)dt / 1e10f, vec3(0.0f, 1.0f, 0.0f)));
+}
+
+void GLExampleApplication::MouseDown(MouseButton b, int x, int y)
+{
+  GL3DApplication::MouseDown(b, x, y);
+
+  if(b == MouseButton::RightButton) {
+    switch(++nRightClicks) {
+    case 1: sphere->SetColor(vec4(0.0f, 1.0f, 0.0f, 1.0f)); break;
+    case 2: sphere->SetColor(vec4(0.0f, 0.0f, 1.0f, 1.0f)); break;
+    case 3: sphere->SetColor(vec4(0.0f, 1.0f, 1.0f, 1.0f)); break;
+    case 4: sphere->SetColor(vec4(1.0f, 0.0f, 1.0f, 1.0f)); break;
+    case 5: sphere->SetColor(vec4(1.0f, 1.0f, 0.0f, 1.0f)); break;
+    case 6: sphere->SetColor(vec4(1.0f, 1.0f, 1.0f, 1.0f)); break;
+    case 7: sphere->SetColor(vec4(0.0f, 0.0f, 0.0f, 1.0f)); break;
+    default: sphere->SetColor(vec4(RandVec3(), 1.0f)), nRightClicks = 8; break;  // no overflow
+    }
+  }
 }
