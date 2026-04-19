@@ -51,6 +51,7 @@ CuboidFaceColorDecorator::CuboidFaceColorDecorator(const GLCuboid &c, GLint i) :
 void GLExampleApplication::Init()
 {
   GL3DApplication::Init();
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   SetView({ 0.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, -1.0f });
   UseProgram(GLProgram::GetDefaultLightingProgram());
 
