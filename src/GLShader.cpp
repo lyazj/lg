@@ -38,6 +38,36 @@ void position(void)
 }
 )";
 
+static constexpr const char *defaultLightingSnippet = R"(
+layout(std140) uniform u_light {
+  vec4 position;  // w=0: parallel; w=1: point
+  vec4 color;     // a discarded
+  float distance;
+  float ambient;
+};
+
+layout(std140) uniform u_highlight {
+  vec4 viewPos;    // w=0: orthographic; w=1: perspective
+  vec4 highColor;  // a discarded
+  float shininess;
+  bool attenuating;
+};
+
+vec4 light(vec3 p_position, vec3 p_normal, vec4 p_color)
+{
+  float d = length(position.xyz - p_position * position.w);
+  vec3 l = normalize(position.xyz - p_position * position.w);
+  vec3 n = normalize(p_normal);
+  vec3 v = normalize(viewPos.xyz - p_position * viewPos.w);
+  vec3 h = normalize(l + v);
+  float atten = clamp(1.0 - position.w * log(d / distance) / log(1.0e3), 0.0, 1.0);
+  vec3 diffuse = color.rgb * max(dot(n, l), 0.0);
+  vec3 specular = highColor.rgb * pow(max(dot(n, h), 0.0), shininess) * step(0.0, dot(n, l));
+  if(attenuating) specular *= atten;
+  return vec4(atten * p_color.rgb * (diffuse + ambient) + specular, p_color.a);
+}
+)";
+
 GLShaderPtr GLShader::GetDefaultVertexShader()
 {
   return make_shared<GLShader>(GL_VERTEX_SHADER,
@@ -134,52 +164,21 @@ void main()
 )");
 }
 
-static constexpr const char *defaultLightingSnippet = R"(
-layout(std140) uniform u_light {
-  vec4 position;  // w=0: parallel; w=1: point
-  vec4 color;     // a discarded
-  float distance;
-  float ambient;
-};
-
-layout(std140) uniform u_highlight {
-  vec4 viewPos;    // w=0: orthographic; w=1: perspective
-  vec4 highColor;  // a discarded
-  float shininess;
-  bool attenuating;
-};
-
-in vec3 v_position;
-in vec3 v_normal;
-out vec4 f_color;
-
-void light(vec4 p_color)
-{
-  float d = length(position.xyz - v_position * position.w);
-  vec3 l = normalize(position.xyz - v_position * position.w);
-  vec3 n = normalize(v_normal);
-  vec3 v = normalize(viewPos.xyz - v_position * viewPos.w);
-  vec3 h = normalize(l + v);
-  float atten = clamp(1.0 - position.w * log(d / distance) / log(1.0e3), 0.0, 1.0);
-  vec3 diffuse = color.rgb * max(dot(n, l), 0.0);
-  vec3 specular = highColor.rgb * pow(max(dot(n, h), 0.0), shininess) * step(0.0, dot(n, l));
-  if(attenuating) specular *= atten;
-  f_color = vec4(atten * p_color.rgb * (diffuse + ambient) + specular, p_color.a);
-}
-)";
-
 GLShaderPtr GLShader::GetDefaultLightingFragmentShader()
 {
   return make_shared<GLShader>(GL_FRAGMENT_SHADER, R"(
 #version 150
 
+in vec3 v_position;
+in vec3 v_normal;
 in vec4 v_color;
+out vec4 f_color;
 
-void light(vec4 p_color);
+vec4 light(vec3 p_position, vec3 p_normal, vec4 p_color);
 
 void main()
 {
-  light(v_color);
+  f_color = light(v_position, v_normal, v_color);
 }
 )"s + defaultLightingSnippet);
 }
@@ -191,13 +190,16 @@ GLShaderPtr GLShader::GetLightingTextureFragmentShader()
 
 uniform sampler2D u_texture0;
 
+in vec3 v_position;
+in vec3 v_normal;
 in vec2 v_texCoord0;
+out vec4 f_color;
 
-void light(vec4 p_color);
+vec4 light(vec3 p_position, vec3 p_normal, vec4 p_color);
 
 void main()
 {
-  light(texture(u_texture0, v_texCoord0));
+  f_color = light(v_position, v_normal, texture(u_texture0, v_texCoord0));
 }
 )"s + defaultLightingSnippet);
 }
