@@ -22,11 +22,14 @@ public:
   void Display() override;
 
 private:
+  GLProgramPtr programs[2];
+  GLint iProgram;
   GLRenderablePtr renderable;
   GLUniformColorDecoratorPtr sphere;
   GLuint nRightClicks = 0;
 
   void MouseDown(MouseButton, int x, int y) override;
+  void KeyDown(unsigned char key, int x, int y) override;
 };
 
 int main(int argc, char *argv[])
@@ -48,7 +51,10 @@ void GLExampleApplication::Init()
 {
   GL3DApplication::Init();
 
-  UseProgram(GLProgram::GetGouraudLightingProgram());
+  programs[0] = GLProgram::GetGouraudLightingProgram();
+  programs[1] = GLProgram::GetDefaultLightingProgram();
+  for(const auto &p : programs) p->SetDefaultHighlight({ 0.8f, 0.8f, 0.8f }, 50.0f, false);
+  UseProgram(programs[iProgram = 0]);
 
   auto scene = make_shared<GLCompositeRenderable>();
   GLSimpleRenderablePtr sphere0 = make_shared<GLGouraudSphere>(0.2f, 3);
@@ -85,5 +91,13 @@ void GLExampleApplication::MouseDown(MouseButton b, int x, int y)
     default: sphere->SetColor(vec4(RandVec3(), 1.0f)), nRightClicks = 8; break;  // no overflow
     }
   }
+  PostRedisplay();
+}
+
+void GLExampleApplication::KeyDown(unsigned char key, int x, int y)
+{
+  GL3DApplication::KeyDown(key, x, y);
+
+  if(toupper(key) == 'P') UseProgram(programs[iProgram = !iProgram]);
   PostRedisplay();
 }
