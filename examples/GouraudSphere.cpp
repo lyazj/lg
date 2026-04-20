@@ -17,6 +17,7 @@ class GLExampleApplication final : public GL3DApplication {
 public:
   using GL3DApplication::GL3DApplication;
 
+  void PreInit() override;
   void Init() override;
   void Display() override;
 
@@ -36,11 +37,18 @@ int main(int argc, char *argv[])
   return 0;
 }
 
+void GLExampleApplication::PreInit()
+{
+  GLApplication::PreInit();
+  SetFrameRate(0);
+  SetShowFrameRateInterval(0);
+}
+
 void GLExampleApplication::Init()
 {
   GL3DApplication::Init();
 
-  UseProgram(GLProgram::GetDefaultLightingProgram());
+  UseProgram(GLProgram::GetGouraudLightingProgram());
 
   auto scene = make_shared<GLCompositeRenderable>();
   GLSimpleRenderablePtr sphere0 = make_shared<GLGouraudSphere>(0.2f, 3);
@@ -51,6 +59,7 @@ void GLExampleApplication::Init()
 
   renderable->SetVertexAttributes(false);
   renderable->Buffer(false);
+  SetModel(rotate(mat4(1.0f), -45.0f * deg, vec3(0.0f, 1.0f, 0.0f)));
 }
 
 void GLExampleApplication::Display()
@@ -76,4 +85,5 @@ void GLExampleApplication::MouseDown(MouseButton b, int x, int y)
     default: sphere->SetColor(vec4(RandVec3(), 1.0f)), nRightClicks = 8; break;  // no overflow
     }
   }
+  PostRedisplay();
 }

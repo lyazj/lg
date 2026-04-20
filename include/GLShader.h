@@ -20,6 +20,7 @@ public:
   static GLShaderPtr GetDefaultVertexShader();
   static GLShaderPtr GetDefaultTextureVertexShader();
   static GLShaderPtr GetFontTextureVertexShader();
+  static GLShaderPtr GetLightingVertexShader();
   static GLShaderPtr GetDefaultFragmentShader();
   static GLShaderPtr GetDefaultTextureFragmentShader();
   static GLShaderPtr GetDefaultLightingFragmentShader();
@@ -27,10 +28,10 @@ public:
   static GLShaderPtr GetFontTextureFragmentShader();
 
   struct DefaultLightingBlock {
-    vec4 position;
-    vec4 color;
-    GLfloat distance;
-    GLfloat ambient;
+    vec4 liPos;
+    vec4 liColor;
+    GLfloat liDist;
+    GLfloat liAmb;
     GLfloat padding_2[2] = { 0.0f, 0.0f };
 
     void SetLightPoint(const vec3 &p);
@@ -42,9 +43,9 @@ public:
 
   struct DefaultHighlightBlock {
     vec4 viewPos;
-    vec4 highColor;
-    GLfloat shininess;
-    GLint attenuating;  // must be either 0 or 1
+    vec4 hiColor;
+    GLfloat hiShine;
+    GLint hiAtten;  // must be either 0 or 1
     GLfloat padding_2[2] = { 0.0f, 0.0f };
 
     void Disable();

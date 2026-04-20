@@ -40,31 +40,31 @@ void position(void)
 
 static constexpr const char *defaultLightingSnippet = R"(
 layout(std140) uniform u_light {
-  vec4 position;  // w=0: parallel; w=1: point
-  vec4 color;     // a discarded
-  float distance;
-  float ambient;
+  vec4 liPos;    // w=0: parallel; w=1: point
+  vec4 liColor;  // a discarded
+  float liDist;
+  float liAmb;
 };
 
 layout(std140) uniform u_highlight {
-  vec4 viewPos;    // w=0: orthographic; w=1: perspective
-  vec4 highColor;  // a discarded
-  float shininess;
-  bool attenuating;
+  vec4 viewPos;  // w=0: orthographic; w=1: perspective
+  vec4 hiColor;  // a discarded
+  float hiShine;
+  bool hiAtten;
 };
 
 vec4 light(vec3 p_position, vec3 p_normal, vec4 p_color)
 {
-  float d = length(position.xyz - p_position * position.w);
-  vec3 l = normalize(position.xyz - p_position * position.w);
+  float d = length(liPos.xyz - p_position * liPos.w);
+  vec3 l = normalize(liPos.xyz - p_position * liPos.w);
   vec3 n = normalize(p_normal);
   vec3 v = normalize(viewPos.xyz - p_position * viewPos.w);
   vec3 h = normalize(l + v);
-  float atten = clamp(1.0 - position.w * log(d / distance) / log(1.0e3), 0.0, 1.0);
-  vec3 diffuse = color.rgb * max(dot(n, l), 0.0);
-  vec3 specular = highColor.rgb * pow(max(dot(n, h), 0.0), shininess) * step(0.0, dot(n, l));
-  if(attenuating) specular *= atten;
-  return vec4(atten * p_color.rgb * (diffuse + ambient) + specular, p_color.a);
+  float atten = clamp(1.0 - liPos.w * log(d / liDist) / log(1.0e3), 0.0, 1.0);
+  vec3 diffuse = liColor.rgb * max(dot(n, l), 0.0);
+  vec3 specular = hiColor.rgb * pow(max(dot(n, h), 0.0), hiShine) * step(0.0, dot(n, l));
+  if(hiAtten) specular *= atten;
+  return vec4(atten * p_color.rgb * (diffuse + liAmb) + specular, p_color.a);
 }
 )";
 
@@ -126,6 +126,24 @@ void main()
   gl_Position = u_model * vec4(a_position, 0.0, 1.0);
   gl_Position = vec4(gl_Position.x / u_winWidth * 2.0 - 1.0, 1.0 - gl_Position.y / u_winHeight * 2.0, u_depth, 1.0);
   v_texCoord0 = a_texCoord0;
+}
+)");
+}
+
+GLShaderPtr GLShader::GetLightingVertexShader()
+{
+  return make_shared<GLShader>(GL_VERTEX_SHADER,
+      R"(
+#version 150
+
+in vec4 a_color;
+out vec4 v_color;
+)"s + defaultPositioningSnippet
+          + defaultLightingSnippet + R"(
+void main()
+{
+  position();
+  v_color = light(v_position, v_normal, a_color);
 }
 )");
 }
@@ -231,42 +249,42 @@ static GLfloat GetAttenuation(GLfloat dist, GLfloat distance)
 
 void GLShader::DefaultLightingBlock::SetLightPoint(const vec3 &p)
 {
-  if(length(color) == 0.0f) return;
-  if(position.w == 0.0f) return;  // Parallel light doesn't attenuate.
-  color /= (1.0f + ambient) * GetAttenuation(length(vec3(position) - p), distance);
+  if(length(liColor) == 0.0f) return;
+  if(liPos.w == 0.0f) return;  // Parallel light doesn't attenuate.
+  liColor /= (1.0f + liAmb) * GetAttenuation(length(vec3(liPos) - p), liDist);
 }
 
 void GLShader::DefaultLightingBlock::SetNearLight()
 {
-  position = vec4(0.0f, 2.0f, 2.0f, 1.0f);
-  color = vec4(1.0f);
-  distance = 1.0f;
-  ambient = 0.15f;
+  liPos = vec4(0.0f, 2.0f, 2.0f, 1.0f);
+  liColor = vec4(1.0f);
+  liDist = 1.0f;
+  liAmb = 0.15f;
   SetLightPoint({ 0.0f, 1.0f, 1.0f });
 }
 
 void GLShader::DefaultLightingBlock::SetMediumLight()
 {
-  position = vec4(0.0f, 4.0f, 4.0f, 1.0f);
-  color = vec4(1.0f);
-  distance = 1.0f;
-  ambient = 0.15f;
+  liPos = vec4(0.0f, 4.0f, 4.0f, 1.0f);
+  liColor = vec4(1.0f);
+  liDist = 1.0f;
+  liAmb = 0.15f;
   SetLightPoint({ 0.0f, 2.0f, 2.0f });
 }
 
 void GLShader::DefaultLightingBlock::SetFarLight()
 {
-  position = vec4(0.0f, 10.0f, 10.0f, 1.0f);
-  color = vec4(1.0f);
-  distance = 1.0f;
-  ambient = 0.15f;
+  liPos = vec4(0.0f, 10.0f, 10.0f, 1.0f);
+  liColor = vec4(1.0f);
+  liDist = 1.0f;
+  liAmb = 0.15f;
   SetLightPoint({ 0.0f, 5.0f, 5.0f });
 }
 
 void GLShader::DefaultHighlightBlock::Disable()
 {
-  viewPos = vec4(0.0f, 0.0f, 0.0f, 1.0f);    // placeholder
-  highColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);  // disabled
-  shininess = 1.0f;                          // placeholder
-  attenuating = true;                        // placeholder
+  viewPos = vec4(0.0f, 0.0f, 0.0f, 1.0f);  // placeholder
+  hiColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);  // disabled
+  hiShine = 1.0f;                          // placeholder
+  hiAtten = true;                          // placeholder
 }

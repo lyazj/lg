@@ -287,9 +287,9 @@ void GLProgram::SetDefaultHighlight(const vec3 &highColor, GLfloat shininess, bo
 {
   GLShader::DefaultHighlightBlock highlight;
   highlight.viewPos = GLApplication::GetInstance()->GetViewerPosition();
-  highlight.highColor = vec4(highColor, 1.0f);
-  highlight.shininess = shininess;
-  highlight.attenuating = attenuating;
+  highlight.hiColor = vec4(highColor, 1.0f);
+  highlight.hiShine = shininess;
+  highlight.hiAtten = attenuating;
   SetUniformBlock("u_highlight", &highlight);
 }
 
@@ -298,4 +298,15 @@ void GLProgram::ResetDefaultHighlight() const
   GLShader::DefaultHighlightBlock highlight;
   highlight.Disable();
   SetUniformBlock("u_highlight", &highlight);
+}
+
+GLProgramPtr GLProgram::GetGouraudLightingProgram()
+{
+  auto program = make_shared<GLProgram>();
+  program->AttachShader(GLShader::GetLightingVertexShader());
+  program->AttachShader(GLShader::GetDefaultFragmentShader());
+  program->Link();
+  program->DetachShaders();
+  InitLighting(program);
+  return program;
 }
