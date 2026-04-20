@@ -14,7 +14,7 @@ using namespace std;
 GLGouraudSphere::GLGouraudSphere(GLfloat r, GLint o)
     : radius(r), order(clamp<GLint>(o, 0, 15)), elementBuffer(GL_ELEMENT_ARRAY_BUFFER)
 {
-  vertices.reserve((size_t)pow(3, order + 1) + 1);
+  vertices.reserve(((size_t)1 << ((order << 1) + 1)) + 2);
   elements.reserve((size_t)3 << ((order + 1) << 1));
 
   unordered_map<uint64_t, GLuint> vertexMap;  // vertex barycentric -> vertex index
