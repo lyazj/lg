@@ -126,7 +126,7 @@ void GLApplication::MaximizeWindow() const
 
 GLfloat GLApplication::GetAspect() const
 {
-  if(height == 0) abort();
+  if(height == 0) return 1.0f;  // [NOTE] This might happen but will be reset shortly.
   return (GLfloat)width / (GLfloat)height;
 }
 
