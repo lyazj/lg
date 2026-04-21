@@ -60,7 +60,7 @@ private:
   std::unordered_set<GLShaderPtr> shaders;
   mutable std::unordered_map<std::string, GLint> uniformMap;
   mutable std::unordered_map<std::string, GLUniformBlockUPtr> uniformBlockMap;
-  mutable GLint nBindingPoint;
+  mutable GLuint nBindingPoint;
 };
 
 template<class T>

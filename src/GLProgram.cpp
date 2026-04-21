@@ -151,9 +151,9 @@ GLUniformBlock *GLProgram::GetUniformBlock(const char *name) const
 {
   auto [it, inserted] = uniformBlockMap.emplace(name, nullptr);
   if(inserted) {
-    GLint index = glGetUniformBlockIndex(id, name);
-    if(index >= 0) {
-      GLint bindingPoint = nBindingPoint++;
+    GLuint index = glGetUniformBlockIndex(id, name);
+    if(index != GL_INVALID_INDEX) {
+      GLuint bindingPoint = nBindingPoint++;
       GLUniformBlockBinding(id, index, bindingPoint);
       it->second = make_unique<GLUniformBlock>(bindingPoint);
       if(GLApplication::GetInstance()->GetProgram().get() == this) it->second->Bind();
