@@ -4,7 +4,6 @@
 
 #include "FileMap.h"
 #include "GLApplication.h"
-#include "GLBuffer.h"
 #include "GLFontRange.h"
 #include "GLProgram.h"
 #include "GLRectangle.h"
@@ -111,9 +110,7 @@ void GLExampleApplication::UpdateViewer()
   } else {
     viewerWidth = iWidth * viewerHeight / iHeight;
   }
-  auto rect = make_shared<GLRectangle>(viewerWidth, -viewerHeight);  // y-flipped
-  rect->GetVertexBuffer().SetUsage(GL_STREAM_DRAW);
-  renderable->SetRenderable(rect);
+  renderable->SetRenderable(make_shared<GLRectangle>(viewerWidth, -viewerHeight));  // y-flipped
   renderable->SetVertexAttributes(true);
   renderable->Buffer(true);
 }
