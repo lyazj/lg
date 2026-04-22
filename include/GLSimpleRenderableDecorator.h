@@ -17,6 +17,8 @@ public:
   const GLSimpleRenderablePtr &GetRenderable() const { return renderable; }
   void SetRenderable(const GLSimpleRenderablePtr &r) { renderable = r; }
 
+  using GLSimpleRenderable::GetVertexArray;
+  using GLSimpleRenderable::GetVertexBuffer;
   const GLVertexArray &GetVertexArray() const override final { return renderable->GetVertexArray(); }
   const GLBuffer &GetVertexBuffer() const override final { return renderable->GetVertexBuffer(); }
 

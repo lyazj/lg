@@ -13,6 +13,8 @@ public:
   GLBufferedGeometry();
   ~GLBufferedGeometry() override;
 
+  using GLSimpleRenderable::GetVertexArray;
+  using GLSimpleRenderable::GetVertexBuffer;
   const GLVertexArray &GetVertexArray() const override { return vertexArray; }
   const GLBuffer &GetVertexBuffer() const override { return vertexBuffer; }
 

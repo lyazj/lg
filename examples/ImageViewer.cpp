@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "GLApplication.h"
+#include "GLBuffer.h"
 #include "GLImage.h"
 #include "GLProgram.h"
 #include "GLRectangle.h"
@@ -99,7 +100,9 @@ void GLExampleApplication::UpdateViewer()
   } else {
     viewerWidth = iWidth * viewerHeight / iHeight;
   }
-  renderable->SetRenderable(make_shared<GLRectangle>(viewerWidth, viewerHeight));
+  auto rect = make_shared<GLRectangle>(viewerWidth, viewerHeight);
+  rect->GetVertexBuffer().SetUsage(GL_STREAM_DRAW);
+  renderable->SetRenderable(rect);
   renderable->SetVertexAttributes(true);
   renderable->Buffer(true);
 }
