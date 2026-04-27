@@ -22,6 +22,7 @@ public:
 
 private:
   GLRenderablePtr renderable;
+  GLint nClick = 0;
 
   void InitModel();
   void UpdateRenderable();
@@ -87,8 +88,46 @@ void GLExampleApplication::UpdateRenderable()
   points->GetVertexBuffer().SetUsage(GL_DYNAMIC_DRAW);
   GLint w = GetWindowWidth(), h = GetWindowHeight();
 
-  vec2 p1 = 2.0f * RandVec2() - 1.0f;
-  vec2 p2 = 2.0f * RandVec2() - 1.0f;
+  vec2 p1, p2;
+  switch(++nClick) {
+  case 1:
+    p1 = vec2(-1.0f, -1.0f);
+    p2 = vec2(1.0f, 1.0f);
+    break;
+  case 2:
+    p1 = vec2(-1.0f, 1.0f);
+    p2 = vec2(1.0f, -1.0f);
+    break;
+  case 3:
+    p1 = vec2(1.0f, 1.0f);
+    p2 = vec2(-1.0f, -1.0f);
+    break;
+  case 4:
+    p1 = vec2(1.0f, -1.0f);
+    p2 = vec2(-1.0f, 1.0f);
+    break;
+  case 5:
+    p1 = vec2(-1.0f, 1.0f);
+    p2 = vec2(-1.0f, -1.0f);
+    break;
+  case 6:
+    p1 = vec2(-1.0f, -1.0f);
+    p2 = vec2(1.0f, -1.0f);
+    break;
+  case 7:
+    p1 = vec2(1.0f, -1.0f);
+    p2 = vec2(1.0f, 1.0f);
+    break;
+  case 8:
+    p1 = vec2(1.0f, 1.0f);
+    p2 = vec2(-1.0f, 1.0f);
+    break;
+  default:
+    nClick = 9;
+    p1 = 2.0f * RandVec2() - 1.0f;
+    p2 = 2.0f * RandVec2() - 1.0f;
+    break;
+  };
   cout << "p1: " << p1 << ", p2: " << p2 << endl;
   GLint x1 = GLint((p1.x + 1.0f) * (GLfloat)w * 0.5f - 0.5f);  // [0, w - 1]
   GLint y1 = GLint((p1.y + 1.0f) * (GLfloat)h * 0.5f - 0.5f);  // [0, h - 1]
