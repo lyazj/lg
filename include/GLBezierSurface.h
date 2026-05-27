@@ -10,9 +10,12 @@ public:
 protected:
   vec3 controls[16];
   GLint division;
+  GLBuffer normalBuffer;
   GLBuffer elementBuffer;
+  std::vector<vec3> normals;
   std::vector<GLuint> elements;
 
+  void IssueSetVertexAttributes(bool force) const override;
   void IssueBuffer() const override;
   void IssueDraw() const override;
 };

@@ -39,9 +39,6 @@ void GLExampleApplication::PreInit()
 void GLExampleApplication::Init()
 {
   GL3DApplication::Init();
-  glDisable(GL_CULL_FACE);
-  glPointSize(10.0f);
-
   UseProgram(GLProgram::GetDefaultProgram());
 
   auto scene = make_shared<GLCompositeRenderable>();
@@ -59,7 +56,7 @@ void GLExampleApplication::Init()
   renderable->SetVertexAttributes(false);
   renderable->Buffer(false);
 
-  SetModel(glm::rotate(mat4(1.0f), -30.0f * deg, vec3(0.0f, 1.0f, 0.0f)));
+  SetModel(glm::rotate(mat4(1.0f), 45.0f * deg, vec3(1.0f, 0.0f, 0.0f)));
 }
 
 void GLExampleApplication::Display()

@@ -4,6 +4,7 @@
 #include "GLBezierSurface.h"
 #include "GLCompositeRenderable.h"
 #include "GLProgram.h"
+#include "GLTransformedRenderable.h"
 #include "Utils.h"
 
 using namespace std;
@@ -119,12 +120,13 @@ class GLExampleApplication final : public GL3DApplication {
 public:
   using GL3DApplication::GL3DApplication;
 
-  void PreInit() override;
   void Init() override;
   void Display() override;
 
 private:
   GLRenderablePtr renderable;
+
+  void Frame(uint64_t t, uint64_t dt) override;
 };
 
 int main(int argc, char *argv[])
@@ -135,29 +137,24 @@ int main(int argc, char *argv[])
   return 0;
 }
 
-void GLExampleApplication::PreInit()
-{
-  GLApplication::PreInit();
-  SetFrameRate(0);
-  SetShowFrameRateInterval(0);
-}
-
 void GLExampleApplication::Init()
 {
   GL3DApplication::Init();
   glDisable(GL_CULL_FACE);
-  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-  UseProgram(GLProgram::GetDefaultProgram());
+  UseProgram(GLProgram::GetDefaultLightingProgram());
+  GetProgram()->SetDefaultHighlight({ 0.8f, 0.8f, 0.8f }, 50.0f, false);
 
-  auto scene = make_shared<GLCompositeRenderable>();
-  GLint division = 3;
+  auto teapot = make_shared<GLCompositeRenderable>();
+  GLint division = 6;
   for(const auto &index : indices) {
     vec3 controls[16];
     for(GLuint i = 0; i < 16; ++i) controls[i] = vertices[index[i] - 1];
-    scene->AddRenderable(make_shared<GLBezierSurface>(controls, division));
+    teapot->AddRenderable(make_shared<GLBezierSurface>(controls, division));
   }
-  renderable = scene;
+  auto rotation = glm::rotate(mat4(1.0f), -pi / 3.0f, vec3(1.0f, 0.0f, 0.0f));
+  renderable = make_shared<GLTransformedRenderable>(teapot, rotation);
 
   renderable->SetVertexAttributes(false);
   renderable->Buffer(false);
@@ -170,4 +167,9 @@ void GLExampleApplication::Display()
   Clear();
   renderable->Draw(GetModel());
   Flush();
+}
+
+void GLExampleApplication::Frame(uint64_t t [[maybe_unused]], uint64_t dt)
+{
+  SetModel(rotate(GetModel(), 2.0f * pi * (GLfloat)dt / 1e10f, vec3(0.0f, 1.0f, 0.0f)));
 }
