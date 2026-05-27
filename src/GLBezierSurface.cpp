@@ -28,7 +28,6 @@ private:
   vector<GLuint> &elements;
   GLuint n;
 
-  void Build(GLuint istack, GLuint islice, GLint division);
   void BuildNormal(GLuint istack, GLuint islice);
   void HDivide(GLuint istack, GLuint islice, GLint division);
   void VDivide(GLuint istack, GLuint islice, GLint division);
@@ -46,7 +45,19 @@ void GLBezierSurfaceBuilder::Build(GLint division)
     }
   }
 
-  Build(0, 0, division);
+  while(division) {
+    for(GLuint istack = 0; istack <= n; istack += 1 << division) {
+      for(GLuint islice = 0; islice < n; islice += 3 << division) HDivide(istack, islice, division);
+    }
+    for(GLuint istack = 0; istack < n; istack += 3 << division) {
+      for(GLuint islice = 0; islice <= n; islice += 1 << (division - 1)) VDivide(istack, islice, division);
+    }
+    --division;
+  }
+
+  for(GLuint istack = 0; istack < n; istack += 3) {
+    for(GLuint islice = 0; islice < n; islice += 3) BuildNormal(istack, islice);
+  }
   for(GLuint istack = 0; istack <= n; istack += 3) {
     for(GLuint islice = 0; islice <= n; islice += 3) {
       normals[istack * (n + 1) + islice] = normalize(normals[istack * (n + 1) + islice]);
@@ -60,17 +71,6 @@ void GLBezierSurfaceBuilder::Build(GLint division)
       elements.push_back(istack * (n + 1) + islice);
       elements.push_back((istack + 3) * (n + 1) + islice);
     }
-  }
-}
-
-void GLBezierSurfaceBuilder::Build(GLuint istack, GLuint islice, GLint division)
-{
-  if(division == 0) return BuildNormal(istack, islice);
-  for(GLuint i = 0; i <= 3; ++i) HDivide(istack + (i << division), islice, division);
-  for(GLuint j = 0; j <= 6; ++j) VDivide(istack, islice + (j << (division - 1)), division);
-  --division;
-  for(GLuint i = 0; i < 2; ++i) {
-    for(GLuint j = 0; j < 2; ++j) Build(istack + i * (3 << division), islice + j * (3 << division), division);
   }
 }
 
