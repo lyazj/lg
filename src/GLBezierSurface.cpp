@@ -37,7 +37,7 @@ void GLBezierSurfaceBuilder::Build(GLint division)
 {
   n = 3 << division;
   vertices.resize((n + 1) * (n + 1));
-  normals.resize((n + 1) * (n + 1));
+  normals.assign((n + 1) * (n + 1), vec3(0.0f));
 
   for(GLuint istack = 0; istack <= 3; ++istack) {
     for(GLuint islice = 0; islice <= 3; ++islice) {
