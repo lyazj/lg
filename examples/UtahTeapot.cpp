@@ -150,7 +150,9 @@ void GLExampleApplication::Init()
   GLint division = 6;
   for(const auto &index : indices) {
     vec3 controls[16];
-    for(GLuint i = 0; i < 16; ++i) controls[i] = vertices[index[i] - 1];
+    for(GLuint i = 0; i < 4; ++i) {  // Fix surface orientation.
+      for(GLuint j = 0; j < 4; ++j) controls[i * 4 + (3 - j)] = vertices[index[i * 4 + j] - 1];
+    }
     teapot->AddRenderable(make_shared<GLBezierSurface>(controls, division));
   }
   auto rotation = glm::rotate(mat4(1.0f), -pi / 3.0f, vec3(1.0f, 0.0f, 0.0f));
