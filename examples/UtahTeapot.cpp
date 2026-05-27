@@ -140,8 +140,7 @@ int main(int argc, char *argv[])
 void GLExampleApplication::Init()
 {
   GL3DApplication::Init();
-  glDisable(GL_CULL_FACE);
-  //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  glDisable(GL_CULL_FACE);  // E.g., the back face of the bottom should be displayed.
 
   UseProgram(GLProgram::GetDefaultLightingProgram());
   GetProgram()->SetDefaultHighlight({ 0.8f, 0.8f, 0.8f }, 50.0f, false);
