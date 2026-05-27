@@ -96,10 +96,10 @@ void GLBezierSurfaceBuilder::BuildNormal(GLuint istack, GLuint islice)
   vec3 n03 = cross(du03, dv03);
   vec3 n30 = cross(du30, dv30);
   vec3 n33 = cross(du33, dv33);
-  normals[istack * (n + 1) + islice] += normalize(n00);
-  normals[istack * (n + 1) + islice + 3] += normalize(n03);
-  normals[(istack + 3) * (n + 1) + islice] += normalize(n30);
-  normals[(istack + 3) * (n + 1) + islice + 3] += normalize(n33);
+  normals[istack * (n + 1) + islice] += n00;  // Area-weighted accumulation.
+  normals[istack * (n + 1) + islice + 3] += n03;
+  normals[(istack + 3) * (n + 1) + islice] += n30;
+  normals[(istack + 3) * (n + 1) + islice + 3] += n33;
 }
 
 void GLBezierSurfaceBuilder::HDivide(GLuint istack, GLuint islice, GLint division)
