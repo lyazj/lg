@@ -58,6 +58,7 @@ vec4 light(vec3 p_position, vec3 p_normal, vec4 p_color)
   float d = length(liPos.xyz - p_position * liPos.w);
   vec3 l = normalize(liPos.xyz - p_position * liPos.w);
   vec3 n = normalize(p_normal);
+  if(!gl_FrontFacing) n = -n;
   vec3 v = normalize(viewPos.xyz - p_position * viewPos.w);
   vec3 h = normalize(l + v);
   float atten = clamp(1.0 - liPos.w * log(d / liDist) / log(1.0e3), 0.0, 1.0);
