@@ -11,6 +11,7 @@ public:
   void Resize(GLint stacks, GLint slices);
   const vec3 *operator[](GLint row) const { return &vertices[row * (slices + 1)]; }
   vec3 *operator[](GLint row) { return (vec3 *)(*(const GLQuadrilateralMesh *)this)[row]; }
+  vec3 GetNormal(GLint row, GLint column) const { return normals[row * (slices + 1) + column]; }
 
 protected:
   GLint stacks, slices;

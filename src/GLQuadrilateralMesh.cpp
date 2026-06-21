@@ -35,7 +35,7 @@ void GLQuadrilateralMesh::Resize(GLint st, GLint sl)
     for(GLint islice = 0; islice <= slices; ++islice) {
       texCoords[istack * (slices + 1) + islice] = {
         (GLfloat)islice / (GLfloat)slices,
-        (GLfloat)istack / (GLfloat)stacks,
+        1.0f - (GLfloat)istack / (GLfloat)stacks,
       };
     }
   }

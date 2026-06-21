@@ -14,8 +14,8 @@ namespace {
 
 class GLBezierSurfaceBuilder {
 public:
-  GLBezierSurfaceBuilder(const vec3 *c, vector<vec3> &v, vector<vec3> &no, vector<GLuint> &e)
-      : controls(c), vertices(v), normals(no), elements(e)
+  GLBezierSurfaceBuilder(const vec3 *c, vector<vec3> &v, vector<vec3> &no, vector<vec2> &t, vector<GLuint> &e)
+      : controls(c), vertices(v), normals(no), texCoords(t), elements(e)
   {
     // empty
   }
@@ -25,6 +25,7 @@ private:
   const vec3 *controls;
   vector<vec3> &vertices;
   vector<vec3> &normals;
+  vector<vec2> &texCoords;
   vector<GLuint> &elements;
   GLuint n;
 
@@ -38,6 +39,7 @@ void GLBezierSurfaceBuilder::Build(GLint division)
   n = 3 << division;
   vertices.resize((n + 1) * (n + 1));
   normals.assign((n + 1) * (n + 1), vec3(0.0f));
+  texCoords.resize((n + 1) * (n + 1));
 
   for(GLuint istack = 0; istack <= 3; ++istack) {
     for(GLuint islice = 0; islice <= 3; ++islice) {
@@ -61,6 +63,10 @@ void GLBezierSurfaceBuilder::Build(GLint division)
   for(GLuint istack = 0; istack <= n; istack += 3) {
     for(GLuint islice = 0; islice <= n; islice += 3) {
       normals[istack * (n + 1) + islice] = normalize(normals[istack * (n + 1) + islice]);
+      texCoords[istack * (n + 1) + islice] = {
+        (GLfloat)islice / (GLfloat)n,
+        1.0f - (GLfloat)istack / (GLfloat)n,
+      };
     }
   }
 
@@ -149,7 +155,7 @@ GLBezierSurface::GLBezierSurface(vec3 c[16], GLint d) : elementBuffer(GL_ELEMENT
   memcpy(controls, c, sizeof controls);
   division = clamp<GLint>(d, 0, 14);
 
-  GLBezierSurfaceBuilder(controls, vertices, normals, elements).Build(division);
+  GLBezierSurfaceBuilder(controls, vertices, normals, texCoords, elements).Build(division);
 }
 
 GLBezierSurface::~GLBezierSurface()
@@ -162,12 +168,15 @@ void GLBezierSurface::IssueSetVertexAttributes(bool force) const
   GL3DBufferedGeometry::IssueSetVertexAttributes(force);
   normalBuffer.Bind();
   GLProgram::SetVertexAttributePointer("a_normal", 3);
+  texCoordBuffer.Bind();
+  GLProgram::SetVertexAttributePointer("a_texCoord0", 2);
 }
 
 void GLBezierSurface::IssueBuffer() const
 {
   GL3DBufferedGeometry::IssueBuffer();
   normalBuffer.Buffer(normals);
+  texCoordBuffer.Buffer(texCoords);
   elementBuffer.Buffer(elements);
 }
 

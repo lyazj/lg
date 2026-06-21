@@ -21,11 +21,23 @@ using vec2 = vec<2>;
 using vec3 = vec<3>;
 using vec4 = vec<4>;
 
+template<GLint D>
+using vecd = glm::vec<D, GLdouble, glm::defaultp>;
+using vec2d = vecd<2>;
+using vec3d = vecd<3>;
+using vec4d = vecd<4>;
+
 template<GLint D1, GLint D2 = D1>
 using mat = glm::mat<D1, D2, GLfloat, glm::defaultp>;
 using mat2 = mat<2>;
 using mat3 = mat<3>;
 using mat4 = mat<4>;
+
+template<GLint D1, GLint D2 = D1>
+using matd = glm::mat<D1, D2, GLdouble, glm::defaultp>;
+using mat2d = matd<2>;
+using mat3d = matd<3>;
+using mat4d = matd<4>;
 
 #include <filesystem>
 #include <memory>

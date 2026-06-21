@@ -11,8 +11,10 @@ protected:
   vec3 controls[16];
   GLint division;
   GLBuffer normalBuffer;
+  GLBuffer texCoordBuffer;
   GLBuffer elementBuffer;
   std::vector<vec3> normals;
+  std::vector<vec2> texCoords;
   std::vector<GLuint> elements;
 
   void IssueSetVertexAttributes(bool force) const override;
