@@ -22,6 +22,7 @@ Renderable management hierarchy:
           └── GLBufferedGeometryD<D>               [template; D=2 or D=3; owns typed vertex list]
               ├── GLPoints                         (D=3)
               ├── GLTriangle                       (D=3)
+              ├── GLQuadrilateralMesh              (D=3)
               ├── GLTriangleStrip                  (D=3)
               ├── GLSphere                         (D=3)
               ├── GLGouraudSphere                  (D=3)
