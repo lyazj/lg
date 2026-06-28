@@ -12,8 +12,11 @@
 using std::complex;
 
 constexpr GLfloat pi = glm::pi<GLfloat>();
+constexpr GLdouble pid = glm::pi<GLdouble>();
 constexpr GLfloat rad = 1.0f;
+constexpr GLdouble radd = 1.0;
 constexpr GLfloat deg = pi / 180.0f;
+constexpr GLdouble degd = pid / 180.0;
 
 template<GLint D>
 using vec = glm::vec<D, GLfloat, glm::defaultp>;
